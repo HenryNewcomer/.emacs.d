@@ -162,7 +162,7 @@
 
 ** Save
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-w") 'save)
+(global-set-key (kbd "C-w") 'save-buffer)
 #+END_SRC
 
 
