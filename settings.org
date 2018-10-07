@@ -1,44 +1,26 @@
- ============================================================================
- ****************************************************************************
-                          Henry's Emacs settings.org
- ****************************************************************************
- ============================================================================
 
-* Disable the tool & menu bars
-#+BEGIN_SRC emacs-lisp
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-#+END_SRC
+# ============================================================================
+# ****************************************************************************
+#+TITLE: Emacs Settings
+#+AUTHOR: Henry Newcomer
+# ****************************************************************************
+# ============================================================================
 
-* Disable welcome screen
-#+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-#+END_SRC
-
-* Open Emacs as fullscreen by default
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+END_SRC
-
- =================================
-   Repositories
- =================================
-
+* Repositories
+** Repository sources
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 #+END_SRC
 
-* Required (before package customizations)
+** Required (before package customizations)
 #+BEGIN_SRC emacs-lisp
 (package-initialize)
 #+END_SRC
 
 
- =================================
-   Check for packages during startup
- =================================
-
+* Package Settings
+** LIST OF PACKAGES
 #+BEGIN_SRC emacs-lisp
 (defvar my-packages
 
@@ -65,11 +47,8 @@
       (package-install p))))
 #+END_SRC
 
- =================================
-   Package Settings
- =================================
 
-* Evil <Leader>
+** Evil <Leader>
 #+BEGIN_SRC emacs-lisp
 ;; *Make sure this is placed before evil mode*
 (require 'evil-leader)
@@ -77,7 +56,7 @@
 (evil-leader/set-leader "<SPC>")
 #+END_SRC
 
-* Evil mode
+** Evil mode
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/evil")
 (setq evil-want-C-u-scroll t)
@@ -85,13 +64,13 @@
 (evil-mode 1)
 #+END_SRC
 
-* Wrap region (not used)
+** Wrap region (not used)
 #+BEGIN_SRC emacs-lisp
 ;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
 ;; (require 'wrap-region)
 #+END_SRC
 
-* Neotree
+** Neotree
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
@@ -99,20 +78,20 @@
 ;;setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+END_SRC
 
-* Projectile
+** Projectile
 #+BEGIN_SRC emacs-lisp
 (projectile-mode +1)
 ;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 #+END_SRC
 
-* Undo Tree
+** Undo Tree
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
 (global-undo-tree-mode)
 #+END_SRC
 
-* Relative line numbers
+** Relative line numbers
 #+BEGIN_SRC emacs-lisp
 (require 'nlinum-relative)
 (nlinum-relative-setup-evil)                    ;; setup for evil
@@ -122,23 +101,41 @@
 (setq nlinum-relative-offset 0)                 ;; 1 if you want 0, 2, 3...
 #+END_SRC
 
-* Improved/custom Org mode bullets
+** Improved/custom Org mode bullets
 #+BEGIN_SRC emacs-lisp
-;;(add-to-list 'load-path "~/.emacs.d/from_backup/org-bullets")
 (require 'org-bullets)
 (setq org-bullets-bullet-list
-    '("?" "?" "?" "?" "?" "?"))
+    '("◉" "◎" "⚫" "○" "►" "◇"))
+;;    '("?" "?" "?" "?" "?" "?"))
 :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+END_SRC
 
-* PHP mode
+** PHP mode
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
 #+END_SRC
 
-* Enable recent mode
+
+* General emacs settings
+** Disable the tool & menu bars
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+#+END_SRC
+
+** Disable welcome screen
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+#+END_SRC
+
+** Open Emacs as fullscreen by default
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+END_SRC
+
+** Enable recent mode
 #+BEGIN_SRC emacs-lisp
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
@@ -146,9 +143,17 @@
 #+END_SRC
 
 
- =================================
-   Set default settings
- =================================
+* Keybindings
+** Text Scaling
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-increase)
+#+END_SRC
+
+** Dired
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-d") 'dired)
+#+END_SRC
 
 * Custom-set-variables
 #+BEGIN_SRC emacs-lisp
@@ -168,6 +173,3 @@
  ;; If there is more than one, they won't work right.
  )
 #+END_SRC
-
- =================================
- eof
