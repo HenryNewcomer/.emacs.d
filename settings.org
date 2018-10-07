@@ -144,16 +144,27 @@
 
 
 * Keybindings
-** Text Scaling
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-increase)
-#+END_SRC
-
 ** Dired
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-d") 'dired)
 #+END_SRC
+
+** Open most recent file
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-R") 'recentf-open-most-recent-file)
+#+END_SRC
+
+** Text Scaling
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C-_") 'text-scale-decrease)
+#+END_SRC
+
+** Save
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-w") 'save)
+#+END_SRC
+
 
 * Custom-set-variables
 #+BEGIN_SRC emacs-lisp
