@@ -151,14 +151,44 @@ Open Emacs as fullscreen by default
 
 
 * Keybindings
+** Removes default binding(s)
+The Spacebar will act as a Leader key for my custom keybindings
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC") nil)
+#+END_SRC
+** TODO GROUP/ORGANIZE THESE BETTER!
+
+** Quick Edit Settings
+TODO Check OS before trying to access settings file
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+#+END_SRC
+
+** TODO Double space (Normal Mode)
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
+#+END_SRC
+
 ** Dired
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-d") 'dired)
+(define-key evil-normal-state-map (kbd "SPC d") 'dired)
+#+END_SRC
+
+** Jump to end of line
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
+#+END_SRC
+
+** Window management
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
 #+END_SRC
 
 ** Open most recent file
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-R") 'recentf-open-most-recent-file)
+(define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
 #+END_SRC
 
 ** Text Scaling
@@ -169,7 +199,5 @@ Open Emacs as fullscreen by default
 
 ** Save
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-w") 'save-buffer)
+(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
 #+END_SRC
-
-
