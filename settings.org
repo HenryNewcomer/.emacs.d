@@ -191,13 +191,20 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
 #+END_SRC
 
+** TODO Open terminal
+TODO Open term in new window
+TODO Default terminal based on OS
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC t") 'term)
+#+END_SRC
+** Save
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
+#+END_SRC
 ** Text Scaling
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-_") 'text-scale-decrease)
 #+END_SRC
 
-** Save
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-#+END_SRC
