@@ -27,7 +27,7 @@
   '(evil
     evil-leader
     nlinum-relative
-    org-bullets
+;;    org-bullets
     neotree
     projectile
     undo-tree)
@@ -39,9 +39,9 @@
            when (not (package-installed-p p)) do (cl-return nil)
            finally (cl-return t)))
 (unless (my-packages-installed-p)
-  ;; check for new packages (package versions)
+  ;; Check for new packages (package versions)
   (package-refresh-contents)
-  ;; install the missing packages
+  ;; Install the missing packages
   (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p))))
@@ -102,14 +102,14 @@
 #+END_SRC
 
 ** Improved/custom Org mode bullets
-#+BEGIN_SRC emacs-lisp
+BEGIN_SRC emacs-lisp
 (require 'org-bullets)
 (setq org-bullets-bullet-list
     '("◉" "◎" "⚫" "○" "►" "◇"))
 ;;    '("?" "?" "?" "?" "?" "?"))
 :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-#+END_SRC
+END_SRC
 
 ** PHP mode
 #+BEGIN_SRC emacs-lisp
@@ -119,21 +119,28 @@
 
 
 * General emacs settings
-** Disable the tool & menu bars
+** Tweak Window UI
+Disable the tool & menu bars
 #+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 #+END_SRC
 
-** Disable welcome screen
+Hide the minibuffer window's scrollbar
+#+BEGIN_SRC emacs-lisp
+(set-window-scroll-bars (minibuffer-window) nil nil)
+#+END_SRC
+
+Disable welcome screen
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
 #+END_SRC
 
-** Open Emacs as fullscreen by default
+Open Emacs as fullscreen by default
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+END_SRC
+** Font settings
 
 ** Enable recent mode
 #+BEGIN_SRC emacs-lisp
@@ -166,21 +173,3 @@
 #+END_SRC
 
 
-* Custom-set-variables
-#+BEGIN_SRC emacs-lisp
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
- '(custom-enabled-themes (quote (deeper-blue)))
- '(package-selected-packages (quote (wrap-region php-mode org-bullets evil))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-#+END_SRC
