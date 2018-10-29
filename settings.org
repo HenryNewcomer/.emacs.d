@@ -156,6 +156,8 @@ The Spacebar will act as a Leader key for my custom keybindings
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC") nil)
+;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
+;;(global-set-key (kbd "SPC") nil)
 #+END_SRC
 ** TODO GROUP/ORGANIZE THESE BETTER!
 
@@ -184,6 +186,19 @@ TODO Check OS before trying to access settings file
 ** Window management
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
+(define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
+#+END_SRC
+
+Move across split windows
+#+BEGIN_SRC emacs-lisp
+;;(windmove-default-keybindings 'meta)
+;;(global-set-key (kbd "SPC j") #'other-window)
+(define-key evil-normal-state-map (kbd "SPC j") #'other-window)
+(define-key evil-normal-state-map (kbd "SPC k") #'prev-window)
+
+(defun prev-window ()
+  (interactive)
+  (other-window -1))
 #+END_SRC
 
 ** Open most recent file
