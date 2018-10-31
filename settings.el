@@ -1,27 +1,8 @@
-
-# ============================================================================
-# ****************************************************************************
-#+TITLE: Emacs Settings
-#+AUTHOR: Henry Newcomer
-# ****************************************************************************
-# ============================================================================
-
-* Repositories
-** Repository sources
-#+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-#+END_SRC
 
-** Required (before package customizations)
-#+BEGIN_SRC emacs-lisp
 (package-initialize)
-#+END_SRC
 
-
-* Package Settings
-** LIST OF PACKAGES
-#+BEGIN_SRC emacs-lisp
 (defvar my-packages
 
   '(evil
@@ -45,168 +26,70 @@
   (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p))))
-#+END_SRC
 
-
-** Evil <Leader>
-#+BEGIN_SRC emacs-lisp
 ;; *Make sure this is placed before evil mode*
 (require 'evil-leader)
 (global-evil-leader-mode)
 (evil-leader/set-leader "<SPC>")
-#+END_SRC
 
-** Evil mode
-#+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/evil")
 (setq evil-want-C-u-scroll t)
 (require 'evil)
 (evil-mode 1)
-#+END_SRC
 
-** Wrap region (not used)
-#+BEGIN_SRC emacs-lisp
 ;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
 ;; (require 'wrap-region)
-#+END_SRC
 
-** Neotree
-#+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
 ;;setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-#+END_SRC
 
-** Projectile
-#+BEGIN_SRC emacs-lisp
 (projectile-mode +1)
 ;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+END_SRC
 
-** Undo Tree
-#+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
 (global-undo-tree-mode)
-#+END_SRC
 
-** Relative line numbers
-#+BEGIN_SRC emacs-lisp
 (require 'nlinum-relative)
 (nlinum-relative-setup-evil)                    ;; setup for evil
 (add-hook 'prog-mode-hook 'nlinum-relative-mode)
 (setq nlinum-relative-redisplay-delay 0)        ;; delay
 (setq nlinum-relative-current-symbol "")        ;; "" to display current line number (was "->")
 (setq nlinum-relative-offset 0)                 ;; 1 if you want 0, 2, 3...
-#+END_SRC
 
-** Improved/custom Org mode bullets
-BEGIN_SRC emacs-lisp
-(require 'org-bullets)
-(setq org-bullets-bullet-list
-    '("◉" "◎" "⚫" "○" "►" "◇"))
-;;    '("?" "?" "?" "?" "?" "?"))
-:config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-END_SRC
-
-** PHP mode
-#+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
-#+END_SRC
 
-
-* General emacs settings
-** Tweak Window UI
-Disable the tool & menu bars
-#+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-#+END_SRC
 
-Hide the minibuffer window's scrollbar
-#+BEGIN_SRC emacs-lisp
 (set-window-scroll-bars (minibuffer-window) nil nil)
-#+END_SRC
 
-Disable welcome screen
-#+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
-#+END_SRC
 
-Open Emacs as fullscreen by default
-#+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+END_SRC
 
-** Font settings
-Set default language and encodings
-#+BEGIN_SRC emacs-lisp
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US")
-(set-locale-environment "English")
-(set-language-environment 'English)
-(prefer-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(set-clipboard-coding-system 'utf-16le)
-(set-file-name-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-#+END_SRC
-
-** Enable recent mode
-#+BEGIN_SRC emacs-lisp
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-#+END_SRC
 
-
-* Keybindings
-** Removes default binding(s)
-The Spacebar will act as a Leader key for my custom keybindings
-
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC") nil)
 ;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
 ;;(global-set-key (kbd "SPC") nil)
-#+END_SRC
-** TODO GROUP/ORGANIZE THESE BETTER!
 
-** Quick Edit Settings
-TODO Check OS before trying to access settings file
-
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
-#+END_SRC
 
-** TODO Double space (Normal Mode)
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
-#+END_SRC
 
-** Dired
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC d") 'dired)
-#+END_SRC
 
-** Jump to end of line
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
-#+END_SRC
 
-** Window management
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
 (define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
-#+END_SRC
 
-Move across split windows
-#+BEGIN_SRC emacs-lisp
 ;;(windmove-default-keybindings 'meta)
 ;;(global-set-key (kbd "SPC j") #'other-window)
 (define-key evil-normal-state-map (kbd "SPC j") #'other-window)
@@ -215,27 +98,12 @@ Move across split windows
 (defun prev-window ()
   (interactive)
   (other-window -1))
-#+END_SRC
 
-** Open most recent file
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
-#+END_SRC
 
-** TODO Open terminal
-TODO Open term in new window
-TODO Default terminal based on OS
-
-#+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC t") 'term)
-#+END_SRC
-** Save
-#+BEGIN_SRC emacs-lisp
+
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-#+END_SRC
-** Text Scaling
-#+BEGIN_SRC emacs-lisp
+
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-_") 'text-scale-decrease)
-#+END_SRC
-
