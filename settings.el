@@ -7,7 +7,7 @@
 
   '(evil
     evil-leader
-    nlinum-relative
+;;  nlinum-relative
     org-bullets
     neotree
     projectile
@@ -52,7 +52,6 @@
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
 (global-undo-tree-mode)
 
-;;(setq display-line-numbers 'relative) 
 (setq-default display-line-numbers 'relative
 	      display-line-numbers-type 'visual
               display-line-numbers-current-absolute t
@@ -60,13 +59,6 @@
               display-line-numbers-widen t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-
-  ;; (require 'nlinum-relative)
-  ;; (nlinum-relative-setup-evil)                    ;; setup for evil
-  ;; (add-hook 'prog-mode-hook 'nlinum-relative-mode)
-  ;; (setq nlinum-relative-redisplay-delay 0)        ;; delay
-  ;; (setq nlinum-relative-current-symbol "")        ;; "" to display current line number (was "->")
-  ;; (setq nlinum-relative-offset 0)                 ;; 1 if you want 0, 2, 3...
 
 ;; Check OS
 (cond

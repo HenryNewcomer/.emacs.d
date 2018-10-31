@@ -1,27 +1,27 @@
 
 # ============================================================================
 # ****************************************************************************
-#+TITLE: Emacs Settings
-#+AUTHOR: Henry Newcomer
+#+title: emacs settings
+#+author: henry newcomer
 # ****************************************************************************
 # ============================================================================
 
-* Repositories
-** Repository sources
-#+BEGIN_SRC emacs-lisp
+* repositories
+** repository sources
+#+begin_src emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-#+END_SRC
+#+end_src
 
-** Required (before package customizations)
-#+BEGIN_SRC emacs-lisp
+** required (before package customizations)
+#+begin_src emacs-lisp
 (package-initialize)
-#+END_SRC
+#+end_src
 
 
-* Package Settings
-** LIST OF PACKAGES
-#+BEGIN_SRC emacs-lisp
+* package settings
+** list of packages
+#+begin_src emacs-lisp
 (defvar my-packages
 
   '(evil
@@ -32,243 +32,252 @@
     projectile
     undo-tree)
 
-  "A list of packages to ensure are installed at launch.")
+  "a list of packages to ensure are installed at launch.")
 
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
            when (not (package-installed-p p)) do (cl-return nil)
            finally (cl-return t)))
 (unless (my-packages-installed-p)
-  ;; Check for new packages (package versions)
+  ;; check for new packages (package versions)
   (package-refresh-contents)
-  ;; Install the missing packages
+  ;; install the missing packages
   (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p))))
-#+END_SRC
+#+end_src
 
 
-** Evil <Leader>
-#+BEGIN_SRC emacs-lisp
-;; *Make sure this is placed before evil mode*
+** evil <leader>
+#+begin_src emacs-lisp
+;; *make sure this is placed before evil mode*
 (require 'evil-leader)
 (global-evil-leader-mode)
-(evil-leader/set-leader "<SPC>")
-#+END_SRC
+(evil-leader/set-leader "<spc>")
+#+end_src
 
-** Evil mode
-#+BEGIN_SRC emacs-lisp
+** evil mode
+#+begin_src emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/evil")
-(setq evil-want-C-u-scroll t)
+(setq evil-want-c-u-scroll t)
 (require 'evil)
 (evil-mode 1)
-#+END_SRC
+#+end_src
 
-** Wrap region (not used)
-#+BEGIN_SRC emacs-lisp
+** wrap region (not used)
+#+begin_src emacs-lisp
 ;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
 ;; (require 'wrap-region)
-#+END_SRC
+#+end_src
 
-** Neotree
-#+BEGIN_SRC emacs-lisp
+** neotree
+#+begin_src emacs-lisp
 (add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
 ;;setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-#+END_SRC
+#+end_src
 
-** Projectile
-#+BEGIN_SRC emacs-lisp
+** projectile
+#+begin_src emacs-lisp
 (projectile-mode +1)
 ;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+END_SRC
+(define-key projectile-mode-map (kbd "c-c p") 'projectile-command-map)
+#+end_src
 
-** Undo Tree
-#+BEGIN_SRC emacs-lisp
+** undo tree
+#+begin_src emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
 (global-undo-tree-mode)
-#+END_SRC
+#+end_src
 
-** Relative line numbers
-#+BEGIN_SRC emacs-lisp
+** relative line numbers
+#+begin_src emacs-lisp
 (setq-default display-line-numbers 'relative
-	      display-line-numbers-type 'visual
+              display-line-numbers-type 'visual
               display-line-numbers-current-absolute t
               display-line-numbers-width 4
               display-line-numbers-widen t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-#+END_SRC
+#+end_src
 
-** Improved/custom Org mode bullets
-#+BEGIN_SRC emacs-lisp
-;; Check OS
+** improved/custom org mode bullets
+#+begin_src emacs-lisp
+;; check os
 (cond
   ((string-equal system-type "gnu/linux")
     (require 'org-bullets)
     (setq org-bullets-bullet-list
-	'("◉" "◎" "⚫" "○" "►" "◇"))
+        '("◉" "◎" "⚫" "○" "►" "◇"))
     ;;    '("?" "?" "?" "?" "?" "?"))
     :config
-	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
-#+END_SRC
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+#+end_src
 
-** PHP mode
-#+BEGIN_SRC emacs-lisp
+** php mode
+#+begin_src emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
-#+END_SRC
+#+end_src
 
 
-* General emacs settings
-** Tweak Window UI
-Disable the tool & menu bars
-#+BEGIN_SRC emacs-lisp
+* general emacs settings
+** tweak window ui
+disable the tool & menu bars
+#+begin_src emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-#+END_SRC
+#+end_src
 
-Hide the minibuffer window's scrollbar
-#+BEGIN_SRC emacs-lisp
+hide the minibuffer window's scrollbar
+#+begin_src emacs-lisp
 (set-window-scroll-bars (minibuffer-window) nil nil)
-#+END_SRC
+#+end_src
 
-Disable welcome screen
-#+BEGIN_SRC emacs-lisp
+disable welcome screen
+#+begin_src emacs-lisp
 (setq inhibit-startup-screen t)
-#+END_SRC
+#+end_src
 
-Open Emacs as fullscreen by default
-#+BEGIN_SRC emacs-lisp
+open emacs as fullscreen by default
+#+begin_src emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+END_SRC
+#+end_src
 
-** Font settings
-Set default language and encodings
-#+BEGIN_SRC emacs-lisp
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US")
-(set-locale-environment "English")
-(set-language-environment 'English)
+** font settings
+set default language and encodings
+#+begin_src emacs-lisp
+(setenv "lang" "en_us.utf-8")
+(setenv "lc_all" "en_us.utf-8")
+(setenv "lc_ctype" "en_us")
+(set-locale-environment "english")
+(set-language-environment 'english)
 (prefer-coding-system 'utf-8)
 (set-buffer-file-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (set-file-name-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
-#+END_SRC
+#+end_src
 
-** Enable recent mode
-#+BEGIN_SRC emacs-lisp
+** highlight current line
+#+begin_src emacs-lisp
+(global-hl-line-mode +1)
+#+end_src
+
+** enable recent mode
+#+begin_src emacs-lisp
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
-#+END_SRC
+(global-set-key "\c-x\ \c-r" 'recentf-open-files)
+#+end_src
 
-** Automatic backups
-#+BEGIN_SRC emacs-lisp
-;;; Source; https://www.emacswiki.org/emacs/ForceBackups
-;; Default and per-save backups go here:
+** tabs to lines
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+#+end_src
+** automatic backups
+#+begin_src emacs-lisp
+;;; source; https://www.emacswiki.org/emacs/forcebackups
+;; default and per-save backups go here:
 (setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
 
 (defun force-backup-of-buffer ()
-;; Make a special "per session" backup at the first save of each
+;; make a special "per session" backup at the first save of each
 ;; emacs session.
 (when (not buffer-backed-up)
-    ;; Override the default parameters for per-session backups.
+    ;; override the default parameters for per-session backups.
     (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-	(kept-new-versions 3))
+        (kept-new-versions 3))
     (backup-buffer)))
-;; Make a "per save" backup on each save.  The first save results in
+;; make a "per save" backup on each save.  the first save results in
 ;; both a per-session and a per-save backup, to keep the numbering
 ;; of per-save backups consistent.
 (let ((buffer-backed-up nil))
     (backup-buffer)))
 
 (add-hook 'before-save-hook  'force-backup-of-buffer)
-#+END_SRC
+#+end_src
 
 
-* Keybindings
-** Removes default binding(s)
-The Spacebar will act as a Leader key for my custom keybindings
+* keybindings
+** removes default binding(s)
+the spacebar will act as a leader key for my custom keybindings
 
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC") nil)
-;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
-;;(global-set-key (kbd "SPC") nil)
-#+END_SRC
-** TODO GROUP/ORGANIZE THESE BETTER!
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc") nil)
+;;(define-key evil-insert-state-map (kbd "spc") (kbd "spc"))
+;;(global-set-key (kbd "spc") nil)
+#+end_src
+** todo group/organize these better!
 
-** Quick Edit Settings
-TODO Check OS before trying to access settings file
+** quick edit settings
+todo check os before trying to access settings file
 
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
-#+END_SRC
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+#+end_src
 
-** Double space (Normal Mode)
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
-#+END_SRC
+** double space (normal mode)
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc spc") (kbd "i spc esc"))
+#+end_src
 
-** Dired
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC d") 'dired)
-#+END_SRC
+** dired
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc d") 'dired)
+#+end_src
 
-** Jump to end of line
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
-#+END_SRC
+** jump to end of line
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc l") (kbd "$"))
+#+end_src
 
-** Window management
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
-(define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
-#+END_SRC
+** window management
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc h") 'split-window-below)
+(define-key evil-normal-state-map (kbd "spc v") 'split-window-right)
+#+end_src
 
-Move across split windows
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "C-M-h") 'windmove-left)
-(define-key evil-normal-state-map (kbd "C-M-l") 'windmove-right)
-(define-key evil-normal-state-map (kbd "C-M-k") 'windmove-up)
-(define-key evil-normal-state-map (kbd "C-M-j") 'windmove-down)
+move across split windows
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "c-m-h") 'windmove-left)
+(define-key evil-normal-state-map (kbd "c-m-l") 'windmove-right)
+(define-key evil-normal-state-map (kbd "c-m-k") 'windmove-up)
+(define-key evil-normal-state-map (kbd "c-m-j") 'windmove-down)
 
-(define-key evil-normal-state-map (kbd "SPC j") #'other-window)
-(define-key evil-normal-state-map (kbd "SPC k") #'prev-window)
+(define-key evil-normal-state-map (kbd "spc j") #'other-window)
+(define-key evil-normal-state-map (kbd "spc k") #'prev-window)
 (defun prev-window ()
   (interactive)
   (other-window -1))
-#+END_SRC
+#+end_src
 
-** Open most recent file
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
-#+END_SRC
+** open most recent file
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc r") 'recentf-open-most-recent-file)
+#+end_src
 
-** TODO Open terminal
-TODO Open term in new window
-TODO Default terminal based on OS
+** todo open terminal
+todo open term in new window
+todo default terminal based on os
 
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC t") 'term)
-#+END_SRC
-** Save
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-#+END_SRC
-** Quit
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-#+END_SRC
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc t") 'term)
+#+end_src
+** save
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc w") 'save-buffer)
+#+end_src
+** quit
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "spc q") 'save-buffers-kill-emacs)
+#+end_src
 
 
-** Text Scaling
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C-_") 'text-scale-decrease)
-#+END_SRC
+** text scaling
+#+begin_src emacs-lisp
+(global-set-key (kbd "c-+") 'text-scale-increase)
+(global-set-key (kbd "c-=") 'text-scale-decrease)
+#+end_src
