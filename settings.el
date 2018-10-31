@@ -53,7 +53,7 @@
 (global-undo-tree-mode)
 
 (setq-default display-line-numbers 'relative
-	      display-line-numbers-type 'visual
+              display-line-numbers-type 'visual
               display-line-numbers-current-absolute t
               display-line-numbers-width 4
               display-line-numbers-widen t)
@@ -65,22 +65,34 @@
   ((string-equal system-type "gnu/linux")
     (require 'org-bullets)
     (setq org-bullets-bullet-list
-	'("◉" "◎" "⚫" "○" "►" "◇"))
+        '("◉" "◎"))
+    ;;  '("◉" "◎" "⚫" "○" "►" "◇"))
     ;;    '("?" "?" "?" "?" "?" "?"))
     :config
-	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
 
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
 
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+;;; Source; https://www.emacswiki.org/emacs/ForceBackups
+;; Default and per-save backups go here:
+(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
 
-(set-window-scroll-bars (minibuffer-window) nil nil)
+(defun force-backup-of-buffer ()
+;; Make a special "per session" backup at the first save of each
+;; emacs session.
+(when (not buffer-backed-up)
+    ;; Override the default parameters for per-session backups.
+    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
+        (kept-new-versions 3))
+    (backup-buffer)))
+;; Make a "per save" backup on each save.  The first save results in
+;; both a per-session and a per-save backup, to keep the numbering
+;; of per-save backups consistent.
+(let ((buffer-backed-up nil))
+    (backup-buffer)))
 
-(setq inhibit-startup-screen t)
-
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-hook 'before-save-hook  'force-backup-of-buffer)
 
 (setenv "LANG" "en_US.UTF-8")
 (setenv "LC_ALL" "en_US.UTF-8")
@@ -94,29 +106,38 @@
 (set-file-name-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 
+(global-hl-line-mode +1)
+
+;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
+(setq ido-use-filename-at-point 'guess)
+(setq ido-create-new-buffer 'always)
+(setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+
+(show-paren-mode 1)
+(setq show-paren-delay 0)
+
+;;(require 'paren)
+;;(set-face-background 'show-paren-match (face-background 'default))
+;;(set-face-foreground 'show-paren-match "#def")
+;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
-;;; Source; https://www.emacswiki.org/emacs/ForceBackups
-;; Default and per-save backups go here:
-(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
+(setq-default indent-tabs-mode nil)
 
-(defun force-backup-of-buffer ()
-;; Make a special "per session" backup at the first save of each
-;; emacs session.
-(when (not buffer-backed-up)
-    ;; Override the default parameters for per-session backups.
-    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-	(kept-new-versions 3))
-    (backup-buffer)))
-;; Make a "per save" backup on each save.  The first save results in
-;; both a per-session and a per-save backup, to keep the numbering
-;; of per-save backups consistent.
-(let ((buffer-backed-up nil))
-    (backup-buffer)))
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 
-(add-hook 'before-save-hook  'force-backup-of-buffer)
+(set-window-scroll-bars (minibuffer-window) nil nil)
+
+(setq inhibit-startup-screen t)
+
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 (define-key evil-normal-state-map (kbd "SPC") nil)
 ;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
@@ -148,9 +169,13 @@
 
 (define-key evil-normal-state-map (kbd "SPC t") 'term)
 
+;;(define-key evil-normal-state-map (kbd "SPC S")
+;;  (lambda() (interactive)
+;;    (load-file "settings.el") (message "Settings were reloaded.")))
+
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
 
 (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
 
 (global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C-_") 'text-scale-decrease)
+(global-set-key (kbd "C-=") 'text-scale-decrease)

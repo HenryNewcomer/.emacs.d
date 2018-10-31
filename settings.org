@@ -109,7 +109,8 @@
   ((string-equal system-type "gnu/linux")
     (require 'org-bullets)
     (setq org-bullets-bullet-list
-        '("◉" "◎" "⚫" "○" "►" "◇"))
+        '("◉" "◎"))
+    ;;  '("◉" "◎" "⚫" "○" "►" "◇"))
     ;;    '("?" "?" "?" "?" "?" "?"))
     :config
         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
@@ -123,61 +124,8 @@
 
 
 * General emacs settings
-** Tweak Window UI
-Disable the tool & menu bars
-#+BEGIN_SRC emacs-lisp
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-#+END_SRC
-
-Hide the minibuffer window's scrollbar
-#+BEGIN_SRC emacs-lisp
-(set-window-scroll-bars (minibuffer-window) nil nil)
-#+END_SRC
-
-Disable welcome screen
-#+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-#+END_SRC
-
-Open Emacs as fullscreen by default
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+END_SRC
-
-** Font settings
-Set default language and encodings
-#+BEGIN_SRC emacs-lisp
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US")
-(set-locale-environment "English")
-(set-language-environment 'English)
-(prefer-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(set-file-name-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-#+END_SRC
-
-** Highlight current line
-#+BEGIN_SRC emacs-lisp
-(global-hl-line-mode +1)
-#+END_SRC
-
-** Enable recent mode
-#+BEGIN_SRC emacs-lisp
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
-#+END_SRC
-
-** Tabs to lines
-#+BEGIN_SRC emacs-lisp
-(setq-default indent-tabs-mode nil)
-#+END_SRC
 ** Automatic backups
+
 #+BEGIN_SRC emacs-lisp
 ;;; Source; https://www.emacswiki.org/emacs/ForceBackups
 ;; Default and per-save backups go here:
@@ -200,9 +148,94 @@ Set default language and encodings
 (add-hook 'before-save-hook  'force-backup-of-buffer)
 #+END_SRC
 
+** Font settings
+
+Set default language and encodings
+#+BEGIN_SRC emacs-lisp
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US")
+(set-locale-environment "English")
+(set-language-environment 'English)
+(prefer-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(set-file-name-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+#+END_SRC
+
+** Highlight current line
+
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode +1)
+#+END_SRC
+
+** Ido
+
+#+BEGIN_SRC emacs-lisp
+;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
+(setq ido-separator "\n")
+(setq ido-use-filename-at-point 'guess)
+(setq ido-create-new-buffer 'always)
+(setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+#+END_SRC
+
+** Parentheses, braces, & brackets pairs
+
+#+BEGIN_SRC emacs-lisp
+(show-paren-mode 1)
+(setq show-paren-delay 0)
+
+;;(require 'paren)
+;;(set-face-background 'show-paren-match (face-background 'default))
+;;(set-face-foreground 'show-paren-match "#def")
+;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+#+END_SRC
+
+** TODO Enable recent mode
+
+#+BEGIN_SRC emacs-lisp
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+#+END_SRC
+
+** Tabs to lines
+
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil)
+#+END_SRC
+** Tweak Window UI
+
+Disable the tool & menu bars
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+#+END_SRC
+
+Hide the minibuffer window's scrollbar
+#+BEGIN_SRC emacs-lisp
+(set-window-scroll-bars (minibuffer-window) nil nil)
+#+END_SRC
+
+Disable welcome screen
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+#+END_SRC
+
+Open Emacs as fullscreen by default
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+END_SRC
+
 
 * Keybindings
 ** Removes default binding(s)
+
 The Spacebar will act as a Leader key for my custom keybindings
 
 #+BEGIN_SRC emacs-lisp
@@ -213,6 +246,7 @@ The Spacebar will act as a Leader key for my custom keybindings
 ** TODO GROUP/ORGANIZE THESE BETTER!
 
 ** Quick Edit Settings
+
 TODO Check OS before trying to access settings file
 
 #+BEGIN_SRC emacs-lisp
@@ -220,21 +254,25 @@ TODO Check OS before trying to access settings file
 #+END_SRC
 
 ** Double space (Normal Mode)
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
 #+END_SRC
 
 ** Dired
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC d") 'dired)
 #+END_SRC
 
 ** Jump to end of line
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
 #+END_SRC
 
 ** Window management
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
 (define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
@@ -255,28 +293,44 @@ Move across split windows
 #+END_SRC
 
 ** Open most recent file
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
 #+END_SRC
 
-** TODO Open terminal
-TODO Open term in new window
+** Open terminal
+
 TODO Default terminal based on OS
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC t") 'term)
 #+END_SRC
+
+** TODO Reload settings.el & settings.org (indirectly)
+
+NOTE This isn't properly loading settings.org
+
+#+BEGIN_SRC emacs-lisp
+;;(define-key evil-normal-state-map (kbd "SPC S")
+;;  (lambda() (interactive)
+;;    (load-file "settings.el") (message "Settings were reloaded.")))
+#+end_src
+
 ** Save
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
 #+END_SRC
+
 ** Quit
+
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
 #+END_SRC
 
 
 ** Text Scaling
+
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-=") 'text-scale-decrease)
