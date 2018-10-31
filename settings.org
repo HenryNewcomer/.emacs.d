@@ -27,7 +27,7 @@
   '(evil
     evil-leader
     nlinum-relative
-;;    org-bullets
+    org-bullets
     neotree
     projectile
     undo-tree)
@@ -102,14 +102,17 @@
 #+END_SRC
 
 ** Improved/custom Org mode bullets
-BEGIN_SRC emacs-lisp
-(require 'org-bullets)
-(setq org-bullets-bullet-list
-    '("◉" "◎" "⚫" "○" "►" "◇"))
-;;    '("?" "?" "?" "?" "?" "?"))
-:config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-END_SRC
+#+BEGIN_SRC emacs-lisp
+;; Check OS
+(cond
+  ((string-equal system-type "gnu/linux")
+    (require 'org-bullets)
+    (setq org-bullets-bullet-list
+	'("◉" "◎" "⚫" "○" "►" "◇"))
+    ;;    '("?" "?" "?" "?" "?" "?"))
+    :config
+	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+#+END_SRC
 
 ** PHP mode
 #+BEGIN_SRC emacs-lisp

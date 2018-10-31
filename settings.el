@@ -8,7 +8,7 @@
   '(evil
     evil-leader
     nlinum-relative
-;;    org-bullets
+    org-bullets
     neotree
     projectile
     undo-tree)
@@ -59,6 +59,16 @@
 (setq nlinum-relative-current-symbol "")        ;; "" to display current line number (was "->")
 (setq nlinum-relative-offset 0)                 ;; 1 if you want 0, 2, 3...
 
+;; Check OS
+(cond
+  ((string-equal system-type "gnu/linux")
+    (require 'org-bullets)
+    (setq org-bullets-bullet-list
+	'("◉" "◎" "⚫" "○" "►" "◇"))
+    ;;    '("?" "?" "?" "?" "?" "?"))
+    :config
+	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
 
@@ -70,6 +80,19 @@
 (setq inhibit-startup-screen t)
 
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US")
+(set-locale-environment "English")
+(set-language-environment 'English)
+(prefer-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-16le)
+(set-file-name-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
 
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
