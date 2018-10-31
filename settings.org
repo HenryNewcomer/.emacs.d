@@ -187,7 +187,7 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
 #+END_SRC
 
-** TODO Double space (Normal Mode)
+** Double space (Normal Mode)
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
 #+END_SRC
@@ -236,9 +236,14 @@ TODO Default terminal based on OS
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
 #+END_SRC
+** Quit
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC q") 'quit-window)
+#+END_SRC
+
+
 ** Text Scaling
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-_") 'text-scale-decrease)
 #+END_SRC
-
