@@ -90,8 +90,8 @@
 
 ** Improved/custom Org mode bullets
 
+Only customize the bullet symbols when on a Linux distro
 #+BEGIN_SRC emacs-lisp
-;; Check OS
 (cond
   ((string-equal system-type "gnu/linux")
     (require 'org-bullets)
@@ -99,6 +99,12 @@
         '("◉" "◎"))
     :config
         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+#+END_SRC
+
+Attempt to improve org-mode performance
+#+BEGIN_SRC emacs-lisp
+;; Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
+(setq inhibit-compacting-font-caches t)
 #+END_SRC
 
 ** PHP mode
@@ -207,6 +213,7 @@ Set default language and encodings
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 #+END_SRC
+
 ** Tweak Window UI
 
 Disable the tool & menu bars
@@ -228,6 +235,14 @@ Disable welcome screen
 Open Emacs as fullscreen by default
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+END_SRC
+
+** Whitespace/80-column limit
+
+#+BEGIN_SRC emacs-lisp
+(require 'whitespace)
+(setq whitespace-style '(face tabs lines-tail trailing))
+(global-whitespace-mode t)
 #+END_SRC
 
 
@@ -333,3 +348,5 @@ NOTE This isn't properly loading settings.org
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-=") 'text-scale-decrease)
 #+END_SRC
+
+
