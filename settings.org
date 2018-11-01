@@ -25,13 +25,14 @@
 #+BEGIN_SRC emacs-lisp
 (defvar my-packages
 
-  '(evil
+  '(all-the-icons
+    evil
     org-bullets
     neotree
     projectile
     undo-tree)
 
-  "A list of packages to ensure are installed at launch.")
+  "A list of packages to install if not locally found.")
 
 (defun my-packages-installed-p ()
   (cl-loop for p in my-packages
@@ -48,16 +49,23 @@
 
 
 
+** All The Icons (MANUAL Font Installation)
+   !! NOTE - Make sure to run M-x all-the-icons-install-fonts
+   !! Install the downloaded fonts into the OS's Fonts directory
+
+#+BEGIN_SRC emacs-lisp
+(require 'all-the-icons)
+#+END_SRC
+
 ** Evil mode
 
 #+BEGIN_SRC emacs-lisp
-;;(add-to-list 'load-path "~/.emacs.d/from_backup/evil")
 (setq evil-want-C-u-scroll t)
 (require 'evil)
 (evil-mode 1)
 #+END_SRC
 
-** Wrap region (not used)
+** TODO Wrap region (not used)
 
 #+BEGIN_SRC emacs-lisp
 ;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
@@ -69,11 +77,14 @@
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
-(global-set-key [f8] 'neotree-toggle)
-;;setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+;;(global-set-key [f8] 'neotree-toggle)
+;;(define-key evil-normal-state-map (kbd "SPC d") 'dired)
+(define-key evil-normal-state-map (kbd "SPC o") 'neotree-toggle)
+
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+END_SRC
 
-** Projectile
+** TODO Projectile
 
 #+BEGIN_SRC emacs-lisp
 (projectile-mode +1)
@@ -81,7 +92,7 @@
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 #+END_SRC
 
-** Undo Tree
+** TODO Undo Tree
 
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
@@ -107,7 +118,7 @@ Attempt to improve org-mode performance
 (setq inhibit-compacting-font-caches t)
 #+END_SRC
 
-** PHP mode
+** TODO PHP mode
 
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
@@ -174,6 +185,56 @@ Set default language and encodings
 (setq ido-use-filename-at-point 'guess)
 (setq ido-create-new-buffer 'always)
 (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+#+END_SRC
+
+** TODO Mode line (customize)
+
+#+BEGIN_SRC emacs-lisp
+    ;;  (setq mode-line-format
+    ;;    (list
+    ;;      "%& %b%n"
+    ;;      " | "
+    ;;      "%m"
+    ;;      " | "
+    ;;      "%l:%c"))
+
+    ;; (setq evil-normal-state-tag   (propertize " COMMAND " 'face '((:background "dark khaki" :foreground "black")))
+    ;;        evil-emacs-state-tag    (propertize "  EMACS  " 'face '((:background "turquoise" :foreground "black")))
+    ;;        evil-insert-state-tag   (propertize " ------- " 'face '((:background "dark sea green" :foreground "black")))
+    ;;        evil-replace-state-tag  (propertize " REPLACE " 'face '((:background "dark orange" :foreground "black")))
+    ;;        evil-motion-state-tag   (propertize "  MOTION " 'face '((:background "khaki" :foreground "black")))
+    ;;        evil-visual-state-tag   (propertize "  VISUAL " 'face '((:background "light salmon" :foreground "black")))
+    ;;        evil-operator-state-tag (propertize " OPERATE " 'face '((:background "sandy brown" :foreground "black")))) 
+
+    ;; Source: http://muublog.blogspot.com/2015/12/evil-mode-hack-for-colorful-mode-line.html
+(defface my-evil-state-emacs-face
+'((t (:background "Orange" :foreground "White")))
+"Evil Mode Emacs State Face")
+
+(defface my-evil-state-insert-face
+'((t (:background "DodgerBlue1" :foreground "White")))
+"Evil Mode Insert State Face")
+
+(defface my-evil-state-normal-face
+'((t (:background "Red" :foreground "White")))
+"Evil Mode Normal Stace Face")
+
+(defun evil-generate-mode-line-tag (&optional state)
+"Generate the evil mode-line tag for STATE."
+(let ((tag (evil-state-property state :tag t)))
+    ;; prepare mode-line: add tooltip
+    (if (stringp tag)
+        (propertize tag
+            'face (cond
+                    ((string= "normal" state)
+                    'my-evil-state-normal-face)
+                    ((string= "insert" state)
+                    'my-evil-state-insert-face)
+                    ((string= "emacs" state)
+                    'my-evil-state-emacs-face))
+            'help-echo (evil-state-property state :name)
+            'mouse-face 'mode-line-highlight)
+tag)))
 #+END_SRC
 
 ** Parentheses, braces, & brackets pairs
@@ -362,5 +423,6 @@ NOTE This isn't properly loading settings.org
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-=") 'text-scale-decrease)
 #+END_SRC
+
 
 
