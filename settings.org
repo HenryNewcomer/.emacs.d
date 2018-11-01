@@ -258,6 +258,20 @@ The Spacebar will act as a Leader key for my custom keybindings
 #+END_SRC
 ** TODO GROUP/ORGANIZE THESE BETTER!
 
+** Comment/uncomment
+
+TODO Verify how well this works
+
+#+BEGIN_SRC emacs-lisp
+;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
+(defun toggle-comment-on-line ()
+  "Comment or uncomment the current line"
+  (interactive)
+  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+(define-key evil-normal-state-map (kbd "SPC /") 'toggle-comment-on-line)
+(define-key evil-visual-state-map (kbd "SPC /") 'toggle-comment-on-line)
+#+END_SRC
+
 ** Quick Edit Settings
 
 TODO Check OS before trying to access settings file
