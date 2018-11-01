@@ -75,12 +75,8 @@
 ** Neotree
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
-;;(global-set-key [f8] 'neotree-toggle)
-;;(define-key evil-normal-state-map (kbd "SPC d") 'dired)
 (define-key evil-normal-state-map (kbd "SPC o") 'neotree-toggle)
-
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+END_SRC
 
