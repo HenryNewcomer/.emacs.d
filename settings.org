@@ -207,56 +207,6 @@ Set default language and encodings
 (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
 #+END_SRC
 
-** TODO Mode line (customize)
-
-#+BEGIN_SRC emacs-lisp
-    ;;  (setq mode-line-format
-    ;;    (list
-    ;;      "%& %b%n"
-    ;;      " | "
-    ;;      "%m"
-    ;;      " | "
-    ;;      "%l:%c"))
-
-    ;; (setq evil-normal-state-tag   (propertize " COMMAND " 'face '((:background "dark khaki" :foreground "black")))
-    ;;        evil-emacs-state-tag    (propertize "  EMACS  " 'face '((:background "turquoise" :foreground "black")))
-    ;;        evil-insert-state-tag   (propertize " ------- " 'face '((:background "dark sea green" :foreground "black")))
-    ;;        evil-replace-state-tag  (propertize " REPLACE " 'face '((:background "dark orange" :foreground "black")))
-    ;;        evil-motion-state-tag   (propertize "  MOTION " 'face '((:background "khaki" :foreground "black")))
-    ;;        evil-visual-state-tag   (propertize "  VISUAL " 'face '((:background "light salmon" :foreground "black")))
-    ;;        evil-operator-state-tag (propertize " OPERATE " 'face '((:background "sandy brown" :foreground "black")))) 
-
-    ;; Source: http://muublog.blogspot.com/2015/12/evil-mode-hack-for-colorful-mode-line.html
-(defface my-evil-state-emacs-face
-'((t (:background "Orange" :foreground "White")))
-"Evil Mode Emacs State Face")
-
-(defface my-evil-state-insert-face
-'((t (:background "DodgerBlue1" :foreground "White")))
-"Evil Mode Insert State Face")
-
-(defface my-evil-state-normal-face
-'((t (:background "Red" :foreground "White")))
-"Evil Mode Normal Stace Face")
-
-(defun evil-generate-mode-line-tag (&optional state)
-"Generate the evil mode-line tag for STATE."
-(let ((tag (evil-state-property state :tag t)))
-    ;; prepare mode-line: add tooltip
-    (if (stringp tag)
-        (propertize tag
-            'face (cond
-                    ((string= "normal" state)
-                    'my-evil-state-normal-face)
-                    ((string= "insert" state)
-                    'my-evil-state-insert-face)
-                    ((string= "emacs" state)
-                    'my-evil-state-emacs-face))
-            'help-echo (evil-state-property state :name)
-            'mouse-face 'mode-line-highlight)
-tag)))
-#+END_SRC
-
 ** Parentheses, braces, & brackets pairs
 
 #+BEGIN_SRC emacs-lisp
@@ -277,7 +227,7 @@ tag)))
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 #+END_SRC
 
-** Relative line numbers
+** TODO (set custom colors) Relative line numbers
 
 #+BEGIN_SRC emacs-lisp
 (setq-default display-line-numbers 'relative
@@ -287,12 +237,18 @@ tag)))
               display-line-numbers-widen t)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+;; Customize current line
+;;(custom-set-faces '(line-number-current-line ((t :weight bold
+;;                                                 :foreground "goldenrod"
+;;                                                 :background "slate gray"))))
 #+END_SRC
 
-** Tabs to lines
+** <TAB>s
 
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
 #+END_SRC
 
 ** Tweak Window UI
@@ -453,6 +409,6 @@ NOTE This isn't properly loading settings.org
   (setq-default gc-cons-threshold 1000000)
   (message "gc-cons-threshold restored to %s" gc-cons-threshold)))
 
-(run-with-idle-timer 2 nil (lambda ()
+(run-with-idle-timer 7 nil (lambda ()
   (message "Finished loading emacs settings.")))
 #+END_SRC
