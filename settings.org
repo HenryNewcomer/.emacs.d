@@ -6,6 +6,17 @@
 # ****************************************************************************
 # ============================================================================
 
+* Startup
+
+Drastically increase the garbage collection until the end of
+this file, and then reset it
+Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
+
+#+BEGIN_SRC emacs-lisp
+(setq-default gc-cons-threshold 100000000)
+#+END_SRC
+
+
 * Repositories
 ** Repository sources
 #+BEGIN_SRC emacs-lisp
@@ -25,11 +36,12 @@
 #+BEGIN_SRC emacs-lisp
 (defvar my-packages
 
-  '(all-the-icons
-    evil
+;;  all-the-icons
+  '(evil
     org-bullets
-    neotree
+;;  neotree
     projectile
+    telephone-line
     undo-tree)
 
   "A list of packages to install if not locally found.")
@@ -53,8 +65,9 @@
    !! NOTE - Make sure to run M-x all-the-icons-install-fonts
    !! Install the downloaded fonts into the OS's Fonts directory
 
+   Repo: https://github.com/domtronn/all-the-icons.el
 #+BEGIN_SRC emacs-lisp
-(require 'all-the-icons)
+;;(require 'all-the-icons)
 #+END_SRC
 
 ** Evil mode
@@ -65,34 +78,12 @@
 (evil-mode 1)
 #+END_SRC
 
-** TODO Wrap region (not used)
-
-#+BEGIN_SRC emacs-lisp
-;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
-;; (require 'wrap-region)
-#+END_SRC
-
 ** Neotree
 
 #+BEGIN_SRC emacs-lisp
-(require 'neotree)
-(define-key evil-normal-state-map (kbd "SPC o") 'neotree-toggle)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-#+END_SRC
-
-** TODO Projectile
-
-#+BEGIN_SRC emacs-lisp
-(projectile-mode +1)
-;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+END_SRC
-
-** TODO Undo Tree
-
-#+BEGIN_SRC emacs-lisp
-;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
-(global-undo-tree-mode)
+;;(require 'neotree)
+;;(define-key evil-normal-state-map (kbd "SPC o") 'neotree-toggle)
+;;(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+END_SRC
 
 ** Improved/custom Org mode bullets
@@ -101,7 +92,7 @@ Only customize the bullet symbols when on a Linux distro
 #+BEGIN_SRC emacs-lisp
 (cond
   ((string-equal system-type "gnu/linux")
-    (require 'org-bullets)
+    ;;(require 'org-bullets)
     (setq org-bullets-bullet-list
         '("◉" "◎"))
     :config
@@ -114,11 +105,39 @@ Attempt to improve org-mode performance
 (setq inhibit-compacting-font-caches t)
 #+END_SRC
 
+** TODO Projectile
+
+#+BEGIN_SRC emacs-lisp
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+END_SRC
+
 ** TODO PHP mode
 
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
+#+END_SRC
+
+** TODO Telephone-line
+
+   Repo: https://github.com/dbordak/telephone-line
+#+BEGIN_SRC emacs-lisp
+(telephone-line-mode 1)
+#+END_SRC
+
+** TODO Undo Tree
+** TODO Wrap region (not used)
+
+#+BEGIN_SRC emacs-lisp
+;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
+;; (require 'wrap-region)
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
+(global-undo-tree-mode)
 #+END_SRC
 
 
@@ -346,7 +365,7 @@ TODO Check OS before trying to access settings file
 ** Dired
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC d") 'dired)
+(define-key evil-normal-state-map (kbd "SPC o") 'dired)
 #+END_SRC
 
 ** Jump to end of line
@@ -422,3 +441,10 @@ NOTE This isn't properly loading settings.org
 
 
 
+
+* Closure
+#+BEGIN_SRC emacs-lisp
+(run-with-idle-timer 5 nil (lambda ()
+  (setq-default gc-cons-threshold 1000000)
+  (message "gc-cons-threshold restored to %s" gc-cons-threshold)))
+#+END_SRC
