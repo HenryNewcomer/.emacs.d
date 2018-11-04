@@ -123,6 +123,11 @@ Attempt to improve org-mode performance
 
    Repo: https://github.com/dbordak/telephone-line
 #+BEGIN_SRC emacs-lisp
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+(setq telephone-line-height 16)
 (telephone-line-mode 1)
 #+END_SRC
 
@@ -447,4 +452,7 @@ NOTE This isn't properly loading settings.org
 (run-with-idle-timer 5 nil (lambda ()
   (setq-default gc-cons-threshold 1000000)
   (message "gc-cons-threshold restored to %s" gc-cons-threshold)))
+
+(run-with-idle-timer 2 nil (lambda ()
+  (message "Finished loading emacs settings.")))
 #+END_SRC
