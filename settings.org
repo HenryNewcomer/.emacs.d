@@ -280,8 +280,10 @@ Disable the tool & menu bars
 (tool-bar-mode -1)
 #+END_SRC
 
-Hide the minibuffer window's scrollbar
+Disable the scroll bars
 #+BEGIN_SRC emacs-lisp
+(scroll-bar-mode -1)
+;; Hide the minibuffer window's scrollbar
 (set-window-scroll-bars (minibuffer-window) nil nil)
 #+END_SRC
 
