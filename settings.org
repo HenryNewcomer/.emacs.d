@@ -37,7 +37,8 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (defvar my-packages
 
 ;;  all-the-icons
-  '(evil
+  '(doom-themes
+    evil
     org-bullets
 ;;  neotree
     projectile
@@ -68,6 +69,26 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
    Repo: https://github.com/domtronn/all-the-icons.el
 #+BEGIN_SRC emacs-lisp
 ;;(require 'all-the-icons)
+#+END_SRC
+
+** Doom Themes
+   Repo: https://github.com/hlissner/emacs-doom-themes#install
+#+BEGIN_SRC emacs-lisp
+(require 'doom-themes)
+
+;; Global settings (defaults)
+(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+      doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+;; may have their own settings.
+(load-theme 'doom-one t)
+
+;; Enable flashing mode-line on errors
+(doom-themes-visual-bell-config)
+
+;; Corrects (and improves) org-mode's native fontification.
+(doom-themes-org-config)
 #+END_SRC
 
 ** Evil mode
@@ -119,7 +140,7 @@ Attempt to improve org-mode performance
 ;;(require 'php-mode)
 #+END_SRC
 
-** TODO Telephone-line
+** Telephone-line
 
    Repo: https://github.com/dbordak/telephone-line
 #+BEGIN_SRC emacs-lisp
