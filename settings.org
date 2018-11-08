@@ -42,6 +42,7 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
     org-bullets
 ;;  neotree
     projectile
+    rainbow-delimiters
     telephone-line
     undo-tree)
 
@@ -138,6 +139,12 @@ Attempt to improve org-mode performance
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
 ;;(require 'php-mode)
+#+END_SRC
+
+** Rainbow Delimiters
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 #+END_SRC
 
 ** Telephone-line
