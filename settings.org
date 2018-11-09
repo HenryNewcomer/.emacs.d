@@ -389,7 +389,7 @@ Move across split windows
 ** Open most recent file
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-most-recent-file)
+(define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-files)
 #+END_SRC
 
 ** Open terminal
