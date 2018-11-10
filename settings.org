@@ -304,6 +304,13 @@ Open Emacs as fullscreen by default
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+END_SRC
 
+** Web Browser (internal)
+
+    Eww
+    #+BEGIN_SRC emacs-lisp
+    (setq browse-url-browser-function 'eww-browse-url)
+    #+END_SRC
+
 ** Whitespace/80-column limit
 
 #+BEGIN_SRC emacs-lisp
@@ -324,6 +331,12 @@ The Spacebar will act as a Leader key for my custom keybindings
 ;;(global-set-key (kbd "SPC") nil)
 #+END_SRC
 ** TODO GROUP/ORGANIZE THESE BETTER!
+
+** Buffers
+
+    #+BEGIN_SRC emacs-lisp
+    (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
+    #+END_SRC
 
 ** Comment/uncomment
 
@@ -420,7 +433,8 @@ NOTE This isn't properly loading settings.org
 ** Quit
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
+;;(define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
+(define-key evil-normal-state-map (kbd "SPC q") 'quit-window)
 #+END_SRC
 
 ** TODO Whitespace/80-column limit (toggle)
