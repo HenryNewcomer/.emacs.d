@@ -242,6 +242,13 @@ Set default language and encodings
 (set-terminal-coding-system 'utf-8)
 #+END_SRC
 
+** Dired Mode
+
+    Auto-refresh dired on file change
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'dired-mode-hook 'auto-revert-mode)
+    #+END_SRC
+
 ** Highlight current line
 
 #+BEGIN_SRC emacs-lisp
@@ -356,7 +363,7 @@ The Spacebar will act as a Leader key for my custom keybindings
 ;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
 ;;(global-set-key (kbd "SPC") nil)
 #+END_SRC
-** TODO GROUP/ORGANIZE THESE BETTER!
+
 
 ** Buffers
 
@@ -378,12 +385,10 @@ TODO Verify how well this works
 (define-key evil-visual-state-map (kbd "SPC /") 'toggle-comment-on-line)
 #+END_SRC
 
-** Quick Edit Settings
-
-TODO Check OS before trying to access settings file
+** Dired
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+(define-key evil-normal-state-map (kbd "SPC o") 'dired)
 #+END_SRC
 
 ** Double space (Normal Mode)
@@ -392,38 +397,18 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC SPC") (kbd "i SPC ESC"))
 #+END_SRC
 
-** Dired
+** Edit Settings (shortcut)
+
+TODO Check OS before trying to access settings file
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC o") 'dired)
+(define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
 #+END_SRC
 
 ** Jump to end of line
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
-#+END_SRC
-
-** Window management
-
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
-(define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
-
-;; Move across split windows
-(define-key evil-normal-state-map (kbd "C-S-h") 'windmove-left)
-(define-key evil-normal-state-map (kbd "C-S-l") 'windmove-right)
-(define-key evil-normal-state-map (kbd "C-S-k") 'windmove-up)
-(define-key evil-normal-state-map (kbd "C-S-j") 'windmove-down)
-
-;; Close active window
-(define-key evil-normal-state-map (kbd "SPC c") 'quit-window)
-
-(define-key evil-normal-state-map (kbd "SPC j") #'other-window)
-(define-key evil-normal-state-map (kbd "SPC k") #'prev-window)
-(defun prev-window ()
-  (interactive)
-  (other-window -1))
 #+END_SRC
 
 ** Open most recent file
@@ -446,11 +431,11 @@ TODO Default terminal based on OS
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
 #+END_SRC
 
-** Quit
+** Text Scaling
 
 #+BEGIN_SRC emacs-lisp
-;;(define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-(define-key evil-normal-state-map (kbd "SPC q") 'quit-window)
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C-=") 'text-scale-decrease)
 #+END_SRC
 
 ** TODO Whitespace/80-column limit (toggle)
@@ -476,15 +461,27 @@ TODO Default terminal based on OS
   ;; (setq whitespace-style '(face tabs lines-tail trailing))
 #+END_SRC
 
-
-** Text Scaling
+** Window management
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C-=") 'text-scale-decrease)
+(define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
+(define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
+
+;; Move across split windows
+(define-key evil-normal-state-map (kbd "C-S-h") 'windmove-left)
+(define-key evil-normal-state-map (kbd "C-S-l") 'windmove-right)
+(define-key evil-normal-state-map (kbd "C-S-k") 'windmove-up)
+(define-key evil-normal-state-map (kbd "C-S-j") 'windmove-down)
+
+;; Close active window
+(define-key evil-normal-state-map (kbd "SPC c") 'quit-window)
+
+(define-key evil-normal-state-map (kbd "SPC j") #'other-window)
+(define-key evil-normal-state-map (kbd "SPC k") #'prev-window)
+(defun prev-window ()
+  (interactive)
+  (other-window -1))
 #+END_SRC
-
-
 
 
 * Closure
