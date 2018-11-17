@@ -414,16 +414,6 @@ TODO Default terminal based on OS
 (define-key evil-normal-state-map (kbd "SPC t") 'term)
 #+END_SRC
 
-** TODO Reload settings.el & settings.org (indirectly)
-
-NOTE This isn't properly loading settings.org
-
-#+BEGIN_SRC emacs-lisp
-;;(define-key evil-normal-state-map (kbd "SPC S")
-;;  (lambda() (interactive)
-;;    (load-file "settings.el") (message "Settings were reloaded.")))
-#+end_src
-
 ** Save
 
 #+BEGIN_SRC emacs-lisp
