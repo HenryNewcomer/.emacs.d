@@ -37,7 +37,8 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (defvar my-packages
 
 ;;  all-the-icons
-  '(doom-themes
+  '(dashboard
+    doom-themes
     evil
     org-bullets
 ;;  neotree
@@ -70,6 +71,31 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
    Repo: https://github.com/domtronn/all-the-icons.el
 #+BEGIN_SRC emacs-lisp
 ;;(require 'all-the-icons)
+#+END_SRC
+
+** Dashboard
+   Repo: https://github.com/rakanalh/emacs-dashboard
+#+BEGIN_SRC emacs-lisp
+(require 'dashboard)
+(dashboard-setup-startup-hook)
+
+(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+
+;; Set the title
+(setq dashboard-banner-logo-title "Emacs Dashboard")
+;; Set the banner
+(setq dashboard-startup-banner 'logo)
+;; Value can be
+;; 'official which displays the official emacs logo
+;; 'logo which displays an alternative emacs logo
+;; 1, 2 or 3 which displays one of the text banners
+;; "path/to/your/image.png" which displays whatever image you would prefer
+
+(setq dashboard-items '((recents  . 10)
+                        (bookmarks . 5)))
+;;                        (projects . 5)
+;;                        (agenda . 5)
+;;                        (registers . 5)))
 #+END_SRC
 
 ** Doom Themes
