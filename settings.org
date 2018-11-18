@@ -36,12 +36,13 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 #+BEGIN_SRC emacs-lisp
 (defvar my-packages
 
-;;  all-the-icons
-  '(dashboard
+  '(auto-complete
+    dashboard
     doom-themes
     evil
-    org-bullets
+    magit
 ;;  neotree
+    org-bullets
     projectile
     rainbow-delimiters
     telephone-line
@@ -64,13 +65,22 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 
 
 
-** All The Icons (MANUAL Font Installation)
+** TODO All The Icons (MANUAL Font Installation)
    !! NOTE - Make sure to run M-x all-the-icons-install-fonts
    !! Install the downloaded fonts into the OS's Fonts directory
 
    Repo: https://github.com/domtronn/all-the-icons.el
 #+BEGIN_SRC emacs-lisp
 ;;(require 'all-the-icons)
+#+END_SRC
+
+** Auto-Complete
+   Repo: https://github.com/auto-complete/auto-complete
+#+BEGIN_SRC emacs-lisp
+(ac-config-default)
+
+(ac-set-trigger-key "TAB")
+(setq ac-auto-start nil)
 #+END_SRC
 
 ** Dashboard
@@ -125,6 +135,13 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (require 'evil)
 (evil-mode 1)
 #+END_SRC
+
+** Magit
+
+    #+BEGIN_SRC emacs-lisp
+    (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
+    (define-key evil-normal-state-map (kbd "SPC S-g") 'magit-dispatch-popup)
+    #+END_SRC
 
 ** Neotree
 
@@ -408,7 +425,7 @@ TODO Check OS before trying to access settings file
 ** Jump to end of line
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC l") (kbd "$"))
+(define-key evil-normal-state-map (kbd "SPC e") (kbd "$"))
 #+END_SRC
 
 ** Open most recent file
@@ -468,16 +485,16 @@ TODO Default terminal based on OS
 (define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
 
 ;; Move across split windows
-(define-key evil-normal-state-map (kbd "C-S-h") 'windmove-left)
-(define-key evil-normal-state-map (kbd "C-S-l") 'windmove-right)
-(define-key evil-normal-state-map (kbd "C-S-k") 'windmove-up)
-(define-key evil-normal-state-map (kbd "C-S-j") 'windmove-down)
+(define-key evil-normal-state-map (kbd "SPC h") 'windmove-left)
+(define-key evil-normal-state-map (kbd "SPC l") 'windmove-right)
+(define-key evil-normal-state-map (kbd "SPC k") 'windmove-up)
+(define-key evil-normal-state-map (kbd "SPC j") 'windmove-down)
 
 ;; Close active window
 (define-key evil-normal-state-map (kbd "SPC c") 'quit-window)
 
-(define-key evil-normal-state-map (kbd "SPC j") #'other-window)
-(define-key evil-normal-state-map (kbd "SPC k") #'prev-window)
+(define-key evil-normal-state-map (kbd "SPC S-j") #'other-window)
+(define-key evil-normal-state-map (kbd "SPC S-k") #'prev-window)
 (defun prev-window ()
   (interactive)
   (other-window -1))
