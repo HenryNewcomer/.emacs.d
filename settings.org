@@ -40,6 +40,7 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
     dashboard
     doom-themes
     evil
+    indent-guide
     magit
 ;;  neotree
     org-bullets
@@ -134,6 +135,15 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (setq evil-want-C-u-scroll t)
 (require 'evil)
 (evil-mode 1)
+#+END_SRC
+
+** Indent Guide
+
+   Repo: https://github.com/zk-phi/indent-guide
+#+BEGIN_SRC emacs-lisp
+(indent-guide-global-mode)
+(set-face-background 'indent-guide-face "dimgray")
+(setq indent-guide-recursive t)
 #+END_SRC
 
 ** Magit
