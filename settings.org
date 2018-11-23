@@ -33,36 +33,36 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 * Package Settings
 ** LIST OF PACKAGES
 
-#+BEGIN_SRC emacs-lisp
-(defvar my-packages
+    #+BEGIN_SRC emacs-lisp
+    (defvar my-packages
 
-  '(auto-complete
-    dashboard
-    doom-themes
-    evil
-    indent-guide
-    magit
-;;  neotree
-    org-bullets
-    projectile
-    rainbow-delimiters
-    telephone-line
-    undo-tree)
+    '(auto-complete
+        dashboard
+        doom-themes
+        evil
+        highlight-indent-guides
+        magit
+    ;;  neotree
+        org-bullets
+        projectile
+        rainbow-delimiters
+        telephone-line
+        undo-tree)
 
-  "A list of packages to install if not locally found.")
+    "A list of packages to install if not locally found.")
 
-(defun my-packages-installed-p ()
-  (cl-loop for p in my-packages
-           when (not (package-installed-p p)) do (cl-return nil)
-           finally (cl-return t)))
-(unless (my-packages-installed-p)
-  ;; Check for new packages (package versions)
-  (package-refresh-contents)
-  ;; Install the missing packages
-  (dolist (p my-packages)
-    (when (not (package-installed-p p))
-      (package-install p))))
-#+END_SRC
+    (defun my-packages-installed-p ()
+    (cl-loop for p in my-packages
+            when (not (package-installed-p p)) do (cl-return nil)
+            finally (cl-return t)))
+    (unless (my-packages-installed-p)
+    ;; Check for new packages (package versions)
+    (package-refresh-contents)
+    ;; Install the missing packages
+    (dolist (p my-packages)
+        (when (not (package-installed-p p))
+        (package-install p))))
+    #+END_SRC
 
 
 
@@ -137,13 +137,12 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (evil-mode 1)
 #+END_SRC
 
-** Indent Guide
+** Highlight Indent Guides
 
-   Repo: https://github.com/zk-phi/indent-guide
+   Repo: https://github.com/DarthFennec/highlight-indent-guides
 #+BEGIN_SRC emacs-lisp
-(indent-guide-global-mode)
-(set-face-background 'indent-guide-face "dimgray")
-(setq indent-guide-recursive t)
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
 #+END_SRC
 
 ** Magit
