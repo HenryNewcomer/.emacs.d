@@ -139,11 +139,11 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 
 ** Highlight Indent Guides
 
-   Repo: https://github.com/DarthFennec/highlight-indent-guides
-#+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-(setq highlight-indent-guides-method 'character)
-#+END_SRC
+    Repo: https://github.com/DarthFennec/highlight-indent-guides
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+    (setq highlight-indent-guides-method 'character)
+    #+END_SRC
 
 ** Magit
 
@@ -306,6 +306,12 @@ Set default language and encodings
 ;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
 #+END_SRC
 
+** Prompt for Y or N (not Yes or No)
+
+    #+BEGIN_SRC emacs-lisp
+    (defalias 'yes-or-no-p 'y-or-n-p)
+    #+END_SRC
+
 ** TODO Enable recent mode
 
 #+BEGIN_SRC emacs-lisp
@@ -330,6 +336,13 @@ Set default language and encodings
 ;;                                                 :foreground "goldenrod"
 ;;                                                 :background "slate gray"))))
 #+END_SRC
+
+** Startup
+
+    #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+    (setq initial-scratch-message nil)
+    #+END_SRC
 
 ** <TAB>s
 
