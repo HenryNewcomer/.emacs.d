@@ -442,13 +442,15 @@ TODO Switch to NERD-Commenter
 TODO Check OS before trying to access settings file
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+;; Think: Edit->Settings
+(define-key evil-normal-state-map (kbd "SPC e s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
 #+END_SRC
 
 ** Jump to end of line
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC e") (kbd "$"))
+;; Think: Move->Last
+(define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
 ** Open most recent file
@@ -462,7 +464,8 @@ TODO Check OS before trying to access settings file
 TODO Default terminal based on OS
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC t") 'term)
+;; Think: New->Terminal
+(define-key evil-normal-state-map (kbd "SPC n t") 'term)
 #+END_SRC
 
 ** Save
@@ -504,8 +507,9 @@ TODO Default terminal based on OS
 ** Window management
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC h") 'split-window-below)
-(define-key evil-normal-state-map (kbd "SPC v") 'split-window-right)
+;; Think: Split->Horizontal or Vertical
+(define-key evil-normal-state-map (kbd "SPC s h") 'split-window-below)
+(define-key evil-normal-state-map (kbd "SPC s v") 'split-window-right)
 
 ;; Move across split windows
 (define-key evil-normal-state-map (kbd "SPC h") 'windmove-left)
