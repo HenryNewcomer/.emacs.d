@@ -7,7 +7,7 @@
 # ============================================================================
 
 * Startup
-
+** Init
 Drastically increase the garbage collection until the end of
 this file, and then reset it
 Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
@@ -16,15 +16,14 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (setq-default gc-cons-threshold 100000000)
 #+END_SRC
 
-
-* Repositories
-** Repository sources
+** Repositories
+*** Repository sources
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 #+END_SRC
 
-** Required (before package customizations)
+*** Required (before package customizations)
 #+BEGIN_SRC emacs-lisp
 (package-initialize)
 #+END_SRC
@@ -36,18 +35,19 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
     #+BEGIN_SRC emacs-lisp
     (defvar my-packages
 
-    '(auto-complete
-        dashboard
-        doom-themes
-        evil
-        highlight-indent-guides
-        magit
-    ;;  neotree
-        org-bullets
-        projectile
-        rainbow-delimiters
-        telephone-line
-        undo-tree)
+    '(ace-window
+      auto-complete
+      dashboard
+      doom-themes
+      evil
+      highlight-indent-guides
+      magit
+    ;;neotree
+      org-bullets
+      projectile
+      rainbow-delimiters
+      telephone-line
+      undo-tree)
 
     "A list of packages to install if not locally found.")
 
@@ -66,13 +66,11 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 
 
 
-** TODO All The Icons (MANUAL Font Installation)
-   !! NOTE - Make sure to run M-x all-the-icons-install-fonts
-   !! Install the downloaded fonts into the OS's Fonts directory
-
-   Repo: https://github.com/domtronn/all-the-icons.el
+** TODO Ace Window
+   Repo: https://github.com/abo-abo/ace-window
+   TODO: Change keybinding for command, customize extra settings
 #+BEGIN_SRC emacs-lisp
-;;(require 'all-the-icons)
+(global-set-key (kbd "M-o") 'ace-window)
 #+END_SRC
 
 ** Auto-Complete
