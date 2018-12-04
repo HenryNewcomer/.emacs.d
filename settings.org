@@ -410,9 +410,10 @@ The Spacebar will act as a Leader key for my custom keybindings
     (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
     #+END_SRC
 
-** Comment/uncomment
+** TODO Comment/uncomment
 
 TODO Verify how well this works
+TODO Switch to NERD-Commenter
 
 #+BEGIN_SRC emacs-lisp
 ;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
@@ -424,7 +425,7 @@ TODO Verify how well this works
 (define-key evil-visual-state-map (kbd "SPC /") 'toggle-comment-on-line)
 #+END_SRC
 
-** Dired
+** TODO Dired
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC o") 'dired)
