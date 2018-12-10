@@ -506,6 +506,7 @@ TODO Default terminal based on OS
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
+(define-key evil-normal-state-map (kbd "SPC W") 'write-file)
 #+END_SRC
 
 ** Text Scaling
