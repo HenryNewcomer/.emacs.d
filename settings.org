@@ -40,9 +40,13 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
       dashboard
       doom-themes
       evil
+      evil-surround
+      ;;fly-check
+      helm
       highlight-indent-guides
       magit
-    ;;neotree
+      multiple-cursors
+      ;;neotree
       org-bullets
       projectile
       rainbow-delimiters
@@ -109,6 +113,7 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 
 ** Doom Themes
    Repo: https://github.com/hlissner/emacs-doom-themes#install
+
 #+BEGIN_SRC emacs-lisp
 (require 'doom-themes)
 
@@ -135,6 +140,24 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 (evil-mode 1)
 #+END_SRC
 
+** TODO Evil Surround
+   Repo: https://github.com/emacs-evil/evil-surround
+
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+
+** TODO Flycheck
+   Repo: https://github.com/flycheck/flycheck
+
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+
+** Helm
+   Repo: https://github.com/emacs-helm/helm
+
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+
 ** Highlight Indent Guides
 
     Repo: https://github.com/DarthFennec/highlight-indent-guides
@@ -149,6 +172,17 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
     (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
     (define-key evil-normal-state-map (kbd "SPC S-g") 'magit-dispatch-popup)
     #+END_SRC
+
+** TODO Multiple Cursors
+   Repo: https://github.com/magnars/multiple-cursors.el
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+
+;;(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+;;(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+;;(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+#+END_SRC
 
 ** Neotree
 
