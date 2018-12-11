@@ -472,15 +472,6 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC e s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
 #+END_SRC
 
-** Jump to beginning/end of line
-
-#+BEGIN_SRC emacs-lisp
-;; Think: Move->Beginning/Last
-;; Note that "beginning" refers to the first character (tabbed)
-(define-key evil-normal-state-map (kbd "SPC m b") (kbd "^"))
-(define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
-#+END_SRC
-
 ** File and folder management
 *** Open Dired
 
@@ -498,6 +489,15 @@ TODO Check OS before trying to access settings file
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC o r") 'recentf-open-files)
+#+END_SRC
+
+** Jump to beginning/end of line
+
+#+BEGIN_SRC emacs-lisp
+;; Think: Move->Beginning/Last
+;; Note that "beginning" refers to the first character (tabbed)
+(define-key evil-normal-state-map (kbd "SPC m b") (kbd "^"))
+(define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
 ** Open terminal
@@ -558,6 +558,12 @@ TODO Default terminal based on OS
 (define-key evil-normal-state-map (kbd "SPC l") 'windmove-right)
 (define-key evil-normal-state-map (kbd "SPC k") 'windmove-up)
 (define-key evil-normal-state-map (kbd "SPC j") 'windmove-down)
+
+;; Resize window panes
+(define-key evil-normal-state-map (kbd "<C-M-up>") 'shrink-window)
+(define-key evil-normal-state-map (kbd "<C-M-down>") 'enlarge-window)
+(define-key evil-normal-state-map (kbd "<C-M-left>") 'shrink-window-horizontally)
+(define-key evil-normal-state-map (kbd "<C-M-right>") 'enlarge-window-horizontally)
 
 ;; Close active window
 (define-key evil-normal-state-map (kbd "SPC c") 'quit-window)
