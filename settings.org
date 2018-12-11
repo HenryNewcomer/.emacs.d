@@ -41,6 +41,7 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
       doom-themes
       evil
       evil-surround
+      evil-magit
       ;;fly-check
       helm
       highlight-indent-guides
@@ -440,6 +441,7 @@ The Spacebar will act as a Leader key for my custom keybindings
 
     #+BEGIN_SRC emacs-lisp
     (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
+    (define-key evil-normal-state-map (kbd "SPC c b") 'kill-buffer)
     #+END_SRC
 
 ** TODO Comment/uncomment
@@ -494,9 +496,8 @@ TODO Check OS before trying to access settings file
 ** Jump to beginning/end of line
 
 #+BEGIN_SRC emacs-lisp
-;; Think: Move->Beginning/Last
-;; Note that "beginning" refers to the first character (tabbed)
-(define-key evil-normal-state-map (kbd "SPC m b") (kbd "^"))
+;; Think: Move->First/Last
+(define-key evil-normal-state-map (kbd "SPC m f") (kbd "^"))
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
@@ -513,7 +514,7 @@ TODO Default terminal based on OS
 
 #+BEGIN_SRC emacs-lisp
 (define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-(define-key evil-normal-state-map (kbd "SPC W") 'write-file)
+(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
 #+END_SRC
 
 ** Text Scaling
@@ -566,7 +567,7 @@ TODO Default terminal based on OS
 (define-key evil-normal-state-map (kbd "<C-M-right>") 'enlarge-window-horizontally)
 
 ;; Close active window
-(define-key evil-normal-state-map (kbd "SPC c") 'quit-window)
+(define-key evil-normal-state-map (kbd "SPC c w") 'delete-window)
 
 (define-key evil-normal-state-map (kbd "SPC S-j") #'other-window)
 (define-key evil-normal-state-map (kbd "SPC S-k") #'prev-window)
