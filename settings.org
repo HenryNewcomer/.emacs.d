@@ -457,12 +457,6 @@ TODO Switch to NERD-Commenter
 (define-key evil-visual-state-map (kbd "SPC /") 'toggle-comment-on-line)
 #+END_SRC
 
-** TODO Dired
-
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC o") 'dired)
-#+END_SRC
-
 ** Double space (Normal Mode)
 
 #+BEGIN_SRC emacs-lisp
@@ -487,10 +481,23 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
-** Open most recent file
+** File and folder management
+*** Open Dired
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC r") 'recentf-open-files)
+(define-key evil-normal-state-map (kbd "SPC o d") 'dired)
+#+END_SRC
+
+*** Open File
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC o f") 'dired)
+#+END_SRC
+
+*** Open recent files
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC o r") 'recentf-open-files)
 #+END_SRC
 
 ** Open terminal
