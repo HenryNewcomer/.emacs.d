@@ -6,6 +6,15 @@
 # ****************************************************************************
 # ============================================================================
 
+* #TODOs
+** TODO SET TOGGLE FOR TAB SPACE COUNT!!!!!
+** TODO Make a global Toggle function
+** TODO Make a new buffer keybinding SPC n b
+** TODO Group keybindings into their own inner-lists (new, toggle, etc)
+
+** TODO Figure out why SPC g keeps getting removed
+** TODO Make sexp keybinding for normal and visual - SPC e
+
 * Startup
 ** Init
 Drastically increase the garbage collection until the end of
@@ -14,6 +23,17 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
 
 #+BEGIN_SRC emacs-lisp
 (setq-default gc-cons-threshold 100000000)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq hwn-current-os nil)
+(cond
+  ((string-equal system-type "gnu/linux")
+    (setq hwn-current-os "linux"))
+  ((string-equal system-type "windows-nt")
+    (setq hwn-current-os "windows"))
+  ((string-equal system-type "darwin")
+    (setq hwn-current-os "osx")))
 #+END_SRC
 
 ** Repositories
@@ -39,6 +59,7 @@ Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps
       auto-complete
       dashboard
       doom-themes
+      dumb-jump
       evil
       evil-surround
       evil-magit
@@ -377,14 +398,67 @@ Set default language and encodings
     (setq initial-scratch-message nil)
     #+END_SRC
 
-** <TAB>s
+** TODO <TAB>s / indentation
 
+    General default attributes
+    #+BEGIN_SRC emacs-lisp
+    (setq-default indent-tabs-mode nil)
+    (setq-default tab-width 4)
+    #+END_SRC
+
+TODO: Go through this and customize it to my liking:
+
+Source: http://blog.binchen.org/posts/easy-indentation-setup-in-emacs-for-web-development.html
 #+BEGIN_SRC emacs-lisp
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
+(defun my-setup-indent (n)
+  ;; java/c/c++
+  (setq-local c-basic-offset n)
+  ;; web development
+  (setq-local coffee-tab-width n) ; coffeescript
+  (setq-local javascript-indent-level n) ; javascript-mode
+  (setq-local js-indent-level n) ; js-mode
+  (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+  (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+  (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+  (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+  (setq-local css-indent-offset n) ; css-mode
+  )
+
+(defun my-office-code-style ()
+  (interactive)
+  (message "Office code style!")
+  ;; use tab instead of space
+  (setq-local indent-tabs-mode t)
+  ;; indent 4 spaces width
+  (my-setup-indent 4))
+
+(defun my-personal-code-style ()
+  (interactive)
+  (message "My personal code style!")
+  ;; use space instead of tab
+  (setq indent-tabs-mode nil)
+  ;; indent 2 spaces width
+  (my-setup-indent 2))
+
+(defun my-setup-develop-environment ()
+  (interactive)
+  (let ((proj-dir (file-name-directory (buffer-file-name))))
+    ;; if hobby project path contains string "hobby-proj1"
+    (if (string-match-p "hobby-proj1" proj-dir)
+        (my-personal-code-style))
+
+    ;; if commericial project path contains string "commerical-proj"
+    (if (string-match-p "commerical-proj" proj-dir)
+        (my-office-code-style))))
+
+;; prog-mode-hook requires emacs24+
+(add-hook 'prog-mode-hook 'my-setup-develop-environment)
+;; a few major-modes does NOT inherited from prog-mode
+(add-hook 'lua-mode-hook 'my-setup-develop-environment)
+(add-hook 'web-mode-hook 'my-setup-develop-environment)
 #+END_SRC
 
-** Tweak Window UI
+** Tweak window UI
 
 Disable the tool & menu bars
 #+BEGIN_SRC emacs-lisp
@@ -409,7 +483,7 @@ Open Emacs as fullscreen by default
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+END_SRC
 
-** Web Browser (internal)
+** Web browser (internal)
 
     Eww
     #+BEGIN_SRC emacs-lisp
@@ -501,20 +575,20 @@ TODO Check OS before trying to access settings file
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
-** Open terminal
+** Save
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
+(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
+#+END_SRC
+
+** Terminal
 
 TODO Default terminal based on OS
 
 #+BEGIN_SRC emacs-lisp
 ;; Think: New->Terminal
 (define-key evil-normal-state-map (kbd "SPC n t") 'term)
-#+END_SRC
-
-** Save
-
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
 #+END_SRC
 
 ** Text Scaling
@@ -574,6 +648,13 @@ TODO Default terminal based on OS
 (defun prev-window ()
   (interactive)
   (other-window -1))
+#+END_SRC
+
+** TODO Word wrap (toggle)
+
+TODO: ADD TOGGLE
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC t w") 'toggle-truncate-lines)
 #+END_SRC
 
 
