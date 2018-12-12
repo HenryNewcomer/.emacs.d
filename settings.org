@@ -7,34 +7,58 @@
 # ============================================================================
 
 * #TODOs
-** TODO SET TOGGLE FOR TAB SPACE COUNT!!!!!
 ** TODO Make a global Toggle function
-** TODO Make a new buffer keybinding SPC n b
 ** TODO Group keybindings into their own inner-lists (new, toggle, etc)
-
 ** TODO Figure out why SPC g keeps getting removed
-** TODO Make sexp keybinding for normal and visual - SPC e
+
+
+** Keybindings
+*** TODO Make a new buffer keybinding SPC n b
+*** TODO Make keybinding for swapping to scratch buffer
+
+*** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
+*** TODO Make sexp keybinding for normal and visual [SPC e]; Auto jump to end of line (or last closing parenthesis?)
+*** TODO Change keybinding for jumping to a mark - default: ` (backtick)
+*** TODO Jump to last buffer
+*** TODO Open last file
+
 
 * Startup
 ** Init
-Drastically increase the garbage collection until the end of
-this file, and then reset it
-Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
+    Drastically increase the garbage collection until the end of
+    this file, and then reset it
+    Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
 
-#+BEGIN_SRC emacs-lisp
-(setq-default gc-cons-threshold 100000000)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (setq-default gc-cons-threshold 100000000)
+    #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(setq hwn-current-os nil)
-(cond
-  ((string-equal system-type "gnu/linux")
-    (setq hwn-current-os "linux"))
-  ((string-equal system-type "windows-nt")
-    (setq hwn-current-os "windows"))
-  ((string-equal system-type "darwin")
-    (setq hwn-current-os "osx")))
-#+END_SRC
+    Detect OS
+    #+BEGIN_SRC emacs-lisp
+    (defun hwn-detect-os ()
+    "Detects the current system's Operating System."
+
+      (setq hwn-current-os-detected nil)
+
+      (cond
+        ((string-equal system-type "gnu/linux")
+          (setq hwn-current-os "linux")
+          (setq hwn-current-os-detected t))
+        ((string-equal system-type "windows-nt")
+          (setq hwn-current-os "windows")
+          (setq hwn-current-os-detected t))
+        ((string-equal system-type "darwin")
+          (setq hwn-current-os "osx")
+          (setq hwn-current-os-detected t)))
+
+    (if hwn-current-os-detected
+        (progn
+          (message (concat "Current OS detected: " hwn-current-os)))
+        (progn
+          (message (concat "Warning! OS detection failed!")))))
+
+    (hwn-detect-os)
+    #+END_SRC
 
 ** Repositories
 *** Repository sources
@@ -402,7 +426,7 @@ Set default language and encodings
 
     General default attributes
     #+BEGIN_SRC emacs-lisp
-    (setq-default indent-tabs-mode nil)
+    (setq-default indent-tabs-mode nil) ;; Disables tab char
     (setq-default tab-width 4)
     #+END_SRC
 
@@ -525,12 +549,13 @@ TODO Switch to NERD-Commenter
 
 #+BEGIN_SRC emacs-lisp
 ;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
-(defun toggle-comment-on-line ()
+(defun hwn-toggle-comment-on-line ()
   "Comment or uncomment the current line"
   (interactive)
   (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
-(define-key evil-normal-state-map (kbd "SPC /") 'toggle-comment-on-line)
-(define-key evil-visual-state-map (kbd "SPC /") 'toggle-comment-on-line)
+
+(define-key evil-normal-state-map (kbd "SPC /") 'hwn-toggle-comment-on-line)
+(define-key evil-visual-state-map (kbd "SPC /") 'hwn-toggle-comment-on-line)
 #+END_SRC
 
 ** Double space (Normal Mode)
@@ -558,7 +583,7 @@ TODO Check OS before trying to access settings file
 *** Open File
 
 #+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC o f") 'dired)
+(define-key evil-normal-state-map (kbd "SPC o f") 'find-file)
 #+END_SRC
 
 *** Open recent files
