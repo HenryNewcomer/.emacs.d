@@ -569,7 +569,7 @@ The Spacebar will act as a Leader key for my custom keybindings
     (define-key evil-normal-state-map (kbd "SPC SPC") 'hwn-double-space)
     #+END_SRC
 
-** Jump to beginning/end of line
+** Jump to beginning / end of line
 
 #+BEGIN_SRC emacs-lisp
 ;; Think: Move->First/Last
@@ -577,12 +577,17 @@ The Spacebar will act as a Leader key for my custom keybindings
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
-** Save
+** Reload Emacs settings
 
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (defun hwn-reload-settings ()
+      "Reload Emacs settings files"
+
+      (interactive)
+      (load "~/.emacs")
+      (message "Emacs settings were reloaded."))
+    (define-key evil-normal-state-map (kbd "SPC r s") 'hwn-reload-settings)
+    #+END_SRC
 
 ** Run sexp
 
@@ -597,6 +602,14 @@ The Spacebar will act as a Leader key for my custom keybindings
 
     (define-key evil-normal-state-map (kbd "SPC m f") 'hwn-execute-sexp)
     #+END_SRC
+
+** Save / quit
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
+(define-key evil-normal-state-map (kbd "SPC c e") 'save-buffers-kill-terminal)
+(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
+#+END_SRC
 
 ** Text Scaling
 
