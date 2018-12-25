@@ -55,7 +55,7 @@
         (progn
           (message (concat "Current OS detected: " hwn-current-os)))
         (progn
-          (message (concat "Warning! OS detection failed!")))))
+          (message "Warning! OS detection failed!"))))
 
     ;; Initiates the function
     (hwn-detect-os)
@@ -96,6 +96,7 @@
       multiple-cursors
       ;;neotree
       org-bullets
+      page-break-lines
       projectile
       rainbow-delimiters
       telephone-line
@@ -198,7 +199,7 @@
    Repo: https://github.com/flycheck/flycheck
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'after-init-hook #'global-flycheck-mode)
+;;(add-hook 'after-init-hook #'global-flycheck-mode)
 #+END_SRC
 
 ** TODO Helm
@@ -577,6 +578,21 @@ The Spacebar will act as a Leader key for my custom keybindings
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
+** TODO Jump above or below current line
+
+    #+BEGIN_SRC emacs-lisp
+    ;; TODO: Add param to determine Above or Below
+    (defun hwn-jump-line ()
+      "Jump above or below the current line without entering Evil's Insert Mode."
+
+      (interactive)
+      (evil-insert-state)
+      (insert "o")
+      (evil-normal-state))
+
+    (define-key evil-normal-state-map (kbd "o") 'hwn-jump-line)
+    #+END_SRC
+
 ** Reload Emacs settings
 
     #+BEGIN_SRC emacs-lisp
@@ -587,20 +603,6 @@ The Spacebar will act as a Leader key for my custom keybindings
       (load "~/.emacs")
       (message "Emacs settings were reloaded."))
     (define-key evil-normal-state-map (kbd "SPC r s") 'hwn-reload-settings)
-    #+END_SRC
-
-** Run sexp
-
-    #+BEGIN_SRC emacs-lisp
-    (defun hwn-execute-sexp ()
-      "Executes elisp code by running sexp commands."
-
-      (interactive)
-      (evil-normal-state)
-      (kbd "^")
-      ('eval-last-sexp))
-
-    (define-key evil-normal-state-map (kbd "SPC m f") 'hwn-execute-sexp)
     #+END_SRC
 
 ** Save / quit
