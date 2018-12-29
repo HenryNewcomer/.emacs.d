@@ -11,7 +11,6 @@
 ** TODO Group keybindings into their own inner-lists (new, toggle, etc)
 
 ** Keybindings
-*** TODO Make a new buffer keybinding SPC n b
 *** TODO Make keybinding for swapping to scratch buffer
 
 *** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
@@ -572,10 +571,21 @@ Open Emacs as fullscreen by default
        (setq buffer-offer-save t)
        $buf))
 
+    (define-key evil-normal-state-map (kbd "SPC n b") 'henry:new-empty-buffer)
+    #+END_SRC
+
+    #+BEGIN_SRC emacs-lisp
+    (defun henry:swap-to-scratch ()
+      "Changes buffer to the *Scratch* buffer."
+      (interactive)
+      (switch-to-buffer "*scratch*"))
+    (define-key evil-normal-state-map (kbd "SPC s t s") 'henry:swap-to-scratch)
+    #+END_SRC
+
+    #+BEGIN_SRC emacs-lisp
     (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
     (define-key evil-normal-state-map (kbd "SPC c b") 'kill-this-buffer)
     (define-key evil-normal-state-map (kbd "SPC c o b") 'kill-buffer) ;; Close->Other->Buffer
-    (define-key evil-normal-state-map (kbd "SPC n b") 'henry:new-empty-buffer)
     #+END_SRC
 
 ** Double space (Normal Mode)
@@ -647,27 +657,27 @@ Open Emacs as fullscreen by default
 
 ** TODO Whitespace/80-column limit (toggle)
 
-#+BEGIN_SRC emacs-lisp
-  (defun henry-custom-toggle-column-limit ()
-    "Toggles the column limit from 80 to unlimited"
-    (interactive)
-    (if (get 'henry-custom-toggle-column-limit 'state)
-      (progn
-        (message "set to nil")
-        (setq global-whitespace-style -1)
-        (put 'henry-custom-toggle-column-limit 'state nil))
-      (progn
-        (message "set to t")
-;;      (setq whitespace-style '(face tabs lines-tail trailing))
-        (setq global-whitespace-style t)
-        (put 'henry-custom-toggle-column-limit 'state t))))
+    #+BEGIN_SRC emacs-lisp
+    (defun henry-custom-toggle-column-limit ()
+        "Toggles the column limit from 80 to unlimited"
+        (interactive)
+        (if (get 'henry-custom-toggle-column-limit 'state)
+        (progn
+            (message "set to nil")
+            (setq global-whitespace-style -1)
+            (put 'henry-custom-toggle-column-limit 'state nil))
+        (progn
+            (message "set to t")
+    ;;      (setq whitespace-style '(face tabs lines-tail trailing))
+            (setq global-whitespace-style t)
+            (put 'henry-custom-toggle-column-limit 'state t))))
 
-  (define-key evil-normal-state-map (kbd "SPC \\") 'henry-custom-toggle-column-limit)
-  ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-  ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-  ;; (setq whitespace-style '(face tabs lines-tail trailing))
-  ;; (setq whitespace-style '(face tabs lines-tail trailing))
-#+END_SRC
+    (define-key evil-normal-state-map (kbd "SPC \\") 'henry-custom-toggle-column-limit)
+    ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
+    ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
+    ;; (setq whitespace-style '(face tabs lines-tail trailing))
+    ;; (setq whitespace-style '(face tabs lines-tail trailing))
+    #+END_SRC
 
 ** Window management
 
