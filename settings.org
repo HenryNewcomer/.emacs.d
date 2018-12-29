@@ -9,8 +9,6 @@
 * #TODOs
 ** TODO Make a global Toggle function
 ** TODO Group keybindings into their own inner-lists (new, toggle, etc)
-** TODO Figure out why SPC g keeps getting removed
-
 
 ** Keybindings
 *** TODO Make a new buffer keybinding SPC n b
@@ -561,8 +559,23 @@ Open Emacs as fullscreen by default
 ** Buffers
 
     #+BEGIN_SRC emacs-lisp
+
+    ;; Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
+    (defun henry:new-empty-buffer ()
+      "Create a new empty buffer.
+       New buffer will be named “untitled” or “untitled<2>”, “untitled<3>”, etc.
+       It returns the buffer (for elisp programing)."
+     (interactive)
+     (let (($buf (generate-new-buffer "Untitled")))
+       (switch-to-buffer $buf)
+       (funcall initial-major-mode)
+       (setq buffer-offer-save t)
+       $buf))
+
     (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
-    (define-key evil-normal-state-map (kbd "SPC c b") 'kill-buffer)
+    (define-key evil-normal-state-map (kbd "SPC c b") 'kill-this-buffer)
+    (define-key evil-normal-state-map (kbd "SPC c o b") 'kill-buffer) ;; Close->Other->Buffer
+    (define-key evil-normal-state-map (kbd "SPC n b") 'henry:new-empty-buffer)
     #+END_SRC
 
 ** Double space (Normal Mode)
@@ -570,7 +583,6 @@ Open Emacs as fullscreen by default
     #+BEGIN_SRC emacs-lisp
     (defun henry:double-space ()
       "Creates a single blank space when the space key is pressed twice; finishes in Evil's Normal Mode."
-
       (interactive)
       (evil-insert-state)
       (insert " ")
@@ -612,7 +624,6 @@ Open Emacs as fullscreen by default
     #+BEGIN_SRC emacs-lisp
     (defun henry:reload-settings ()
       "Reload Emacs settings files"
-
       (interactive)
       (load "~/.emacs")
       (message "Emacs settings were reloaded."))
@@ -638,6 +649,7 @@ Open Emacs as fullscreen by default
 
 #+BEGIN_SRC emacs-lisp
   (defun henry-custom-toggle-column-limit ()
+    "Toggles the column limit from 80 to unlimited"
     (interactive)
     (if (get 'henry-custom-toggle-column-limit 'state)
       (progn
