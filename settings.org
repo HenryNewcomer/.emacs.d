@@ -35,30 +35,30 @@
 
     Detects the current Operating System
     #+BEGIN_SRC emacs-lisp
-    (defun hwn-detect-os ()
+    (defun henry:detect-os ()
     "Detects the current system's Operating System."
 
-      (setq hwn-current-os-detected nil)
+      (setq henry:current-os-detected nil)
 
       (cond
         ((string-equal system-type "gnu/linux")
-          (setq hwn-current-os "linux")
-          (setq hwn-current-os-detected t))
+          (setq henry:current-os "linux")
+          (setq henry:current-os-detected t))
         ((string-equal system-type "windows-nt")
-          (setq hwn-current-os "windows")
-          (setq hwn-current-os-detected t))
+          (setq henry:current-os "windows")
+          (setq henry:current-os-detected t))
         ((string-equal system-type "darwin")
-          (setq hwn-current-os "osx")
-          (setq hwn-current-os-detected t)))
+          (setq henry:current-os "osx")
+          (setq henry:current-os-detected t)))
 
-    (if hwn-current-os-detected
+    (if henry:current-os-detected
         (progn
-          (message (concat "Current OS detected: " hwn-current-os)))
+          (message (concat "Current OS detected: " henry:current-os)))
         (progn
           (message "Warning! OS detection failed!"))))
 
     ;; Initiates the function
-    (hwn-detect-os)
+    (henry:detect-os)
     #+END_SRC
 
 ** Repositories
@@ -433,6 +433,13 @@ Set default language and encodings
     (setq initial-scratch-message nil)
     #+END_SRC
 
+** Sound
+
+    Disable the alert bell sound effect
+    #+BEGIN_SRC emacs-lisp
+    (setq ring-bell-function 'ignore)
+    #+END_SRC
+
 ** TODO <TAB>s / indentation
 
     General default attributes
@@ -559,7 +566,7 @@ The Spacebar will act as a Leader key for my custom keybindings
 ** Double space (Normal Mode)
 
     #+BEGIN_SRC emacs-lisp
-    (defun hwn-double-space ()
+    (defun henry:double-space ()
       "Creates a single blank space when the space key is pressed twice; finishes in Evil's Normal Mode."
 
       (interactive)
@@ -567,7 +574,7 @@ The Spacebar will act as a Leader key for my custom keybindings
       (insert " ")
       (evil-normal-state))
 
-    (define-key evil-normal-state-map (kbd "SPC SPC") 'hwn-double-space)
+    (define-key evil-normal-state-map (kbd "SPC SPC") 'henry:double-space)
     #+END_SRC
 
 ** Jump to beginning / end of line
@@ -581,28 +588,33 @@ The Spacebar will act as a Leader key for my custom keybindings
 ** TODO Jump above or below current line
 
     #+BEGIN_SRC emacs-lisp
-    ;; TODO: Add param to determine Above or Below
-    (defun hwn-jump-line ()
-      "Jump above or below the current line without entering Evil's Insert Mode."
-
+    (defun henry:new-blank-line-above ()
+      "Create blank line above cursor without entering Insert Mode."
       (interactive)
-      (evil-insert-state)
-      (insert "o")
-      (evil-normal-state))
+      (move-beginning-of-line nil)
+      (newline)
+      (forward-line -1))
 
-    (define-key evil-normal-state-map (kbd "o") 'hwn-jump-line)
+    (defun henry:new-blank-line-below ()
+      "Create blank line below cursor without entering Insert Mode."
+      (interactive)
+      (move-end-of-line nil)
+      (newline))
+
+    (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
+    (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
     #+END_SRC
 
 ** Reload Emacs settings
 
     #+BEGIN_SRC emacs-lisp
-    (defun hwn-reload-settings ()
+    (defun henry:reload-settings ()
       "Reload Emacs settings files"
 
       (interactive)
       (load "~/.emacs")
       (message "Emacs settings were reloaded."))
-    (define-key evil-normal-state-map (kbd "SPC r s") 'hwn-reload-settings)
+    (define-key evil-normal-state-map (kbd "SPC r s") 'henry:reload-settings)
     #+END_SRC
 
 ** Save / quit
@@ -726,13 +738,13 @@ TODO Switch to NERD-Commenter
 
 #+BEGIN_SRC emacs-lisp
 ;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
-(defun hwn-toggle-comment-on-line ()
+(defun henry:toggle-comment-on-line ()
   "Comment or uncomment the current line"
   (interactive)
   (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
 
-(define-key evil-normal-state-map (kbd "SPC /") 'hwn-toggle-comment-on-line)
-(define-key evil-visual-state-map (kbd "SPC /") 'hwn-toggle-comment-on-line)
+(define-key evil-normal-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
+(define-key evil-visual-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
 #+END_SRC
 
 
