@@ -42,13 +42,13 @@
 
       (cond
         ((string-equal system-type "gnu/linux")
-          (setq henry:current-os "linux")
+          (setq henry:current-os "Linux")
           (setq henry:current-os-detected t))
         ((string-equal system-type "windows-nt")
-          (setq henry:current-os "windows")
+          (setq henry:current-os "Windows")
           (setq henry:current-os-detected t))
         ((string-equal system-type "darwin")
-          (setq henry:current-os "osx")
+          (setq henry:current-os "OSX")
           (setq henry:current-os-detected t)))
 
     (if henry:current-os-detected
@@ -74,6 +74,7 @@
 #+END_SRC
 
 
+
 * Package Settings
 ** LIST OF PACKAGES
 
@@ -87,7 +88,7 @@
       dumb-jump
       evil
       evil-surround
-      ;;evil-magit
+      evil-magit
       ;;fly-check
       git-gutter
       helm
@@ -231,11 +232,11 @@
     ;;(add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
     #+END_SRC
 
-** TODO Magit #FIX_KEYBINDING
+** TODO Magit
 
     #+BEGIN_SRC emacs-lisp
     (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
-    (define-key evil-normal-state-map (kbd "SPC S-g") 'magit-dispatch-popup)
+    (define-key evil-normal-state-map (kbd "SPC G") 'magit-dispatch-popup)
     #+END_SRC
 
 ** TODO Multiple Cursors
@@ -249,7 +250,7 @@
 ;;(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+END_SRC
 
-** Neotree
+** TODO Neotree
 
 #+BEGIN_SRC emacs-lisp
 ;;(require 'neotree)
@@ -309,6 +310,10 @@ Attempt to improve org-mode performance
 #+END_SRC
 
 ** TODO Undo Tree
+
+    #+BEGIN_SRC emacs-lisp
+    #+END_SRC
+
 ** TODO Wrap region (not used)
 
 #+BEGIN_SRC emacs-lisp
@@ -553,17 +558,6 @@ Open Emacs as fullscreen by default
 
 
 * Keybindings
-** Removes default binding(s)
-
-The Spacebar will act as a Leader key for my custom keybindings
-
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC") nil)
-;;(define-key evil-insert-state-map (kbd "SPC") (kbd "SPC"))
-;;(global-set-key (kbd "SPC") nil)
-#+END_SRC
-
-
 ** Buffers
 
     #+BEGIN_SRC emacs-lisp
