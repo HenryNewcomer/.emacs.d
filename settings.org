@@ -89,6 +89,7 @@
       evil-surround
       ;;evil-magit
       ;;fly-check
+      git-gutter
       helm
       highlight-indent-guides
       ;;lispy
@@ -201,6 +202,13 @@
 #+BEGIN_SRC emacs-lisp
 ;;(add-hook 'after-init-hook #'global-flycheck-mode)
 #+END_SRC
+
+** Git Gutter
+    Repo: https://github.com/syohex/emacs-git-gutter
+
+    #+BEGIN_SRC emacs-lisp
+    (global-git-gutter-mode +1)
+    #+END_SRC
 
 ** TODO Helm
    Repo: https://github.com/emacs-helm/helm
@@ -585,7 +593,7 @@ The Spacebar will act as a Leader key for my custom keybindings
 (define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
 #+END_SRC
 
-** TODO Jump above or below current line
+** Jump above or below current line
 
     #+BEGIN_SRC emacs-lisp
     (defun henry:new-blank-line-above ()
