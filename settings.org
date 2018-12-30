@@ -7,7 +7,6 @@
 # ============================================================================
 
 * #TODOs
-** Create <Leader> key instead of putting SPC everywhere
 ** TODO Switch to use-package format for all plugins (does this matter due to how my setup works?)
 ** TODO Make a global Toggle function
 ** TODO Group keybindings into their own inner-lists (new, toggle, etc)
@@ -22,6 +21,7 @@
 
 * Startup
 ** Init
+*** Garbage Collection
     Drastically increase the garbage collection until the end of
     this file. Afterwards, lower it back down.
 
@@ -31,6 +31,7 @@
     (setq-default gc-cons-threshold 100000000)
     #+END_SRC
 
+*** Operating System
     Detects the current Operating System
     #+BEGIN_SRC emacs-lisp
     (defun henry:detect-os ()
@@ -57,6 +58,13 @@
 
     ;; Initiates the function
     (henry:detect-os)
+    #+END_SRC
+
+*** <Leader> key
+
+    #+BEGIN_SRC emacs-lisp
+    (defvar <Leader> (make-sparse-keymap)
+      "Keymap for custom \"<Leader>\" keybindings.")
     #+END_SRC
 
 ** Repositories
@@ -122,6 +130,20 @@
     #+END_SRC
 
 
+** Initialize Evil Mode
+
+    #+BEGIN_SRC emacs-lisp
+    (setq evil-want-C-u-scroll t)
+    (require 'evil)
+    (evil-mode 1)
+
+;;    (define-key evil-normal-state-map (kbd "SPC") 'nil)
+    (define-key evil-normal-state-map (kbd "SPC") <Leader>)
+
+    ;;(define-key <Leader> (kbd "h") 'test)
+    #+END_SRC
+
+
 ** TODO Ace Window
     Repo: https://github.com/abo-abo/ace-window
     TODO: Change keybinding for command, customize extra settings
@@ -151,7 +173,7 @@
     ;;  - Time and gc info from:
     ;; https://www.reddit.com/r/emacs/comments/8jaflq/tip_how_to_use_your_dashboard_properly/
     (setq dashboard-banner-logo-title
-      (format "Emacs Dashboard\nEmacs ready in %.2f seconds with %d garbage collections."
+      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
         (float-time (time-subtract after-init-time before-init-time)) gcs-done))
 
     ;; Set the banner
@@ -187,14 +209,6 @@
 
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
-    #+END_SRC
-
-** Evil Mode
-
-    #+BEGIN_SRC emacs-lisp
-    (setq evil-want-C-u-scroll t)
-    (require 'evil)
-    (evil-mode 1)
     #+END_SRC
 
 ** TODO Evil Surround
@@ -245,8 +259,8 @@
     #+END_SRC
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
-    (define-key evil-normal-state-map (kbd "SPC G") 'magit-dispatch-popup)
+    (define-key <Leader> "g" 'magit-status)
+    (define-key <Leader> "G" 'magit-dispatch-popup)
     #+END_SRC
 
 ** Modern C++ Font Lock
@@ -361,7 +375,7 @@
 
     (define-key evil-normal-state-map (kbd "u") 'undo)
     (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
-    (define-key evil-normal-state-map (kbd "SPC C-r") 'undo-tree-visualize)
+    (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
     #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -394,21 +408,21 @@
     #+END_SRC
 
 ** Font settings
+    Set default language and encodings
 
-Set default language and encodings
-#+BEGIN_SRC emacs-lisp
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US")
-(set-locale-environment "English")
-(set-language-environment 'English)
-(prefer-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(set-file-name-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (setenv "LANG" "en_US.UTF-8")
+    (setenv "LC_ALL" "en_US.UTF-8")
+    (setenv "LC_CTYPE" "en_US")
+    (set-locale-environment "English")
+    (set-language-environment 'English)
+    (prefer-coding-system 'utf-8)
+    (set-buffer-file-coding-system 'utf-8)
+    (set-keyboard-coding-system 'utf-8)
+    (set-selection-coding-system 'utf-8)
+    (set-file-name-coding-system 'utf-8)
+    (set-terminal-coding-system 'utf-8)
+    #+END_SRC
 
 ** Dired Mode
 
@@ -419,34 +433,34 @@ Set default language and encodings
 
 ** Highlight current line
 
-#+BEGIN_SRC emacs-lisp
-(global-hl-line-mode +1)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (global-hl-line-mode +1)
+    #+END_SRC
 
 ** Ido
 
-#+BEGIN_SRC emacs-lisp
-;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
-(setq ido-separator "\n")
-(setq ido-use-filename-at-point 'guess)
-(setq ido-create-new-buffer 'always)
-(setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    ;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
+    (setq ido-enable-flex-matching t)
+    (setq ido-everywhere t)
+    (ido-mode 1)
+    (setq ido-separator "\n")
+    (setq ido-use-filename-at-point 'guess)
+    (setq ido-create-new-buffer 'always)
+    (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+    #+END_SRC
 
 ** Parentheses, braces, & brackets pairs
 
-#+BEGIN_SRC emacs-lisp
-(show-paren-mode 1)
-(setq show-paren-delay 0)
+    #+BEGIN_SRC emacs-lisp
+    (show-paren-mode 1)
+    (setq show-paren-delay 0)
 
-;;(require 'paren)
-;;(set-face-background 'show-paren-match (face-background 'default))
-;;(set-face-foreground 'show-paren-match "#def")
-;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
-#+END_SRC
+    ;;(require 'paren)
+    ;;(set-face-background 'show-paren-match (face-background 'default))
+    ;;(set-face-foreground 'show-paren-match "#def")
+    ;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
+    #+END_SRC
 
 ** Prompt for Y or N (not Yes or No)
 
@@ -456,34 +470,35 @@ Set default language and encodings
 
 ** TODO Enable recent mode
 
-#+BEGIN_SRC emacs-lisp
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (recentf-mode 1)
+    (setq recentf-max-menu-items 25)
+    (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+    #+END_SRC
 
 ** TODO (set custom colors) Relative line numbers
 
-#+BEGIN_SRC emacs-lisp
-(setq-default display-line-numbers 'relative
-              display-line-numbers-type 'visual
-              display-line-numbers-current-absolute t
-              display-line-numbers-width 4
-              display-line-numbers-widen t)
-(add-hook 'text-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+    #+BEGIN_SRC emacs-lisp
+    (setq-default display-line-numbers 'relative
+                display-line-numbers-type 'visual
+                display-line-numbers-current-absolute t
+                display-line-numbers-width 4
+                display-line-numbers-widen t)
+    (add-hook 'text-mode-hook #'display-line-numbers-mode)
+    (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-;; Customize current line
-;;(custom-set-faces '(line-number-current-line ((t :weight bold
-;;                                                 :foreground "goldenrod"
-;;                                                 :background "slate gray"))))
-#+END_SRC
+    ;; Customize current line
+    ;;(custom-set-faces '(line-number-current-line ((t :weight bold
+    ;;                                                 :foreground "goldenrod"
+    ;;                                                 :background "slate gray"))))
+    #+END_SRC
 
-** Startup
+** Scrolling
 
     #+BEGIN_SRC emacs-lisp
-    (setq inhibit-startup-message t)
-    (setq initial-scratch-message nil)
+    (setq scroll-step 1)
+    (setq scroll-sconservatively 10000)
+    (setq auto-window-vscroll nil)
     #+END_SRC
 
 ** Sound
@@ -491,6 +506,13 @@ Set default language and encodings
     Disable the alert bell sound effect
     #+BEGIN_SRC emacs-lisp
     (setq ring-bell-function 'ignore)
+    #+END_SRC
+
+** Startup
+
+    #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+    (setq initial-scratch-message nil)
     #+END_SRC
 
 ** TODO <TAB>s / indentation
@@ -611,7 +633,7 @@ Open Emacs as fullscreen by default
        (setq buffer-offer-save t)
        $buf))
 
-    (define-key evil-normal-state-map (kbd "SPC n b") 'henry:new-empty-buffer)
+    (define-key <Leader> (kbd "n b") 'henry:new-empty-buffer)
     #+END_SRC
 
     #+BEGIN_SRC emacs-lisp
@@ -619,13 +641,13 @@ Open Emacs as fullscreen by default
       "Changes buffer to the *Scratch* buffer."
       (interactive)
       (switch-to-buffer "*scratch*"))
-    (define-key evil-normal-state-map (kbd "SPC s t s") 'henry:swap-to-scratch)
+    (define-key <Leader> (kbd "s t s") 'henry:swap-to-scratch)
     #+END_SRC
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "SPC b") 'buffer-menu)
-    (define-key evil-normal-state-map (kbd "SPC c b") 'kill-this-buffer)
-    (define-key evil-normal-state-map (kbd "SPC c o b") 'kill-buffer) ;; Close->Other->Buffer
+    (define-key <Leader> (kbd "b") 'buffer-menu)
+    (define-key <Leader> (kbd "c b") 'kill-this-buffer) ;; Close->Buffer
+    (define-key <Leader> (kbd "c o b") 'kill-buffer) ;; Close->Other->Buffer [prompt buffer name]
     #+END_SRC
 
 ** Double space (Normal Mode)
@@ -638,16 +660,16 @@ Open Emacs as fullscreen by default
       (insert " ")
       (evil-normal-state))
 
-    (define-key evil-normal-state-map (kbd "SPC SPC") 'henry:double-space)
+    (define-key <Leader> (kbd "SPC") 'henry:double-space)
     #+END_SRC
 
 ** Jump to beginning / end of line
 
-#+BEGIN_SRC emacs-lisp
-;; Think: Move->First/Last
-(define-key evil-normal-state-map (kbd "SPC m f") (kbd "^"))
-(define-key evil-normal-state-map (kbd "SPC m l") (kbd "$"))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    ;; Think: Move->First/Last
+    (define-key <Leader> (kbd "m f") (kbd "^"))
+    (define-key <Leader> (kbd "m l") (kbd "$"))
+    #+END_SRC
 
 ** Jump above or below current line
 
@@ -677,16 +699,17 @@ Open Emacs as fullscreen by default
       (interactive)
       (load "~/.emacs")
       (message "Emacs settings were reloaded."))
-    (define-key evil-normal-state-map (kbd "SPC r s") 'henry:reload-settings)
+
+    (define-key <Leader> (kbd "r s") 'henry:reload-settings)
     #+END_SRC
 
 ** Save / quit
 
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC w") 'save-buffer)
-(define-key evil-normal-state-map (kbd "SPC c e") 'save-buffers-kill-terminal)
-(define-key evil-normal-state-map (kbd "SPC S-w") 'write-file)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (define-key <Leader> (kbd "w") 'save-buffer) ;; Save
+    (define-key <Leader> (kbd "c e") 'save-buffers-kill-terminal) ;; Close->Emacs
+    (define-key <Leader> (kbd "W") 'write-file) ;; Save-As...
+    #+END_SRC
 
 ** Text Scaling
 
@@ -712,7 +735,7 @@ Open Emacs as fullscreen by default
           (put 'henry:custom-toggle-column-limit 'state t))))
 
     ;; Toggle->Limit
-    (define-key evil-normal-state-map (kbd "SPC t l") 'henry:custom-toggle-column-limit)
+    (define-key <Leader> (kbd "t l") 'henry:custom-toggle-column-limit)
 
     ;; Set to true by default
     (put 'henry:custom-toggle-column-limit 'state t)
@@ -722,39 +745,39 @@ Open Emacs as fullscreen by default
 
 ** Window management
 
-#+BEGIN_SRC emacs-lisp
-;; Think: Split->Horizontal or Vertical
-(define-key evil-normal-state-map (kbd "SPC s h") 'split-window-below)
-(define-key evil-normal-state-map (kbd "SPC s v") 'split-window-right)
+    #+BEGIN_SRC emacs-lisp
+    ;; Think: Split->Horizontal or Vertical
+    (define-key <Leader> (kbd "s h") 'split-window-below)
+    (define-key <Leader> (kbd "s v") 'split-window-right)
 
-;; Move across split windows
-(define-key evil-normal-state-map (kbd "SPC h") 'windmove-left)
-(define-key evil-normal-state-map (kbd "SPC l") 'windmove-right)
-(define-key evil-normal-state-map (kbd "SPC k") 'windmove-up)
-(define-key evil-normal-state-map (kbd "SPC j") 'windmove-down)
+    ;; Move across split windows
+    (define-key <Leader> (kbd "h") 'windmove-left)
+    (define-key <Leader> (kbd "l") 'windmove-right)
+    (define-key <Leader> (kbd "j") 'windmove-down)
+    (define-key <Leader> (kbd "k") 'windmove-up)
 
-;; Resize window panes
-(define-key evil-normal-state-map (kbd "<C-M-up>") 'shrink-window)
-(define-key evil-normal-state-map (kbd "<C-M-down>") 'enlarge-window)
-(define-key evil-normal-state-map (kbd "<C-M-left>") 'shrink-window-horizontally)
-(define-key evil-normal-state-map (kbd "<C-M-right>") 'enlarge-window-horizontally)
+    ;; Resize window panes
+    (define-key evil-normal-state-map (kbd "<C-M-up>") 'shrink-window)
+    (define-key evil-normal-state-map (kbd "<C-M-down>") 'enlarge-window)
+    (define-key evil-normal-state-map (kbd "<C-M-left>") 'shrink-window-horizontally)
+    (define-key evil-normal-state-map (kbd "<C-M-right>") 'enlarge-window-horizontally)
 
-;; Close active window
-(define-key evil-normal-state-map (kbd "SPC c w") 'delete-window)
+    ;; Close active window
+    (define-key <Leader> (kbd "c w") 'delete-window)
 
-(define-key evil-normal-state-map (kbd "SPC S-j") #'other-window)
-(define-key evil-normal-state-map (kbd "SPC S-k") #'prev-window)
-(defun prev-window ()
-  (interactive)
-  (other-window -1))
-#+END_SRC
+    (define-key <Leader> (kbd "S-j") #'other-window)
+    (define-key <Leader> (kbd "S-k") #'prev-window)
+    (defun prev-window ()
+      (interactive)
+      (other-window -1))
+    #+END_SRC
 
 ** TODO Word wrap (toggle)
+    TODO: ADD TOGGLE
 
-TODO: ADD TOGGLE
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "SPC t w") 'toggle-truncate-lines)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (define-key <Leader> (kbd "t w") 'toggle-truncate-lines)
+    #+END_SRC
 
 
 ** New/Open/Edit
@@ -764,26 +787,26 @@ TODO: ADD TOGGLE
 
     #+BEGIN_SRC emacs-lisp
     ;; Think: Edit->Settings
-    (define-key evil-normal-state-map (kbd "SPC e s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+    (define-key <Leader> (kbd "e s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
     #+END_SRC
 
 *** File and folder management
 **** Open Dired
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "SPC o d") 'dired)
+    (define-key <Leader> (kbd "o d") 'dired)
     #+END_SRC
 
 **** Open File
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "SPC o f") 'find-file)
+    (define-key <Leader> (kbd "o f") 'find-file)
     #+END_SRC
 
 **** Open recent files
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "SPC o r") 'recentf-open-files)
+    (define-key <Leader> (kbd "o r") 'recentf-open-files)
     #+END_SRC
 
 *** Terminal
@@ -792,25 +815,26 @@ TODO: ADD TOGGLE
 
     #+BEGIN_SRC emacs-lisp
     ;; Think: New->Terminal
-    (define-key evil-normal-state-map (kbd "SPC n t") 'term)
+    (define-key <Leader> (kbd "n t") 'term)
     #+END_SRC
 
 ** Toggles
 *** TODO Comment/uncomment
 
-TODO Verify how well this works
-TODO Switch to NERD-Commenter
+    TODO Verify how well this works
+    TODO Switch to NERD-Commenter
 
-#+BEGIN_SRC emacs-lisp
-;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
-(defun henry:toggle-comment-on-line ()
-  "Comment or uncomment the current line"
-  (interactive)
-  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+    #+BEGIN_SRC emacs-lisp
+    ;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
+    (defun henry:toggle-comment-on-line ()
+      "Comment or uncomment the current line"
+      (interactive)
+      (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
 
-(define-key evil-normal-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
-(define-key evil-visual-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
-#+END_SRC
+    (define-key <Leader> (kbd "/") 'henry:toggle-comment-on-line)
+;;    (define-key evil-normal-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
+;;    (define-key evil-visual-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
+    #+END_SRC
 
 
 * Closure
