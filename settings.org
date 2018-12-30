@@ -7,6 +7,7 @@
 # ============================================================================
 
 * #TODOs
+** Create <Leader> key instead of putting SPC everywhere
 ** TODO Switch to use-package format for all plugins (does this matter due to how my setup works?)
 ** TODO Make a global Toggle function
 ** TODO Group keybindings into their own inner-lists (new, toggle, etc)
@@ -23,6 +24,7 @@
 ** Init
     Drastically increase the garbage collection until the end of
     this file. Afterwards, lower it back down.
+
     Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
 
     #+BEGIN_SRC emacs-lisp
@@ -73,7 +75,6 @@
 
 * Package Settings
 ** LIST OF PACKAGES
-
     #+BEGIN_SRC emacs-lisp
     (defvar my-packages
 
@@ -138,29 +139,29 @@
 #+END_SRC
 
 ** Dashboard
-   Repo: https://github.com/rakanalh/emacs-dashboard
-#+BEGIN_SRC emacs-lisp
-(require 'dashboard)
-(dashboard-setup-startup-hook)
+    Repo: https://github.com/rakanalh/emacs-dashboard
+    #+BEGIN_SRC emacs-lisp
+    (require 'dashboard)
+    (dashboard-setup-startup-hook)
 
-(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
-;; Set the title
-(setq dashboard-banner-logo-title "Emacs Dashboard")
-;; Set the banner
-(setq dashboard-startup-banner 'logo)
-;; Value can be
-;; 'official which displays the official emacs logo
-;; 'logo which displays an alternative emacs logo
-;; 1, 2 or 3 which displays one of the text banners
-;; "path/to/your/image.png" which displays whatever image you would prefer
+    ;; Set the title
+    (setq dashboard-banner-logo-title "Emacs Dashboard")
+    ;; Set the banner
+    (setq dashboard-startup-banner 'logo)
+    ;; Value can be
+    ;; 'official which displays the official emacs logo
+    ;; 'logo which displays an alternative emacs logo
+    ;; 1, 2 or 3 which displays one of the text banners
+    ;; "path/to/your/image.png" which displays whatever image you would prefer
 
-(setq dashboard-items '((recents  . 10)
-                        (bookmarks . 5)))
-;;                        (projects . 5)
-;;                        (agenda . 5)
-;;                        (registers . 5)))
-#+END_SRC
+    (setq dashboard-items '((recents  . 10)
+                            (bookmarks . 5)))
+    ;;                        (projects . 5)
+    ;;                        (agenda . 5)
+    ;;                        (registers . 5)))
+    #+END_SRC
 
 ** Doom Themes
     Repo: https://github.com/hlissner/emacs-doom-themes#install
@@ -182,13 +183,13 @@
     (doom-themes-org-config)
     #+END_SRC
 
-** Evil mode
+** Evil Mode
 
-#+BEGIN_SRC emacs-lisp
-(setq evil-want-C-u-scroll t)
-(require 'evil)
-(evil-mode 1)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (setq evil-want-C-u-scroll t)
+    (require 'evil)
+    (evil-mode 1)
+    #+END_SRC
 
 ** TODO Evil Surround
    Repo: https://github.com/emacs-evil/evil-surround
@@ -232,6 +233,10 @@
     #+END_SRC
 
 ** Magit
+
+    #+BEGIN_SRC emacs-lisp
+    (setq evil-magit-state 'normal)
+    #+END_SRC
 
     #+BEGIN_SRC emacs-lisp
     (define-key evil-normal-state-map (kbd "SPC g") 'magit-status)
@@ -298,60 +303,55 @@
 #+END_SRC
 
 ** Telephone-line
+    Repo: https://github.com/dbordak/telephone-line
 
-   Repo: https://github.com/dbordak/telephone-line
-#+BEGIN_SRC emacs-lisp
-(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-cubed-right
-      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
-(setq telephone-line-height 16)
-(telephone-line-mode 1)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+        telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+        telephone-line-primary-right-separator 'telephone-line-cubed-right
+        telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+    (setq telephone-line-height 16)
+    (telephone-line-mode 1)
+    #+END_SRC
 
 ** TODO Undo Tree
 
     #+BEGIN_SRC emacs-lisp
+    (global-undo-tree-mode 1)
+
+    (define-key evil-normal-state-map (kbd "u") 'undo)
+    (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
+    (define-key evil-normal-state-map (kbd "SPC C-r") 'undo-tree-visualize)
     #+END_SRC
 
-** TODO Wrap region (not used)
-
 #+BEGIN_SRC emacs-lisp
-;; (add-to-list 'load-path "~/.emacs.d/from_backup/wrap-region.el")
-;; (require 'wrap-region)
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-;;(add-to-list 'load-path "~/.emacs.d/from_backup/undo-tree")
-(global-undo-tree-mode)
 #+END_SRC
 
 
 * General emacs settings
 ** Automatic backups
+    Source: https://www.emacswiki.org/emacs/ForceBackups
 
-#+BEGIN_SRC emacs-lisp
-;;; Source; https://www.emacswiki.org/emacs/ForceBackups
-;; Default and per-save backups go here:
-(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
+    #+BEGIN_SRC emacs-lisp
+    ;; Default and per-save backups go here:
+    (setq backup-directory-alist '(("" . "~/.emacs.d/backups/per-save")))
 
-(defun force-backup-of-buffer ()
-;; Make a special "per session" backup at the first save of each
-;; emacs session.
-(when (not buffer-backed-up)
-    ;; Override the default parameters for per-session backups.
-    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-        (kept-new-versions 3))
-    (backup-buffer)))
-;; Make a "per save" backup on each save.  The first save results in
-;; both a per-session and a per-save backup, to keep the numbering
-;; of per-save backups consistent.
-(let ((buffer-backed-up nil))
-    (backup-buffer)))
+    (defun force-backup-of-buffer ()
+    ;; Make a special "per session" backup at the first save of each
+    ;; emacs session.
+    (when (not buffer-backed-up)
+        ;; Override the default parameters for per-session backups.
+        (let ((backup-directory-alist '(("" . "~/.emacs.d/backups/per-session")))
+            (kept-new-versions 3))
+        (backup-buffer)))
+    ;; Make a "per save" backup on each save.  The first save results in
+    ;; both a per-session and a per-save backup, to keep the numbering
+    ;; of per-save backups consistent.
+    (let ((buffer-backed-up nil))
+        (backup-buffer)))
 
-(add-hook 'before-save-hook  'force-backup-of-buffer)
-#+END_SRC
+    (add-hook 'before-save-hook  'force-backup-of-buffer)
+    #+END_SRC
 
 ** Font settings
 
