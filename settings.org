@@ -92,11 +92,13 @@
       highlight-indent-guides
       ;;lispy
       magit
+      modern-cpp-font-lock
       multiple-cursors
       org-bullets
       page-break-lines
       projectile
       rainbow-delimiters
+      solaire-mode
       telephone-line
       undo-tree)
 
@@ -120,34 +122,38 @@
     #+END_SRC
 
 
-
-
 ** TODO Ace Window
-   Repo: https://github.com/abo-abo/ace-window
-   TODO: Change keybinding for command, customize extra settings
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-o") 'ace-window)
-#+END_SRC
+    Repo: https://github.com/abo-abo/ace-window
+    TODO: Change keybinding for command, customize extra settings
+    #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "M-o") 'ace-window)
+    #+END_SRC
 
 ** Auto-Complete
-   Repo: https://github.com/auto-complete/auto-complete
-#+BEGIN_SRC emacs-lisp
-(ac-config-default)
+    Repo: https://github.com/auto-complete/auto-complete
+    #+BEGIN_SRC emacs-lisp
+    (ac-config-default)
 
-(ac-set-trigger-key "TAB")
-(setq ac-auto-start nil)
-#+END_SRC
+    (ac-set-trigger-key "TAB")
+    (setq ac-auto-start nil)
+    #+END_SRC
 
 ** Dashboard
     Repo: https://github.com/rakanalh/emacs-dashboard
+
     #+BEGIN_SRC emacs-lisp
-    (require 'dashboard)
+;;    (require 'dashboard)
     (dashboard-setup-startup-hook)
 
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
     ;; Set the title
-    (setq dashboard-banner-logo-title "Emacs Dashboard")
+    ;;  - Time and gc info from:
+    ;; https://www.reddit.com/r/emacs/comments/8jaflq/tip_how_to_use_your_dashboard_properly/
+    (setq dashboard-banner-logo-title
+      (format "Emacs Dashboard\nEmacs ready in %.2f seconds with %d garbage collections."
+        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
+
     ;; Set the banner
     (setq dashboard-startup-banner 'logo)
     ;; Value can be
@@ -157,8 +163,8 @@
     ;; "path/to/your/image.png" which displays whatever image you would prefer
 
     (setq dashboard-items '((recents  . 10)
-                            (bookmarks . 5)))
-    ;;                        (projects . 5)
+                            (bookmarks . 5)
+                            (projects . 5)))
     ;;                        (agenda . 5)
     ;;                        (registers . 5)))
     #+END_SRC
@@ -243,6 +249,13 @@
     (define-key evil-normal-state-map (kbd "SPC G") 'magit-dispatch-popup)
     #+END_SRC
 
+** Modern C++ Font Lock
+    Repo: https://github.com/ludwigpacifici/modern-cpp-font-lock
+
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode)
+    #+END_SRC
+
 ** TODO Multiple Cursors
    Repo: https://github.com/magnars/multiple-cursors.el
 
@@ -298,9 +311,36 @@
 
 ** Rainbow Delimiters
 
-#+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+    #+END_SRC
+
+** TODO Solaire Mode
+    TODO: Set colors
+
+    Repo: https://github.com/hlissner/emacs-solaire-mode
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Enable solaire-mode anywhere it can be enabled
+    (solaire-global-mode +1)
+
+    ;; Highlight the minibuffer when it is activated
+    (add-hook 'minibuffer-setup-hook #'solaire-mode-in-minibuffer)
+
+    ;; If the bright and dark background colors are the wrong way around, use this
+    ;; to switch the backgrounds of the `default` and `solaire-default-face` faces.
+    ;; This should be used *after* you load the active theme!
+    ;;
+    ;; NOTE: This is necessary for themes in the doom-themes package!
+    (solaire-mode-swap-bg)
+
+    ;; An alternative for 'use-package' users:
+;;    (use-package solaire-mode
+;;        :hook ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+;;        :config
+;;        (add-hook 'minibuffer-setup-hook #'solaire-mode-in-minibuffer)
+;;        (solaire-mode-swap-bg))
+    #+END_SRC
 
 ** Telephone-line
     Repo: https://github.com/dbordak/telephone-line
@@ -550,11 +590,8 @@ Open Emacs as fullscreen by default
 
 ** Whitespace/80-column limit
 
-#+BEGIN_SRC emacs-lisp
-;;(require 'whitespace)
-(setq whitespace-style '(face tabs lines-tail trailing))
-(global-whitespace-mode t)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    #+END_SRC
 
 
 * Keybindings
@@ -661,25 +698,26 @@ Open Emacs as fullscreen by default
 ** TODO Whitespace/80-column limit (toggle)
 
     #+BEGIN_SRC emacs-lisp
-    (defun henry-custom-toggle-column-limit ()
-        "Toggles the column limit from 80 to unlimited"
-        (interactive)
-        (if (get 'henry-custom-toggle-column-limit 'state)
+    (defun henry:custom-toggle-column-limit ()
+      "Toggles the column limit from 80 to unlimited"
+      (interactive)
+      (if (get 'henry:custom-toggle-column-limit 'state)
         (progn
-            (message "set to nil")
-            (setq global-whitespace-style -1)
-            (put 'henry-custom-toggle-column-limit 'state nil))
+          (message "80-column limit indicator DISABLED.")
+          (global-whitespace-mode -1)
+          (put 'henry:custom-toggle-column-limit 'state nil))
         (progn
-            (message "set to t")
-    ;;      (setq whitespace-style '(face tabs lines-tail trailing))
-            (setq global-whitespace-style t)
-            (put 'henry-custom-toggle-column-limit 'state t))))
+          (message "80-column limit indicator ENABLED.")
+          (global-whitespace-mode t)
+          (put 'henry:custom-toggle-column-limit 'state t))))
 
-    (define-key evil-normal-state-map (kbd "SPC \\") 'henry-custom-toggle-column-limit)
-    ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-    ;; (define-key evil-normal-state-map (kbd "SPC q") 'save-buffers-kill-emacs)
-    ;; (setq whitespace-style '(face tabs lines-tail trailing))
-    ;; (setq whitespace-style '(face tabs lines-tail trailing))
+    ;; Toggle->Limit
+    (define-key evil-normal-state-map (kbd "SPC t l") 'henry:custom-toggle-column-limit)
+
+    ;; Set to true by default
+    (put 'henry:custom-toggle-column-limit 'state t)
+    (setq whitespace-style '(face tabs lines-tail trailing))
+    (global-whitespace-mode t)
     #+END_SRC
 
 ** Window management
