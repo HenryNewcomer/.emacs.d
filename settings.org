@@ -173,6 +173,46 @@
     (global-set-key [C-M-f] 'clang-format-region)
     #+END_SRC
 
+** Counsel eTags
+    Repo: https://github.com/redguardtoo/counsel-etags
+
+    Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
+
+$$$
+    #+BEGIN_SRC emacs-lisp
+    (define-key evil-normal-state-map (kbd "M-.") 'counsel-etags-find-tag-at-point)
+    (define-key evil-normal-state-map (kbd "M-*") 'counsel-etags-grep-symbol-at-point)
+    (define-key evil-normal-state-map (kbd "M-f") 'counsel-etags-find-tag)
+
+    ;; Ignore files above 1Mb
+    (setq counsel-etags-max-file-size 1024)
+
+    ;; Ignore build directories
+    (eval-after-load 'counsel-etags
+      '(progn
+        ;; counsel-etags-ignore-directories does NOT support wildcast
+        (add-to-list 'counsel-etags-ignore-directories "build")
+        (add-to-list 'counsel-etags-ignore-directories ".vscode")
+        ;; counsel-etags-ignore-filenames DOES support wildcast
+        (add-to-list 'counsel-etags-ignore-filenames "TAGS")
+        (add-to-list 'counsel-etags-ignore-filenames "*.clang-format")))
+
+    ;; Don't ask before re-reading the TAGS files if they have changed
+    (setq tags-revert-without-query t)
+
+    ;; Don't warn when TAGS files are large
+    ;;(setq large-file-warning-threshold nil)
+
+    ;; How many seconds to wait before rerunning tags for auto-update
+    (setq counsel-etags-update-interval 180)
+
+    ;; Set up auto-update
+    (add-hook 'prog-mode-hook
+        (lambda () (add-hook 'after-save-hook
+            (lambda ()
+                (counsel-etags-virtual-update-tags)))))
+    #+END_SRC
+
 ** Dashboard
     Repo: https://github.com/rakanalh/emacs-dashboard
 
@@ -227,15 +267,15 @@
 ** TODO Evil Surround
    Repo: https://github.com/emacs-evil/evil-surround
 
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    #+END_SRC
 
 ** TODO Flycheck
-   Repo: https://github.com/flycheck/flycheck
+    Repo: https://github.com/flycheck/flycheck
 
-#+BEGIN_SRC emacs-lisp
-;;(add-hook 'after-init-hook #'global-flycheck-mode)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    ;;(add-hook 'after-init-hook #'global-flycheck-mode)
+    #+END_SRC
 
 ** Git Gutter
     Repo: https://github.com/syohex/emacs-git-gutter
@@ -251,16 +291,16 @@
 #+END_SRC
 
 ** Highlight Indent Guides
-
     Repo: https://github.com/DarthFennec/highlight-indent-guides
+
     #+BEGIN_SRC emacs-lisp
     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
     (setq highlight-indent-guides-method 'character)
     #+END_SRC
 
 ** Ivy / Swiper
-
     Repo: https://github.com/abo-abo/swiper
+
     #+BEGIN_SRC emacs-lisp
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
@@ -290,6 +330,7 @@
     #+END_SRC
 
 ** TODO Lispy
+
     Repo: https://github.com/abo-abo/lispy
 
     #+BEGIN_SRC emacs-lisp
