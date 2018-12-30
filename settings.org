@@ -82,12 +82,14 @@
 
 
 * Package Settings
-** LIST OF PACKAGES
+** :: LIST OF PACKAGES ::
     #+BEGIN_SRC emacs-lisp
     (defvar my-packages
 
      '(ace-window
       auto-complete
+      clang-format
+      counsel-etags
       dashboard
       doom-themes
       dumb-jump
@@ -98,17 +100,19 @@
       git-gutter
       helm
       highlight-indent-guides
+      ivy
       ;;lispy
       magit
       modern-cpp-font-lock
       multiple-cursors
       org-bullets
       page-break-lines
-      projectile
+      ;;projectile
       rainbow-delimiters
       solaire-mode
       telephone-line
       undo-tree)
+;;      visual-regexp)
 
     "A list of packages to install if not locally found.")
     #+END_SRC
@@ -130,6 +134,8 @@
     #+END_SRC
 
 
+
+
 ** Initialize Evil Mode
 
     #+BEGIN_SRC emacs-lisp
@@ -143,7 +149,6 @@
     ;;(define-key <Leader> (kbd "h") 'test)
     #+END_SRC
 
-
 ** TODO Ace Window
     Repo: https://github.com/abo-abo/ace-window
     TODO: Change keybinding for command, customize extra settings
@@ -156,8 +161,16 @@
     #+BEGIN_SRC emacs-lisp
     (ac-config-default)
 
+;;(define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
     (ac-set-trigger-key "TAB")
     (setq ac-auto-start nil)
+    #+END_SRC
+
+** Clang Format
+    Repo: https://clang.llvm.org/docs/ClangFormat.html
+
+    #+BEGIN_SRC emacs-lisp
+    (global-set-key [C-M-f] 'clang-format-region)
     #+END_SRC
 
 ** Dashboard
@@ -245,6 +258,37 @@
     (setq highlight-indent-guides-method 'character)
     #+END_SRC
 
+** Ivy / Swiper
+
+    Repo: https://github.com/abo-abo/swiper
+    #+BEGIN_SRC emacs-lisp
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+
+    (define-key <Leader> (kbd "s s") 'swiper) ;; Swiper->Search
+    (define-key <Leader> "f" 'project-find-file)
+
+;; ~~~
+;; Possible config additions:
+;;    (global-set-key "\C-s" 'swiper)
+;;    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+;;    (global-set-key (kbd "<f6>") 'ivy-resume)
+;;    (global-set-key (kbd "M-x") 'counsel-M-x)
+;;    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+;;    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+;;    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+;;    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+;;    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+;;    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+;;    (global-set-key (kbd "C-c g") 'counsel-git)
+;;    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+;;    (global-set-key (kbd "C-c k") 'counsel-ag)
+;;    (global-set-key (kbd "C-x l") 'counsel-locate)
+;;    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+;;    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+    #+END_SRC
+
 ** TODO Lispy
     Repo: https://github.com/abo-abo/lispy
 
@@ -312,8 +356,8 @@
 ** TODO Projectile
 
 #+BEGIN_SRC emacs-lisp
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;;(projectile-mode +1)
+;;(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 #+END_SRC
 
 ** TODO PHP mode
@@ -407,6 +451,23 @@
     (add-hook 'before-save-hook  'force-backup-of-buffer)
     #+END_SRC
 
+** Cursor
+
+    #+BEGIN_SRC emacs-lisp
+    ;; TODO: Not working?
+    ;;(set-default 'cursor-type 'bar)
+
+    ;; Don't blink the cursor
+    (blink-cursor-mode -1)
+    #+END_SRC
+
+** Dired Mode
+
+    Auto-refresh dired on file change
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'dired-mode-hook 'auto-revert-mode)
+    #+END_SRC
+
 ** Font settings
     Set default language and encodings
 
@@ -422,13 +483,6 @@
     (set-selection-coding-system 'utf-8)
     (set-file-name-coding-system 'utf-8)
     (set-terminal-coding-system 'utf-8)
-    #+END_SRC
-
-** Dired Mode
-
-    Auto-refresh dired on file change
-    #+BEGIN_SRC emacs-lisp
-    (add-hook 'dired-mode-hook 'auto-revert-mode)
     #+END_SRC
 
 ** Highlight current line
@@ -468,7 +522,7 @@
     (defalias 'yes-or-no-p 'y-or-n-p)
     #+END_SRC
 
-** TODO Enable recent mode
+** TODO Recent mode
 
     #+BEGIN_SRC emacs-lisp
     (recentf-mode 1)
@@ -476,7 +530,7 @@
     (global-set-key "\C-x\ \C-r" 'recentf-open-files)
     #+END_SRC
 
-** TODO (set custom colors) Relative line numbers
+** TODO Relative line numbers (set custom colors)
 
     #+BEGIN_SRC emacs-lisp
     (setq-default display-line-numbers 'relative
