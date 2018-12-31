@@ -6,11 +6,11 @@
 # ****************************************************************************
 # ============================================================================
 
-* #TODOs
-** TODO Switch to use-package format for all plugins (does this matter due to how my setup works?)
-** TODO Make a global Toggle function
-** TODO Group keybindings into their own inner-lists (new, toggle, etc)
 
+!!! add electric tab
+!!! Change tab width for elisp
+
+* #TODOs
 ** Keybindings
 *** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
 *** TODO Make sexp keybinding for normal and visual [SPC e]; Auto jump to end of line (or last closing parenthesis?)
@@ -518,10 +518,24 @@
     (set-terminal-coding-system 'utf-8)
     #+END_SRC
 
-** Highlight current line
+** Highlights
+*** Current Line
 
     #+BEGIN_SRC emacs-lisp
     (global-hl-line-mode +1)
+    #+END_SRC
+
+*** Keywords (ex. "TODO")
+    Source: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
+
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'prog-mode-hook
+      (lambda ()
+        ;; Disabled in cmake-mode due to glitch (see Author's comment in source)
+        (when (not (derived-mode-p 'cmake-mode))
+          (font-lock-add-keywords nil
+            '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TODO\\)"
+                1 font-lock-warning-face t))))))
     #+END_SRC
 
 ** Ido
@@ -622,9 +636,14 @@
 ** TODO <TAB>s / indentation
 
     General default attributes
+
     #+BEGIN_SRC emacs-lisp
-    (setq-default indent-tabs-mode nil) ;; Disables tab char
+    ;; Disables the Tab char
+    (setq-default indent-tabs-mode nil)
+    ;; Sets the default tab width to 4 spaces
     (setq-default tab-width 4)
+    ;; Enable automatic indentations
+    (electric-indent-mode +1)
     #+END_SRC
 
     # --------------------------------------------------- #
@@ -726,6 +745,13 @@
 
 * Keybindings
 ** Buffers
+*** Close buffer
+
+    #+BEGIN_SRC emacs-lisp
+    (define-key <Leader> (kbd "c b") 'kill-this-buffer) ;; Close->Buffer
+    (define-key <Leader> (kbd "c o b") 'kill-buffer) ;; Close->Other->Buffer [prompt buffer name]
+    #+END_SRC
+
 *** Create empty buffer
     Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
 
@@ -744,13 +770,43 @@
     (define-key <Leader> (kbd "n b") 'henry:new-empty-buffer)
     #+END_SRC
 
-*** Swap to *Scratch*
+*** Ibuffer
+    Open Ibuffer
+
     #+BEGIN_SRC emacs-lisp
-    (defun henry:swap-to-scratch ()
-      "Changes buffer to the *Scratch* buffer."
-      (interactive)
-      (switch-to-buffer "*scratch*"))
-    (define-key <Leader> (kbd "s t s") 'henry:swap-to-scratch)
+    (define-key <Leader> (kbd "b") 'ibuffer)
+    #+END_SRC
+
+    Config Ibuffer settings
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Force Ibuffer to use Evil keybindings
+    (evil-set-initial-state 'ibuffer-mode 'normal)
+    ;; Prevents prompting for permission to delete unmodified buffers
+    (setq ibuffer-expert t)
+    ;; Don't show groups that are empty
+    (setq ibuffer-show-empty-filter-groups nil)
+    #+END_SRC
+
+    Create groups
+    Based on: http://martinowen.net/blog/2010/02/03/tips-for-emacs-ibuffer.html
+
+    #+BEGIN_SRC emacs-lisp
+    (setq ibuffer-saved-filter-groups
+      '(("home"
+        ("Web Development" (or (mode . html-mode)
+          (mode . css-mode)))
+        ("Magit" (name . "\*magit"))
+        ("Emacs Config/Settings" (or (filename . ".emacs")
+          (filename . "settings.org")))
+        ("Help" (or (name . "\*Help\*")
+          (name . "\*Apropos\*")
+          (name . "\*info\*"))))))
+
+    (add-hook 'ibuffer-mode-hook '(lambda ()
+      (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
+      (ibuffer-switch-to-saved-filter-groups "home")))
+
     #+END_SRC
 
 *** TODO Swap between previous buffer
@@ -769,12 +825,13 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
     #+END_SRC
 
-*** Other Buffer keybindings
-
+*** Swap to *Scratch*
     #+BEGIN_SRC emacs-lisp
-    (define-key <Leader> (kbd "b") 'buffer-menu)
-    (define-key <Leader> (kbd "c b") 'kill-this-buffer) ;; Close->Buffer
-    (define-key <Leader> (kbd "c o b") 'kill-buffer) ;; Close->Other->Buffer [prompt buffer name]
+    (defun henry:swap-to-scratch ()
+      "Changes buffer to the *Scratch* buffer."
+      (interactive)
+      (switch-to-buffer "*scratch*"))
+    (define-key <Leader> (kbd "s t s") 'henry:swap-to-scratch)
     #+END_SRC
 
 ** Double space (Normal Mode)
@@ -793,8 +850,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ** TODO Compiler
 
     #+BEGIN_SRC emacs-lisp
-    ;; Compile->C++
-    (define-key <Leader> (kbd "m a") '(lambda ()
+    ;; Compile->Makefile
+    (define-key <Leader> (kbd "c m") '(lambda ()
         (interactive) (compile "make all") (other-window 1)))
     #+END_SRC
 
