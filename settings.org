@@ -677,33 +677,37 @@
 #    #+END_SRC
 
 ** Tweak window UI
+*** Disable the tool & menu bars
 
-Disable the tool & menu bars
-#+BEGIN_SRC emacs-lisp
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
+    #+END_SRC
 
-Disable the scroll bars
-#+BEGIN_SRC emacs-lisp
-(scroll-bar-mode -1)
-;; Hide the minibuffer window's scrollbar
-(set-window-scroll-bars (minibuffer-window) nil nil)
-#+END_SRC
+*** Disable the scroll bars
 
-Disable welcome screen
-#+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+    (scroll-bar-mode -1)
+    ;; Hide the minibuffer window's scrollbar
+    (set-window-scroll-bars (minibuffer-window) nil nil)
+    #+END_SRC
 
-Open Emacs as fullscreen by default
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+END_SRC
+*** Disable welcome screen
+
+    #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-screen t)
+    #+END_SRC
+
+*** Open Emacs as fullscreen by default
+
+    #+BEGIN_SRC emacs-lisp
+    (add-to-list 'default-frame-alist '(fullscreen . maximized))
+    #+END_SRC
+
 
 ** Web browser (internal)
-
     Eww
+
     #+BEGIN_SRC emacs-lisp
     (setq browse-url-browser-function 'eww-browse-url)
     #+END_SRC
