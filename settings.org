@@ -930,17 +930,17 @@ Open Emacs as fullscreen by default
 
 Passing \"v\" or \"h\" will split the window vertically or
 horizontally, respectively."
-      (interactive "s?:")
+      (interactive "sSplit window? (\"v\" or \"h\"):")
       (message "TESTING....%s" arg)
       (cond
         ((string= arg "v")
           (progn
-            (message "Opening Terminal: vertically.")
+            (message "Opening Terminal (vertically).")
             (split-window-right)
             (other-window 1)))
         ((string= arg "h")
           (progn
-            (message "Opening Terminal: horizontally.")
+            (message "Opening Terminal (horizontally).")
             (split-window-below)
             (other-window 1)))
         ((string= arg nil) (message "Opening Terminal.")))
@@ -952,40 +952,6 @@ horizontally, respectively."
     (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal-test)))
     (define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal-test "v")))
     (define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal-test "h")))
-
-"""
-    (defun henry:open-terminal ()
-      "Open a Terminal buffer."
-      (interactive)
-      (message "Opening Terminal...")
-      (set-buffer (make-term "terminal" "bash"))
-;;    (term "bash")
-      (switch-to-buffer "*terminal*"))
-
-    (defun henry:open-vertical-terminal ()
-      "Open a Terminal buffer within a new vertical split."
-      (interactive)
-      (message "Opening Terminal vertically...")
-      (split-window-right)
-      (other-window 1)
-      (set-buffer (make-term "terminal" "bash"))
-      (switch-to-buffer "*terminal*"))
-
-    (defun henry:open-horizontal-terminal ()
-      "Open a Terminal buffer within a new horizontal split."
-      (interactive)
-      (message "Opening Terminal horizontally...")
-      (split-window-below)
-      (other-window 1)
-      (set-buffer (make-term "terminal" "bash"))
-      (switch-to-buffer "*terminal*"))
-
-    ;; Think: Open->[vertical/horizontal->]Terminal
-;;    (define-key <Leader> (kbd "o t") 'henry:open-terminal)
-    (define-key <Leader> (kbd "o v t") 'henry:open-vertical-terminal)
-    (define-key <Leader> (kbd "o h t") 'henry:open-horizontal-terminal)
-"""
-
     #+END_SRC
 
 ** Toggles
