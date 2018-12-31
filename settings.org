@@ -758,6 +758,18 @@ Open Emacs as fullscreen by default
     (define-key <Leader> (kbd "SPC") 'henry:double-space)
     #+END_SRC
 
+** Evaluate Elisp (sexp)
+
+    #+BEGIN_SRC emacs-lisp
+    (defun henry:sexp-at-end-of-line ()
+      "Jumps to the end of the line and runs 'eval-last-sexp'."
+      (interactive)
+      (move-end-of-line 1)
+      (call-interactively 'eval-last-sexp))
+
+    (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
+    #+END_SRC
+
 ** Jump to beginning / end of line
 
     #+BEGIN_SRC emacs-lisp
