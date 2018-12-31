@@ -71,7 +71,9 @@
 *** Repository sources
 #+BEGIN_SRC emacs-lisp
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '(("melpa" . "http://melpa.org/packages/")
+                                 ("gnu" . "http://elpa.gnu.org/packages/")))
+
 #+END_SRC
 
 *** Required (before package customizations)
@@ -86,33 +88,37 @@
     #+BEGIN_SRC emacs-lisp
     (defvar my-packages
 
-     '(ace-window
-      auto-complete
-      clang-format
-      counsel-etags
-      dashboard
-      doom-themes
-      dumb-jump
-      evil
-      evil-surround
-      evil-magit
-      flycheck
-      git-gutter
-      helm
-      highlight-indent-guides
-      ivy
-      ;;lispy
-      magit
-      modern-cpp-font-lock
-      multiple-cursors
-      org-bullets
-      page-break-lines
-;;    projectile
-      rainbow-delimiters
-      solaire-mode
-      telephone-line
-      undo-tree)
-;;      visual-regexp)
+      '(ace-window
+        beacon
+        clang-format
+        cmake-font-lock
+        company
+        counsel-etags
+        dashboard
+        doom-themes
+        dumb-jump
+        emmet-mode
+        evil
+        evil-surround
+        evil-magit
+        flycheck
+        git-gutter
+        helm
+        highlight-indent-guides
+        ivy
+;;      lispy
+        magit
+        modern-cpp-font-lock
+        multiple-cursors
+        org-bullets
+        page-break-lines
+;;      projectile
+        rainbow-delimiters
+        solaire-mode
+        telephone-line
+        undo-tree)
+;;      visual-regexp
+;;      yasnippet
 
     "A list of packages to install if not locally found.")
     #+END_SRC
@@ -160,14 +166,11 @@
     (global-set-key (kbd "M-o") 'ace-window)
     #+END_SRC
 
-** Auto-Complete
-    Repo: https://github.com/auto-complete/auto-complete
-    #+BEGIN_SRC emacs-lisp
-    (ac-config-default)
+** Beacon
+    Repo: https://github.com/Malabarba/beacon
 
-;;(define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-    (ac-set-trigger-key "TAB")
-    (setq ac-auto-start nil)
+    #+BEGIN_SRC emacs-lisp
+    (beacon-mode 1)
     #+END_SRC
 
 ** Clang Format
@@ -175,6 +178,14 @@
 
     #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "c f") 'clang-format-region)
+    #+END_SRC
+
+** Cmake Font Lock
+    Repo: https://github.com/Lindydancer/cmake-font-lock
+
+    #+BEGIN_SRC emacs-lisp
+    (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
     #+END_SRC
 
 ** Counsel eTags
@@ -214,6 +225,19 @@
         (lambda () (add-hook 'after-save-hook
             (lambda ()
                 (counsel-etags-virtual-update-tags)))))
+    #+END_SRC
+
+** TODO Company Mode
+    Repo: http://company-mode.github.io/
+
+    TODO: Decide whether to use a keybinding or the delay...
+
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'after-init-hook 'global-company-mode)
+    ;; Set keybinding
+    (global-set-key "\t" 'company-complete)
+    ;; Show results immediately
+    (setq company-idle-delay 0)
     #+END_SRC
 
 ** Dashboard
@@ -265,6 +289,14 @@
 
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
+    #+END_SRC
+
+** Emmet Mode
+    Repo: https://github.com/smihica/emmet-mode
+
+    #+BEGIN_SRC emacs-lisp
+    ;;(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+    ;;(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
     #+END_SRC
 
 ** TODO Evil Surround
@@ -456,6 +488,16 @@
     (define-key evil-normal-state-map (kbd "u") 'undo)
     (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
     (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
+    #+END_SRC
+
+** TODO Yasnippet
+    Source: https://github.com/joaotavora/yasnippet 
+
+    For a list of Snippets, check out:
+    https://github.com/AndreaCrotti/yasnippet-snippets/tree/master/snippets
+
+    #+BEGIN_SRC emacs-lisp
+;;    (yas-global-mode 1)
     #+END_SRC
 
 
