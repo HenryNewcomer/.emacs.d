@@ -107,7 +107,7 @@
       multiple-cursors
       org-bullets
       page-break-lines
-      ;;projectile
+;;    projectile
       rainbow-delimiters
       solaire-mode
       telephone-line
@@ -301,6 +301,19 @@
     (setq highlight-indent-guides-method 'character)
     #+END_SRC
 
+** Improved Org Mode Bullet Symbols
+    Only customize the bullet symbols when on a Linux distro
+
+    #+BEGIN_SRC emacs-lisp
+    (cond
+      ((string-equal system-type "gnu/linux")
+         ;;(require 'org-bullets)
+         (setq org-bullets-bullet-list
+             '("◉" "◎"))
+         :config
+             (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+    #+END_SRC
+
 ** Ivy / Swiper
     Repo: https://github.com/abo-abo/swiper
 
@@ -370,42 +383,18 @@
 ;;(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+END_SRC
 
-** Org Mode
-*** Customizes the colors
-    Source: https://orgmode.org/manual/Faces-for-TODO-keywords.html
+** Page Break Lines
 
     #+BEGIN_SRC emacs-lisp
-    (setq org-todo-keyword-faces
-        '(("TODO" . "#3399ff") ("STARTED" . "yellow")
-            ("CANCELED" . (:foreground "blue" :weight bold))))
-    #+END_SRC
-
-*** Improved bullet symbols
-    Only customize the bullet symbols when on a Linux distro
-
-    #+BEGIN_SRC emacs-lisp
-    (cond
-      ((string-equal system-type "gnu/linux")
-         ;;(require 'org-bullets)
-         (setq org-bullets-bullet-list
-             '("◉" "◎"))
-         :config
-             (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
-    #+END_SRC
-
-*** Attempt to improve org-mode performance
-    Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
-
-    #+BEGIN_SRC emacs-lisp
-    (setq inhibit-compacting-font-caches t)
+    (global-page-break-lines-mode)
     #+END_SRC
 
 ** TODO Projectile
 
-#+BEGIN_SRC emacs-lisp
-;;(projectile-mode +1)
-;;(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+;;    (projectile-mode +1)
+;;    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    #+END_SRC
 
 ** TODO PHP mode
 
@@ -546,6 +535,23 @@
     (setq ido-use-filename-at-point 'guess)
     (setq ido-create-new-buffer 'always)
     (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+    #+END_SRC
+
+** Org Mode
+*** Customizes the colors
+    Source: https://orgmode.org/manual/Faces-for-TODO-keywords.html
+
+    #+BEGIN_SRC emacs-lisp
+    (setq org-todo-keyword-faces
+        '(("TODO" . "#3399ff") ("STARTED" . "yellow")
+            ("CANCELED" . (:foreground "blue" :weight bold))))
+    #+END_SRC
+
+*** Attempt to improve org-mode performance
+    Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
+
+    #+BEGIN_SRC emacs-lisp
+    (setq inhibit-compacting-font-caches t)
     #+END_SRC
 
 ** Parentheses, braces, & brackets pairs
