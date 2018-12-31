@@ -720,10 +720,10 @@
 
 * Keybindings
 ** Buffers
+*** Create empty buffer
+    Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
 
     #+BEGIN_SRC emacs-lisp
-
-    ;; Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
     (defun henry:new-empty-buffer ()
       "Create a new empty buffer.
        New buffer will be named “untitled” or “untitled<2>”, “untitled<3>”, etc.
@@ -738,6 +738,7 @@
     (define-key <Leader> (kbd "n b") 'henry:new-empty-buffer)
     #+END_SRC
 
+*** Swap to *Scratch*
     #+BEGIN_SRC emacs-lisp
     (defun henry:swap-to-scratch ()
       "Changes buffer to the *Scratch* buffer."
@@ -745,6 +746,24 @@
       (switch-to-buffer "*scratch*"))
     (define-key <Leader> (kbd "s t s") 'henry:swap-to-scratch)
     #+END_SRC
+
+*** TODO Swap between previous buffer
+    Source: https://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
+
+    TODO: Buffer List ruins this... Figure out a fix.
+
+    #+BEGIN_SRC emacs-lisp
+    (defun henry:switch-to-previous-buffer ()
+      "Switch to previously open buffer.
+
+Repeated invocations toggle between the two most recently open buffers."
+      (interactive)
+      (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+    (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
+    #+END_SRC
+
+*** Other Buffer keybindings
 
     #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "b") 'buffer-menu)
@@ -763,6 +782,14 @@
       (evil-normal-state))
 
     (define-key <Leader> (kbd "SPC") 'henry:double-space)
+    #+END_SRC
+
+** TODO Compiler
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Compile->C++
+    (define-key <Leader> (kbd "m a") '(lambda ()
+        (interactive) (compile "make all") (other-window 1)))
     #+END_SRC
 
 ** Evaluate Elisp (sexp)
@@ -929,13 +956,12 @@
     TODO: Automatically split vertically or horizontally based on available screen estate
 
     #+BEGIN_SRC emacs-lisp
-    (defun henry:open-terminal-test (&optional arg)
+    (defun henry:open-terminal (&optional arg)
       "Open a Terminal buffer.
 
 Passing \"v\" or \"h\" will split the window vertically or
 horizontally, respectively."
       (interactive "sSplit window? (\"v\" or \"h\"):")
-      (message "TESTING....%s" arg)
       (cond
         ((string= arg "v")
           (progn
@@ -953,9 +979,9 @@ horizontally, respectively."
       (switch-to-buffer "*terminal*"))
 
 
-    (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal-test)))
-    (define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal-test "v")))
-    (define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal-test "h")))
+    (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal)))
+    (define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal "v")))
+    (define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal "h")))
     #+END_SRC
 
 ** Toggles
