@@ -96,7 +96,7 @@
       evil
       evil-surround
       evil-magit
-      ;;fly-check
+      flycheck
       git-gutter
       helm
       highlight-indent-guides
@@ -117,6 +117,7 @@
     "A list of packages to install if not locally found.")
     #+END_SRC
 
+
 *** Check for package installations & upgrades
 
     #+BEGIN_SRC emacs-lisp
@@ -136,6 +137,7 @@
 
 
 
+
 ** Initialize Evil Mode
 
     #+BEGIN_SRC emacs-lisp
@@ -151,7 +153,9 @@
 
 ** TODO Ace Window
     Repo: https://github.com/abo-abo/ace-window
+
     TODO: Change keybinding for command, customize extra settings
+
     #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "M-o") 'ace-window)
     #+END_SRC
@@ -170,7 +174,7 @@
     Repo: https://clang.llvm.org/docs/ClangFormat.html
 
     #+BEGIN_SRC emacs-lisp
-    (global-set-key [C-M-f] 'clang-format-region)
+    (define-key <Leader> (kbd "c f") 'clang-format-region)
     #+END_SRC
 
 ** Counsel eTags
@@ -178,7 +182,6 @@
 
     Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
 
-$$$
     #+BEGIN_SRC emacs-lisp
     (define-key evil-normal-state-map (kbd "M-.") 'counsel-etags-find-tag-at-point)
     (define-key evil-normal-state-map (kbd "M-*") 'counsel-etags-grep-symbol-at-point)
@@ -270,11 +273,11 @@ $$$
     #+BEGIN_SRC emacs-lisp
     #+END_SRC
 
-** TODO Flycheck
+** Flycheck
     Repo: https://github.com/flycheck/flycheck
 
     #+BEGIN_SRC emacs-lisp
-    ;;(add-hook 'after-init-hook #'global-flycheck-mode)
+    (add-hook 'after-init-hook #'global-flycheck-mode)
     #+END_SRC
 
 ** Git Gutter
@@ -352,6 +355,7 @@ $$$
     Repo: https://github.com/ludwigpacifici/modern-cpp-font-lock
 
     #+BEGIN_SRC emacs-lisp
+;;    (modern-c++-font-lock-global-mode t)
     (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode)
     #+END_SRC
 
@@ -367,18 +371,19 @@ $$$
 #+END_SRC
 
 ** Org Mode
-
-    Customizes the colors
+*** Customizes the colors
     Source: https://orgmode.org/manual/Faces-for-TODO-keywords.html
+
     #+BEGIN_SRC emacs-lisp
     (setq org-todo-keyword-faces
         '(("TODO" . "#3399ff") ("STARTED" . "yellow")
             ("CANCELED" . (:foreground "blue" :weight bold))))
     #+END_SRC
 
-    Improved bullet symbols
+*** Improved bullet symbols
+    Only customize the bullet symbols when on a Linux distro
+
     #+BEGIN_SRC emacs-lisp
-    ;; Only customize the bullet symbols when on a Linux distro
     (cond
       ((string-equal system-type "gnu/linux")
          ;;(require 'org-bullets)
@@ -388,9 +393,10 @@ $$$
              (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
     #+END_SRC
 
-    Attempt to improve org-mode performance
+*** Attempt to improve org-mode performance
+    Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
+
     #+BEGIN_SRC emacs-lisp
-    ;; Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
     (setq inhibit-compacting-font-caches t)
     #+END_SRC
 
@@ -453,7 +459,7 @@ $$$
     (telephone-line-mode 1)
     #+END_SRC
 
-** TODO Undo Tree
+** Undo Tree
 
     #+BEGIN_SRC emacs-lisp
     (global-undo-tree-mode 1)
@@ -462,9 +468,6 @@ $$$
     (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
     (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
     #+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
 
 
 * General emacs settings
