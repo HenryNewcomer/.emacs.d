@@ -6,10 +6,6 @@
 # ****************************************************************************
 # ============================================================================
 
-
-!!! add electric tab
-!!! Change tab width for elisp
-
 * #TODOs
 ** Keybindings
 *** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
@@ -244,7 +240,6 @@
     Repo: https://github.com/rakanalh/emacs-dashboard
 
     #+BEGIN_SRC emacs-lisp
-;;    (require 'dashboard)
     (dashboard-setup-startup-hook)
 
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
@@ -297,6 +292,13 @@
     #+BEGIN_SRC emacs-lisp
     ;;(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
     ;;(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+    #+END_SRC
+
+** Evil
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Change to Evil's Normal Mode regardless of current state
+    (global-set-key (kbd "<C-escape>") 'evil-normal-state)
     #+END_SRC
 
 ** TODO Evil Surround
@@ -836,6 +838,9 @@
     #+BEGIN_SRC emacs-lisp
     (setq ibuffer-saved-filter-groups
       '(("home"
+        ("C++" (mode . "C++"))
+;;        ("C++ Headers" (filename . "\*.h"))
+;;        ("C++ Source Files" (filename . "\*.cpp"))
         ("Web Development" (or (mode . html-mode)
           (mode . css-mode)))
         ("Magit" (name . "\*magit"))
