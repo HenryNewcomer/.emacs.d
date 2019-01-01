@@ -231,7 +231,7 @@
     #+BEGIN_SRC emacs-lisp
     (add-hook 'after-init-hook 'global-company-mode)
     ;; Set keybinding
-    (global-set-key "\t" 'company-complete)
+;;    (global-set-key "\t" 'company-complete)
     ;; Show results immediately
     (setq company-idle-delay 0)
     #+END_SRC
@@ -538,6 +538,14 @@
     (blink-cursor-mode -1)
     #+END_SRC
 
+** C++
+
+    Makes header files (.h) use C++ Mode rather than C Mode.
+
+    #+BEGIN_SRC emacs-lisp
+    (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+    #+END_SRC
+
 ** Dired Mode
 
     Auto-refresh dired on file change
@@ -837,22 +845,23 @@
 
     #+BEGIN_SRC emacs-lisp
     (setq ibuffer-saved-filter-groups
-      '(("home"
-        ("C++" (mode . "C++"))
-;;        ("C++ Headers" (filename . "\*.h"))
-;;        ("C++ Source Files" (filename . "\*.cpp"))
-        ("Web Development" (or (mode . html-mode)
-          (mode . css-mode)))
-        ("Magit" (name . "\*magit"))
-        ("Emacs Config/Settings" (or (filename . ".emacs")
-          (filename . "settings.org")))
-        ("Help" (or (name . "\*Help\*")
-          (name . "\*Apropos\*")
-          (name . "\*info\*"))))))
+      '(("personal"
+          ("C++" (mode . c++-mode))
+;;          ("C++ Headers" (filename . "\*.h"))
+;;          ("C++ Source Files" (filename . "\*.cpp"))
+          ("Web Development" (or (mode . html-mode)
+            (mode . css-mode)))
+          ("Magit" (name . "\*magit"))
+          ("Emacs Config/Settings" (or (filename . ".emacs")
+            (filename . "settings.org")))
+          ("Help" (or (name . "\*Help\*")
+            (name . "\*Apropos\*")
+            (name . "\*info\*"))))))
 
-    (add-hook 'ibuffer-mode-hook '(lambda ()
-      (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
-      (ibuffer-switch-to-saved-filter-groups "home")))
+    (add-hook 'ibuffer-mode-hook
+      '(lambda ()
+        (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
+        (ibuffer-switch-to-saved-filter-groups "personal")))
 
     #+END_SRC
 
@@ -962,6 +971,35 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "W") 'write-file) ;; Save-As...
     #+END_SRC
 
+** TODO <TAB>s / indentation
+
+TODO: Having issues making this. It's mostly to get elisp to tab with
+2 spaces within Org mode, but it's not working properly. Maybe add
+multiple major modes?
+
+    Alternate between 2/4 tab widths
+
+;;    #+BEGIN_SRC emacs-lisp
+    (defun henry:toggle-tab-widths ()
+      "Toggles the tab widths between either 2 or 4 spaces.
+
+By default, 4 are assumed. Toggling enables/disables 2 spaces."
+      (interactive)
+      (if (get 'henry:toggle-tab-widths 'using-two-spaces)
+        (progn
+          (setq-default tab-width 10)
+          (setq-default tab-width 10)
+          (message "Tab width set to: 4 spaces.")
+          (put 'henry:toggle-tab-widths 'using-two-spaces nil))
+        (progn
+          (setq-default tab-width 2)
+          (message "Tab width set to: 2 spaces.")
+          (put 'henry:toggle-tab-widths 'using-two-spaces t))))
+
+    ;; Toggle->Tab length
+    (define-key <Leader> (kbd "t t") 'henry:toggle-tab-widths)
+;;    #+END_SRC
+
 ** Text Scaling
 
 #+BEGIN_SRC emacs-lisp
@@ -1038,7 +1076,10 @@ Repeated invocations toggle between the two most recently open buffers."
 
     #+BEGIN_SRC emacs-lisp
     ;; Think: Edit->Settings
-    (define-key <Leader> (kbd "e s") (lambda() (interactive)(find-file "~/.emacs.d/settings.org")))
+    (define-key <Leader> (kbd "e s") (lambda()
+      (interactive)
+      (message "Loading Emacs Settings.org file...")
+      (find-file "~/.emacs.d/settings.org")))
     #+END_SRC
 
 *** File and folder management
