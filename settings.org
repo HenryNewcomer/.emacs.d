@@ -63,19 +63,11 @@
       "Keymap for custom \"<Leader>\" keybindings.")
     #+END_SRC
 
-** Repositories
-*** Repository sources
-#+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives '(("melpa" . "http://melpa.org/packages/")
-                                 ("gnu" . "http://elpa.gnu.org/packages/")))
-
-#+END_SRC
-
-*** Required (before package customizations)
-#+BEGIN_SRC emacs-lisp
-(package-initialize)
-#+END_SRC
+** Repository sources
+    #+BEGIN_SRC emacs-lisp
+    (require 'package)
+    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+    #+END_SRC
 
 
 
@@ -95,8 +87,9 @@
         dumb-jump
         emmet-mode
         evil
-        evil-surround
         evil-magit
+        evil-nerd-commenter
+        evil-surround
         flycheck
         git-gutter
         helm
@@ -117,6 +110,11 @@
 ;;      yasnippet
 
     "A list of packages to install if not locally found.")
+    #+END_SRC
+
+*** Required (before package customizations)
+    #+BEGIN_SRC emacs-lisp
+    (package-initialize)
     #+END_SRC
 
 
@@ -301,6 +299,31 @@
     (global-set-key (kbd "<C-escape>") 'evil-normal-state)
     #+END_SRC
 
+** Evil Nerd Commenter
+   Repo: https://github.com/redguardtoo/evil-nerd-commenter
+
+    #+BEGIN_SRC emacs-lisp
+    ;;evilnc-default-hotkeys)
+
+    (define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
+    (define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
+    (define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
+    (define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
+    ;; TODO: This might need changed to use Visual Mode instead of Normal Mode
+    (define-key <Leader> (kbd "/ r") 'comment-or-uncomment-region)
+
+    ;; List of possible function calls:
+    ;; --------------------------------
+    ;; 'evilnc-comment-or-uncomment-lines
+    ;; 'evilnc-quick-comment-or-uncomment-to-the-line
+    ;; 'evilnc-copy-and-comment-lines
+    ;; 'evilnc-comment-or-uncomment-paragraphs
+    ;; 'comment-or-uncomment-region
+    ;; 'evilnc-toggle-invert-comment-line-by-line
+    ;; 'evilnc-copy-and-comment-operator
+    ;; 'evilnc-comment-operator ; if you prefer backslash key
+    #+END_SRC
+
 ** TODO Evil Surround
    Repo: https://github.com/emacs-evil/evil-surround
 
@@ -321,13 +344,7 @@
     (global-git-gutter-mode +1)
     #+END_SRC
 
-** TODO Helm
-   Repo: https://github.com/emacs-helm/helm
-
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
-
-** Highlight Indent Guides
+** TODO Highlight Indent Guides
     Repo: https://github.com/DarthFennec/highlight-indent-guides
 
     #+BEGIN_SRC emacs-lisp
@@ -618,6 +635,14 @@
 
     #+BEGIN_SRC emacs-lisp
     (setq inhibit-compacting-font-caches t)
+    #+END_SRC
+
+** Paragraphs
+
+    "Sentences" don't need to be followed by two spaces.
+
+    #+BEGIN_SRC emacs-lisp
+    (setq sentence-end-double-space 'nil)
     #+END_SRC
 
 ** Parentheses, braces, & brackets pairs
@@ -1182,7 +1207,7 @@ horizontally, respectively."
     #+END_SRC
 
 ** Toggles
-*** TODO Comment/uncomment
+*** DONE Comment/uncomment
 
     TODO Verify how well this works
     TODO Switch to NERD-Commenter
@@ -1194,9 +1219,7 @@ horizontally, respectively."
       (interactive)
       (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
 
-    (define-key <Leader> (kbd "/") 'henry:toggle-comment-on-line)
-;;    (define-key evil-normal-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
-;;    (define-key evil-visual-state-map (kbd "SPC /") 'henry:toggle-comment-on-line)
+;;    (define-key <Leader> (kbd "/") 'henry:toggle-comment-on-line)
     #+END_SRC
 
 
