@@ -228,10 +228,12 @@
 
     #+BEGIN_SRC emacs-lisp
     (add-hook 'after-init-hook 'global-company-mode)
-    ;; Set keybinding
-;;    (global-set-key "\t" 'company-complete)
+    ;; Set keybindings
+    (define-key evil-normal-state-map (kbd "<C-tab>") 'company-complete)
+    (define-key evil-insert-state-map (kbd "<C-tab>") 'company-complete)
+
     ;; Show results immediately
-    (setq company-idle-delay 0)
+;;    (setq company-idle-delay 0)
     #+END_SRC
 
 ** Dashboard
@@ -310,7 +312,7 @@
     (define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
     (define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
     ;; TODO: This might need changed to use Visual Mode instead of Normal Mode
-    (define-key <Leader> (kbd "/ r") 'comment-or-uncomment-region)
+    (define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region)
 
     ;; List of possible function calls:
     ;; --------------------------------
@@ -344,12 +346,12 @@
     (global-git-gutter-mode +1)
     #+END_SRC
 
-** TODO Highlight Indent Guides
+** TODO Highlight Indent (<TAB>) Guides
     Repo: https://github.com/DarthFennec/highlight-indent-guides
 
     #+BEGIN_SRC emacs-lisp
     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-    (setq highlight-indent-guides-method 'character)
+    (setq highlight-indent-guides-method 'column)
     #+END_SRC
 
 ** Improved Org Mode Bullet Symbols
@@ -630,6 +632,34 @@
             ("CANCELED" . (:foreground "blue" :weight bold))))
     #+END_SRC
 
+    Colorize key areas within Org Mode
+    Source: https://zzamboni.org/post/beautifying-org-mode-in-emacs/
+
+    TODO: Use more of source author's code:
+
+    #+BEGIN_SRC emacs-lisp
+    (custom-theme-set-faces
+      'user
+      '(org-document-info         ((t (:foreground "dark orange"))))
+      '(org-link                  ((t (:foreground "royal blue" :underline t))))
+      '(org-tag                   ((t (:weight bold height 0.8))))
+      '(org-verbatim               ((t (:weight bold height 0.8))))
+
+    ;; Original settings from source:
+    ;; -----------------------------
+    ;; (custom-theme-set-faces
+    ;;  'user
+    ;;  '(org-block                 ((t (:inherit fixed-pitch))))
+    ;;  '(org-document-info         ((t (:foreground "dark orange"))))
+    ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+    ;;  '(org-link                  ((t (:foreground "royal blue" :underline t))))
+    ;;  '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+    ;;  '(org-property-value        ((t (:inherit fixed-pitch))) t)
+    ;;  '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+    ;;  '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+    ;;  '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
+    #+END_SRC
+
 *** Attempt to improve org-mode performance
     Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
 
@@ -726,8 +756,26 @@
     (setq-default electric-indent-inhibit t)
     #+END_SRC
 
+    <TAB> (as spaces) offsets
+
+    #+BEGIN_SRC emacs-lisp
+    (setq-default c-basic-offset 4)
+    (setq-default coffee-tab-width 4)
+    (setq-default javascript-indent-level 4)
+    (setq-default js-indent-level 4)
+    (setq-default js2-basic-offset 4)
+    (setq-default lisp-indent-offset 2)
+    (setq-default org-list-indent-offset 2)
+    (setq-default web-mode-markup-indent-offset 4)
+    (setq-default web-mode-css-indent-offset 4)
+    (setq-default web-mode-code-indent-offset 4)
+    (setq-default css-indent-offset 4)
+
+    #+END_SRC
+
     # --------------------------------------------------- #
-    # TODO: Go through this and customize it to my liking:
+    # TODO: When I have time (or *ambition*), go through
+    # and customize this usage instead:
     # --------------------------------------------------- #
 
     Source: http://blog.binchen.org/posts/easy-indentation-setup-in-emacs-for-web-development.html
@@ -1046,6 +1094,14 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ** TODO <TAB>s / indentation
 
+    Indents a region of text
+
+    #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "<C-M-tab>") 'indent-region)
+    #+END_SRC
+
+    -----
+
 TODO: Having issues making this. It's mostly to get elisp to tab with
 2 spaces within Org mode, but it's not working properly. Maybe add
 multiple major modes?
@@ -1139,6 +1195,7 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "t w") 'toggle-truncate-lines)
     #+END_SRC
+
 
 ** New/Open/Edit
 *** Edit Settings (shortcut)
