@@ -81,6 +81,7 @@
         beacon
         clang-format
         cmake-font-lock
+        column-enforce-mode
         company
         counsel-etags
         dashboard
@@ -622,6 +623,35 @@
     (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
     #+END_SRC
 
+** Column Enforce Mode (80-char Toggle)
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Run this package, but disable it by default
+    (column-enforce-mode -1)
+
+    (setq column-enforce-column 80)
+
+    ;; Customize the font style
+    (face-spec-set column-enforce-face '((t (:foreground "#ff2222" :bold t :underline t))))
+    ;;(face-spec-set column-enforce-face '((t (:background "dark red"))))
+
+    (defun henry:custom-toggle-column-limit ()
+      "Toggles the column limit from 80 to unlimited"
+      (interactive)
+      (if (get 'henry:custom-toggle-column-limit 'state)
+        (progn
+          (message "80-column limit indicator DISABLED.")
+          (column-enforce-mode -1)
+          (put 'henry:custom-toggle-column-limit 'state nil))
+        (progn
+          (message "80-column limit indicator ENABLED.")
+          (column-enforce-mode t)
+          (put 'henry:custom-toggle-column-limit 'state t))))
+
+    ;; Toggle->Limit
+    (define-key <Leader> (kbd "t l") 'henry:custom-toggle-column-limit)
+    #+END_SRC
+
 ** Dired Mode
 
     Auto-refresh dired on file change
@@ -922,6 +952,18 @@
     (setq browse-url-browser-function 'eww-browse-url)
     #+END_SRC
 
+** TODO Whitespace (trailing)
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Before each save, trim the excess whitespace
+    (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+    ;; Set to true by default
+;; @@@@
+    (setq whitespace-style '(face tabs trailing))
+    (global-whitespace-mode t)
+    #+END_SRC
+
 
 * Keybindings
 ** Buffers
@@ -1187,37 +1229,6 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C-=") 'text-scale-decrease)
 #+END_SRC
-
-** TODO Whitespace/80-column limit (toggle)
-
-    #+BEGIN_SRC emacs-lisp
-    (defun henry:custom-toggle-column-limit ()
-      "Toggles the column limit from 80 to unlimited"
-      (interactive)
-      (if (get 'henry:custom-toggle-column-limit 'state)
-        (progn
-          (message "80-column limit indicator DISABLED.")
-          (global-whitespace-mode -1)
-          (put 'henry:custom-toggle-column-limit 'state nil))
-        (progn
-          (message "80-column limit indicator ENABLED.")
-          (global-whitespace-mode t)
-          (put 'henry:custom-toggle-column-limit 'state t))))
-
-    ;; Toggle->Limit
-    (define-key <Leader> (kbd "t l") 'henry:custom-toggle-column-limit)
-
-    ;; Before each save, trim the excess whitespace
-    (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-    ;; TODO: Set 80 char limit to false by default
-    ;; FIXME: Separate 80 char limit from trailing whitespace
-
-    ;; Set to true by default
-    (put 'henry:custom-toggle-column-limit 'state t)
-    (setq whitespace-style '(face tabs lines-tail trailing))
-    (global-whitespace-mode t)
-    #+END_SRC
 
 ** Window management
 
