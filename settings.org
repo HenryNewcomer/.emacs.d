@@ -319,8 +319,8 @@
 
     #+BEGIN_SRC emacs-lisp
     (dumb-jump-mode)
-    (define-key <Leader> (kbd "\* f") 'dumb-jump-go)
-    (define-key <Leader> (kbd "\* F") 'dumb-jump-back)
+    (define-key <Leader> (kbd "* f") 'dumb-jump-go)
+    (define-key <Leader> (kbd "* F") 'dumb-jump-back)
     #+END_SRC
 
 ** Emmet Mode
@@ -922,11 +922,6 @@
     (setq browse-url-browser-function 'eww-browse-url)
     #+END_SRC
 
-** Whitespace/80-column limit
-
-    #+BEGIN_SRC emacs-lisp
-    #+END_SRC
-
 
 * Keybindings
 ** Buffers
@@ -1215,7 +1210,8 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     ;; Before each save, trim the excess whitespace
     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-    ;;TODO: Set 80 char limit to false by default
+    ;; TODO: Set 80 char limit to false by default
+    ;; FIXME: Separate 80 char limit from trailing whitespace
 
     ;; Set to true by default
     (put 'henry:custom-toggle-column-limit 'state t)
