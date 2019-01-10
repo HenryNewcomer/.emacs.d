@@ -19,7 +19,16 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
     (quote
-      (git-gutter telephone-line rainbow-delimiters projectile org-bullets nlinum-relative neotree multiple-cursors highlight-indent-guides helm evil-surround evil-magit evil-leader dumb-jump doom-themes dashboard auto-complete ace-window))))
+      (git-gutter telephone-line rainbow-delimiters projectile org-bullets nlinum-relative neotree multiple-cursors highlight-indent-guides helm evil-surround evil-magit evil-leader dumb-jump doom-themes dashboard auto-complete ace-window)))
+ '(safe-local-variable-values
+    (quote
+      ((eval progn
+         (henry:custom-build-process:setBuild "cd ${PWD%%/src/*}../build && cmake .."))
+        (eval progn
+          (henry:custom-build-process:setBuild "cd ${PWD%%/src/*}/build && cmake ../src"))
+        (eval progn
+          (henry:custom-build-process:setBuild "cd"))
+        (eval setq henry:custom-build-process:build "test")))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
