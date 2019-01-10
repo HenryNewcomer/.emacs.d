@@ -635,7 +635,8 @@
       (message "-----------------\n")
     )
 
-    (define-key <Leader> (kbd "8 8") 'henry:custom-build-process:build)
+    ;; Build->Build
+    (define-key <Leader> (kbd "b b") 'henry:custom-build-process:build)
 
     ;; Compile (example: Makefile)
 
@@ -656,7 +657,8 @@
       (message "-----------------\n")
     )
 
-    (define-key <Leader> (kbd "9 9") 'henry:custom-build-process:compile)
+    ;; Build->Compile
+    (define-key <Leader> (kbd "b c") 'henry:custom-build-process:compile)
 
     ;; Run program (example: ./a.exe)
 
@@ -676,7 +678,8 @@
       (message "-----------------\n")
     )
 
-    (define-key <Leader> (kbd "0 0") 'henry:custom-build-process:run)
+    ;; Build->Run
+    (define-key <Leader> (kbd "b r") 'henry:custom-build-process:run)
     #+END_SRC
 
     Example code to put within a project root's .dir-locals.el file:
