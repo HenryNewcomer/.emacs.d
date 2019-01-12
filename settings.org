@@ -94,6 +94,7 @@
         evil-nerd-commenter
         evil-surround
         flycheck
+        flycheck-inline
         git-gutter
         google-this
         highlight-indent-guides
@@ -109,6 +110,7 @@
         rainbow-delimiters
         realgud
         telephone-line
+;;      treemacs-icons-dired
         undo-tree)
 ;;      visual-regexp
 ;;      yasnippet
@@ -377,6 +379,14 @@
     (add-hook 'after-init-hook #'global-flycheck-mode)
     #+END_SRC
 
+** Flycheck Inline
+    Repo: https://github.com/flycheck/flycheck-inline
+
+    #+BEGIN_SRC emacs-lisp
+    (with-eval-after-load 'flycheck
+      (global-flycheck-inline-mode))
+    #+END_SRC
+
 ** Git Gutter
     Repo: https://github.com/syohex/emacs-git-gutter
 
@@ -559,6 +569,15 @@
     (telephone-line-mode 1)
     #+END_SRC
 
+** TODO Treemacs Icons Dired Mode
+    Repo: https://dm.reddit.com/r/emacs/comments/aaa66z/treemacsiconsdired_treemacs_file_icons_for_your/
+
+    Icons aren't transparent at the moment, so I'm disabling this for now.
+
+    #+BEGIN_SRC emacs-lisp
+;;  (treemacs-icons-dired-mode)
+    #+END_SRC
+
 ** Undo Tree
 
     #+BEGIN_SRC emacs-lisp
@@ -607,13 +626,25 @@
 
 ** Build / Compile / Run
 
-    // @@@@
+    My custom keybindings and functions related to project builds,
+    compilation, and execution. While this is based on a C++ project,
+    it's designed to be useful for other options as well - provided
+    that you add a .dir-locals.el file (with specific function calls)
+    within the project root.
 
     #+BEGIN_SRC emacs-lisp
+    ;; TODO: Change message calls to terminal echos
+    ;; TODO: add cond to check if build string == nil
+
     ;; By default, set these vars to nil
     (setq henry:custom-build-process:build-string nil) ;; CMake
     (setq henry:custom-build-process:compile-string nil) ;; Makefile
     (setq henry:custom-build-process:run-string nil)
+
+    ;; Async settings - keep buffer active; hide async buffer
+    ;; Source: https://stackoverflow.com/questions/13901955/how-to-avoid-pop-up-of-async-shell-command-buffer-in-emacs
+    (add-to-list 'display-buffer-alist
+      (cons "\\*Async Shell Command\\*.*" (cons #'display-buffer-no-window nil)))
 
     ;; Build (example: cmake)
 
@@ -628,11 +659,9 @@
         For example, this is used for cmake builds within C++ mode."
       (interactive)
       (message (concat "Building project:\nRunning command(s): " henry:custom-build-process:build-string))
-      (message "\n")
-      ;; TODO: add cond to check if build string == nil
       (async-shell-command henry:custom-build-process:build-string)
-      ;; TODO: Hide window (and set to Normal (evil) Mode by default)
-      (message "-----------------\n")
+      (message "\n")
+      (message "--------- Finished running: Build project ---------\n")
     )
 
     ;; Build->Build
@@ -651,10 +680,8 @@
       (interactive)
       (message (concat "Compiling project:\nRunning command(s): " henry:custom-build-process:compile-string))
       (message "\n")
-      ;; TODO: add cond to check if build string == nil
       (async-shell-command henry:custom-build-process:compile-string)
-      ;; TODO: Hide window (and set to Normal (evil) Mode by default)
-      (message "-----------------\n")
+      (message "-------- Finished running: Compile project --------\n")
     )
 
     ;; Build->Compile
@@ -672,14 +699,21 @@
       (interactive)
       (message (concat "Starting application:\nRunning command(s): " henry:custom-build-process:run-string))
       (message "\n")
-      ;; TODO: add cond to check if build string == nil
       (async-shell-command henry:custom-build-process:run-string)
-      ;; TODO: Hide window (and set to Normal (evil) Mode by default)
-      (message "-----------------\n")
+      (message "--------- Finished running: Run executable --------\n")
     )
 
     ;; Build->Run
     (define-key <Leader> (kbd "b r") 'henry:custom-build-process:run)
+
+    ;; Custom hook
+    ;; Not working (possible scope issues)
+    ;;(defun henry:custom-build-process:buildHook ()
+    ;;  (interactive)
+    ;;  (message "Adding hook")
+    ;;  (add-hook 'prog-mode-hook
+    ;;    (lambda () (add-hook 'after-save-hook
+    ;;        'henry:custom-build-process:build))))
     #+END_SRC
 
     Example code to put within a project root's .dir-locals.el file:
@@ -694,6 +728,12 @@
                    ;; Run .exe
                    (henry:custom-build-process:setRun
                      "cd ${PWD%%/src/*}/../build && ./a.exe"))))))
+
+                   ;; After every save, rebuild the cmake file
+                   (add-hook 'prog-mode-hook
+                     (lambda () (add-hook 'after-save-hook
+                                  (lambda ()
+                                    (henry:custom-build-process:build))))))))))
 
 
 ** Cursor
@@ -1087,7 +1127,7 @@
     Open Ibuffer
 
     #+BEGIN_SRC emacs-lisp
-    (define-key <Leader> (kbd "b") 'ibuffer)
+    (define-key <Leader> (kbd "o b") 'ibuffer)
     #+END_SRC
 
     Config Ibuffer settings
