@@ -89,6 +89,7 @@
         doom-themes
         dumb-jump
         emmet-mode
+        esup
         evil
         evil-magit
         evil-nerd-commenter
@@ -334,6 +335,14 @@
     ;;(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
     #+END_SRC
 
+** Esup
+    Repo: https://github.com/jschaf/esup
+
+    #+BEGIN_SRC emacs-lisp
+    ;; Open->Startup profiler (eSup)
+    (define-key <Leader> (kbd "o s") 'esup)
+    #+END_SRC
+
 ** Evil
 
     #+BEGIN_SRC emacs-lisp
@@ -526,6 +535,15 @@
 ** Page Break Lines
 
     #+BEGIN_SRC emacs-lisp
+    (setq page-break-lines-modes '(emacs-lisp-mode
+                                   lisp-mode
+                                   scheme-mode
+                                   compilation-mode
+                                   outline-mode
+                                   help-mode
+                                   text-mode
+                                   fundamental-mode
+                                   special-mode))
     (global-page-break-lines-mode)
     #+END_SRC
 

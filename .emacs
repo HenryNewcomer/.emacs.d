@@ -32,7 +32,19 @@
              (add-hook
                (quote after-save-hook)
                (lambda nil
-                 (henry:custom-build-process:build))))))
+                 (henry:custom-build-process:build)
+                 (message "TEMP - auto building..."))))))
+        (eval progn
+          (henry:custom-build-process:setBuild "cd ${PWD%%/src/*}/../build && cmake ..")
+          (henry:custom-build-process:setCompile "cd ${PWD%%/src/*}/../build && make all")
+          (henry:custom-build-process:setRun "cd ${PWD%%/src/*}/../build && ./pong++.exe")
+          (add-hook
+            (quote prog-mode-hook)
+            (lambda nil
+              (add-hook
+                (quote after-save-hook)
+                (lambda nil
+                  (henry:custom-build-process:build))))))
         (eval progn
           (henry:custom-build-process:setBuild "cd ${PWD%%/src/*}/../build && cmake ..")
           (henry:custom-build-process:setCompile "cd ${PWD%%/src/*}/../build && make all")
