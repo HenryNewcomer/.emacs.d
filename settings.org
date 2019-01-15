@@ -273,8 +273,8 @@
     ;;  - Time and gc info from:
     ;; https://www.reddit.com/r/emacs/comments/8jaflq/tip_how_to_use_your_dashboard_properly/
 ;;    (setq dashboard-banner-logo-title
-      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
-        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
+;;      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
+;;        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
 
     ;; Set the banner
 ;;    (setq dashboard-startup-banner 'logo)
