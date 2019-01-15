@@ -84,7 +84,7 @@
         column-enforce-mode
         company
         counsel-etags
-;;      dashboard
+        dashboard
         dimmer
         doom-themes
         dumb-jump
@@ -265,19 +265,19 @@
     Repo: https://github.com/rakanalh/emacs-dashboard
 
     #+BEGIN_SRC emacs-lisp
-;;    (dashboard-setup-startup-hook)
+    (dashboard-setup-startup-hook)
 
-;;    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
     ;; Set the title
     ;;  - Time and gc info from:
     ;; https://www.reddit.com/r/emacs/comments/8jaflq/tip_how_to_use_your_dashboard_properly/
-;;    (setq dashboard-banner-logo-title
-;;      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
-;;        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
+    (setq dashboard-banner-logo-title
+      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
+        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
 
     ;; Set the banner
-;;    (setq dashboard-startup-banner 'logo)
+    (setq dashboard-startup-banner 'logo)
     ;; Value can be
     ;; 'official which displays the official emacs logo
     ;; 'logo which displays an alternative emacs logo
@@ -289,6 +289,21 @@
 ;;                            (projects . 5)))
     ;;                        (agenda . 5)
     ;;                        (registers . 5)))
+
+
+    (defun henry:show-formfeed-as-line ()
+      "Display the formfeed ^L char as line.
+    URL `http://ergoemacs.org/emacs/emacs_form_feed_section_paging.html'
+    Version 2018-08-30"
+      (interactive)
+      ;; 2016-10-11 thanks to Steve Purcell's page-break-lines.el
+      (progn
+        (when (not buffer-display-table)
+          (setq buffer-display-table (make-display-table)))
+        (aset buffer-display-table ?\^L
+          (vconcat (make-list 70 (make-glyph-code ?─ 'font-lock-comment-face))))
+        (redraw-frame)))
+    (add-hook 'dashboard-mode-hook 'henry:show-formfeed-as-line)
     #+END_SRC
 
 ** Dimmer
