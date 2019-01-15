@@ -284,6 +284,7 @@
     ;; 1, 2 or 3 which displays one of the text banners
     ;; "path/to/your/image.png" which displays whatever image you would prefer
 
+;; Currently causing a glitch with Dashboard hook @2019-01-15
 ;;    (setq dashboard-items '((recents  . 10)
 ;;                            (bookmarks . 5)
 ;;                            (projects . 5)))
