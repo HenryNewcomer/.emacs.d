@@ -841,6 +841,15 @@
     (set-terminal-coding-system 'utf-8)
     #+END_SRC
 
+    Set default font
+
+    TODO: See if fonts can be found with relative paths instead of being "installed"
+
+    #+BEGIN_SRC emacs-lisp
+    (set-default-font "Iosevka")
+;;  (set-default-font "Hack")
+    #+END_SRC
+
 ** Highlights
 *** Current Line
 

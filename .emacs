@@ -8,8 +8,8 @@
 ;;; Code:
 (require 'org)
 (org-babel-load-file
-  (expand-file-name "~/.emacs.d/settings.org"
-    user-emacs-directory))
+ (expand-file-name "~/.emacs.d/settings.org"
+		   user-emacs-directory))
 
 ;; End of my code
 
