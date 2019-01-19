@@ -66,7 +66,11 @@
 ** Repository sources
     #+BEGIN_SRC emacs-lisp
     (require 'package)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+    ;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+    (setq package-archives
+      '(("gnu"   . "http://elpa.gnu.org/packages/")
+        ("org"   . "https://orgmode.org/elpa/")
+        ("melpa" . "http://melpa.org/packages/")))
     #+END_SRC
 
 
@@ -987,6 +991,41 @@
     (setq auto-window-vscroll nil)
     #+END_SRC
 
+** Sessions: Save/Restore ("Desktop")
+
+    Automatically save and restore sessions
+    - Source: https://stackoverflow.com/questions/4477376/some-emacs-desktop-save-questions-how-to-change-it-to-save-in-emacs-d-emacs/4485083#4485083
+
+    #+BEGIN_SRC emacs-lisp
+    (setq desktop-dirname             "~/.emacs.d/desktop/"
+      desktop-base-file-name      "emacs.desktop"
+      desktop-base-lock-name      "lock"
+      desktop-path                (list desktop-dirname)
+      desktop-restore-eager       6
+      desktop-save                t
+      desktop-load-locked-desktop nil
+      desktop-auto-save-timeout   30)
+
+    (desktop-save-mode 1)
+    #+END_SRC
+
+    To prevent potential corruption when saving files (prior to reading them all),
+    test if it's okay to do, first.
+    - Source: https://emacs.stackexchange.com/questions/17529/emacs-desktop-save-mode-only-save-desktop-when-previous-desktop-was-fully-rest
+
+    #+BEGIN_SRC emacs-lisp
+    (defvar henry:save-desktop nil
+      "Should I save the desktop when Emacs is shutting down?")
+
+    (add-hook 'desktop-after-read-hook
+            (lambda () (setq henry:save-desktop t)))
+
+    (advice-add 'desktop-save :around
+                (lambda (fn &rest args)
+                (if (bound-and-true-p henry:save-desktop)
+                    (apply fn args))))
+    #+END_SRC
+
 ** Sound
 
     Disable the alert bell sound effect
@@ -1526,7 +1565,7 @@ horizontally, respectively."
 * Closure
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 5 nil (lambda ()
-  (setq-default gc-cons-threshold 1000000)
+  (setq-default gc-cons-threshold 800000)
   (message "gc-cons-threshold restored to %s" gc-cons-threshold)))
 
 (run-with-idle-timer 7 nil (lambda ()
