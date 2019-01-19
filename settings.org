@@ -477,14 +477,17 @@
     #+END_SRC
 
 ** Improved Org Mode Bullet Symbols
+
     Only customize the bullet symbols when on a Linux distro
+
+    - Source: https://github.com/sabof/org-bullets
 
     #+BEGIN_SRC emacs-lisp
     (cond
       ((string-equal system-type "gnu/linux")
          ;;(require 'org-bullets)
          (setq org-bullets-bullet-list
-             '("◉" "◎"))
+             '("✸" "▸" "✚" "○"))
          :config
              (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
     #+END_SRC
@@ -1235,14 +1238,13 @@
     (setq browse-url-browser-function 'eww-browse-url)
     #+END_SRC
 
-** TODO Whitespace (trailing)
+** Whitespace (trailing)
 
     #+BEGIN_SRC emacs-lisp
     ;; Before each save, trim the excess whitespace
     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
     ;; Set to true by default
-;; @@@@
     (setq whitespace-style '(face tabs trailing))
     (global-whitespace-mode t)
     #+END_SRC
