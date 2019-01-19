@@ -890,8 +890,8 @@
     TODO: See if fonts can be found with relative paths instead of being "installed"
 
     #+BEGIN_SRC emacs-lisp
-    (set-default-font "Iosevka 11")
-;;  (set-default-font "Hack 11")
+;;  (set-default-font "Iosevka 11")
+    (set-default-font "Hack 10")
     ;; To prevent odd graphical glitching, keep the mode-line's size small
     (set-face-attribute 'mode-line nil :font "Iosevka-10")
     #+END_SRC
