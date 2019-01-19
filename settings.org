@@ -775,13 +775,28 @@
 
 
 ** Cursor
+*** Cursor settings
+
+    Don't blink the cursor
 
     #+BEGIN_SRC emacs-lisp
-    ;; TODO: Not working?
-    ;;(set-default 'cursor-type 'bar)
-
-    ;; Don't blink the cursor
     (blink-cursor-mode -1)
+    #+END_SRC
+
+*** Cursor between braces
+
+    - Source: https://stackoverflow.com/questions/34087964/visual-studio-style-curly-brackets-auto-completion-in-emacs
+    #+BEGIN_SRC emacs-lisp
+    (defun electric-pair-brace-fixup ()
+      (when (and electric-pair-mode
+              (if (functionp electric-pair-open-newline-between-pairs)
+                (funcall electric-pair-open-newline-between-pairs)
+                electric-pair-open-newline-between-pairs)
+              (eq last-command-event ?\{)
+              (= ?\{ (char-before)) (= ?\} (char-after)))
+        (newline nil t)))
+
+    (advice-add 'electric-pair-post-self-insert-function :after #'electric-pair-brace-fixup)
     #+END_SRC
 
 ** C++
