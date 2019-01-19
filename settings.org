@@ -89,7 +89,7 @@
         column-enforce-mode
         company
         counsel-etags
-        dashboard
+;;      dashboard
         dimmer
         doom-themes
         dumb-jump
@@ -113,6 +113,7 @@
         multiple-cursors
         org-bullets
 ;;      page-break-lines
+        smartparens
         rainbow-delimiters
         realgud
         telephone-line
@@ -283,7 +284,9 @@
 ** Dashboard
     Repo: https://github.com/rakanalh/emacs-dashboard
 
-    #+BEGIN_SRC emacs-lisp
+    DISABLED:
+
+;;    #+BEGIN_SRC emacs-lisp
     (dashboard-setup-startup-hook)
 
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
@@ -324,7 +327,7 @@
           (vconcat (make-list 70 (make-glyph-code ?─ 'font-lock-comment-face))))
         (redraw-frame)))
     (add-hook 'dashboard-mode-hook 'henry:show-formfeed-as-line)
-    #+END_SRC
+;;    #+END_SRC
 
 ** Dimmer
     Repo: https://github.com/gonewest818/dimmer.el
@@ -608,6 +611,13 @@
     #+BEGIN_SRC emacs-lisp
     ;; Run->Debugger
     (define-key <Leader> (kbd "r d") 'realgud:gdb)
+    #+END_SRC
+
+** Smart Parens
+    Repo: https://github.com/Fuco1/smartparens
+
+    #+BEGIN_SRC emacs-lisp
+    (show-smartparens-global-mode +1)
     #+END_SRC
 
 ** Telephone-line
@@ -970,11 +980,12 @@
     (setq sentence-end-double-space 'nil)
     #+END_SRC
 
-** Parentheses, braces, & brackets pairs
+** TODO Parentheses, braces, & brackets pairs
 
+    NOTE: Disabled this to test out Smart Parens package.
     #+BEGIN_SRC emacs-lisp
-    (show-paren-mode 1)
-    (setq show-paren-delay 0)
+;;    (show-paren-mode 1)
+;;    (setq show-paren-delay 0)
 
     ;;(require 'paren)
     ;;(set-face-background 'show-paren-match (face-background 'default))
@@ -1027,16 +1038,23 @@
     - Source: https://stackoverflow.com/questions/4477376/some-emacs-desktop-save-questions-how-to-change-it-to-save-in-emacs-d-emacs/4485083#4485083
 
     #+BEGIN_SRC emacs-lisp
-    (setq desktop-dirname             "~/.emacs.d/desktop/"
+    (setq desktop-dirname         "~/.emacs.d/desktop/"
       desktop-base-file-name      "emacs.desktop"
       desktop-base-lock-name      "lock"
-      desktop-path                (list desktop-dirname)
       desktop-restore-eager       6
+      desktop-path                (list desktop-dirname)
       desktop-save                t
-      desktop-load-locked-desktop nil
+;;      desktop-load-locked-desktop nil
       desktop-auto-save-timeout   30)
 
     (desktop-save-mode 1)
+    #+END_SRC
+
+    FIXME: Desktop/session not saving; figure out why
+
+    #+BEGIN_SRC emacs-lisp
+    (desktop-load-default)
+    (desktop-read)
     #+END_SRC
 
     To prevent potential corruption when saving files (prior to reading them all),
