@@ -112,7 +112,6 @@
         modern-cpp-font-lock
         multiple-cursors
         org-bullets
-;;      page-break-lines
         smartparens
         rainbow-delimiters
         realgud
@@ -572,21 +571,6 @@
 ;;(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 ;;(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+END_SRC
-
-** Page Break Lines
-
-    #+BEGIN_SRC emacs-lisp
-;;    (setq page-break-lines-modes '(emacs-lisp-mode
-;;                                   lisp-mode
-;;                                   scheme-mode
-;;                                   compilation-mode
-;;                                   outline-mode
-;;                                   help-mode
-;;                                   text-mode
-;;                                   fundamental-mode
-;;                                   special-mode))
-;;    (global-page-break-lines-mode)
-    #+END_SRC
 
 ** TODO Projectile
 
