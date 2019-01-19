@@ -617,7 +617,21 @@
     Repo: https://github.com/Fuco1/smartparens
 
     #+BEGIN_SRC emacs-lisp
+    ;; Load default config
+    (require 'smartparens-config)
+    ;; Enable smartparens mode
     (show-smartparens-global-mode +1)
+    ;; Keeps parens balanced
+    (smartparens-strict-mode)
+    #+END_SRC
+
+    Manually add smartparens mode support for major modes
+
+    #+BEGIN_SRC emacs-lisp
+    (add-hook 'c-mode-hook #'smartparens-mode)
+    (add-hook 'c++-mode-hook #'smartparens-mode)
+    (add-hook 'js-mode-hook #'smartparens-mode)
+    (add-hook 'org-mode-hook #'smartparens-mode)
     #+END_SRC
 
 ** Telephone-line
