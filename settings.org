@@ -1500,20 +1500,29 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     ;; Think: Split->Horizontal or Vertical
     (define-key <Leader> (kbd "s h") '(lambda () (interactive) (progn (split-window-below) (other-window 1))))
     (define-key <Leader> (kbd "s v") '(lambda () (interactive) (progn (split-window-right) (other-window 1))))
+    #+END_SRC
 
-    ;; Move across split windows
+    Move across split windows
+
+    #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "h") 'windmove-left)
     (define-key <Leader> (kbd "l") 'windmove-right)
     (define-key <Leader> (kbd "j") 'windmove-down)
     (define-key <Leader> (kbd "k") 'windmove-up)
+    #+END_SRC
 
-    ;; Resize window panes
-    (define-key evil-normal-state-map (kbd "<C-M-up>") 'shrink-window)
-    (define-key evil-normal-state-map (kbd "<C-M-down>") 'enlarge-window)
-    (define-key evil-normal-state-map (kbd "<C-M-left>") 'shrink-window-horizontally)
-    (define-key evil-normal-state-map (kbd "<C-M-right>") 'enlarge-window-horizontally)
+    Resize window panes
 
-    ;; Close active window
+    #+BEGIN_SRC emacs-lisp
+    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
+    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
+    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
+    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
+    #+END_SRC
+
+    Close active window
+
+    #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "c w") 'delete-window)
 
     (define-key <Leader> (kbd "S-j") #'other-window)
