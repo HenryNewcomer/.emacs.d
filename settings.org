@@ -1351,7 +1351,8 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
     #+END_SRC
 
-** Jump to beginning / end of line
+** Line manipulations
+*** Jump to beginning/end of line
 
     #+BEGIN_SRC emacs-lisp
     ;; Think: Move->First/Last
@@ -1359,7 +1360,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "m l") (kbd "$"))
     #+END_SRC
 
-** Jump above or below current line
+*** Jump above or below current line
 
     #+BEGIN_SRC emacs-lisp
     (defun henry:new-blank-line-above ()
@@ -1377,6 +1378,41 @@ Repeated invocations toggle between the two most recently open buffers."
 
     (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
     (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
+    #+END_SRC
+
+*** Move current line up/down
+
+    Source: https://www.emacswiki.org/emacs/MoveLine
+
+    #+BEGIN_SRC emacs-lisp
+    (defmacro henry:move-line-save-column (&rest body)
+      `(let ((column (current-column)))
+         (unwind-protect
+             (progn ,@body)
+           (move-to-column column))))
+
+    (put 'henry:move-line-save-column 'lisp-indent-function 0)
+
+    (defun henry:move-line-up ()
+      (interactive)
+      (henry:move-line-save-column
+        (transpose-lines 1)
+        (forward-line -2)))
+
+    (defun henry:move-line-down ()
+      (interactive)
+      (henry:move-line-save-column
+        (forward-line 1)
+        (transpose-lines 1)
+        (forward-line -1)))
+
+    ;; Sets Alt-j/k to move lines up or down
+    (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
+    (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
+
+    ;; Allows the same keybindings to work within Insert mode
+    (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
+    (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
     #+END_SRC
 
 ** Reload Emacs settings
