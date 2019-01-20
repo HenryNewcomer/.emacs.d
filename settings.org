@@ -925,7 +925,7 @@
         ;; Disabled in cmake-mode due to glitch (see Author's comment in source)
         (when (not (derived-mode-p 'cmake-mode))
           (font-lock-add-keywords nil
-            '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TODO\\)"
+            '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TEMP\\|TODO\\)"
                 1 font-lock-warning-face t))))))
     #+END_SRC
 
@@ -1065,13 +1065,6 @@
     (desktop-save-mode 1)
     #+END_SRC
 
-    FIXME: Desktop/session not saving; figure out why
-
-    #+BEGIN_SRC emacs-lisp
-    (desktop-load-default)
-    (desktop-read)
-    #+END_SRC
-
     To prevent potential corruption when saving files (prior to reading them all),
     test if it's okay to do, first.
     - Source: https://emacs.stackexchange.com/questions/17529/emacs-desktop-save-mode-only-save-desktop-when-previous-desktop-was-fully-rest
@@ -1081,12 +1074,12 @@
       "Should I save the desktop when Emacs is shutting down?")
 
     (add-hook 'desktop-after-read-hook
-            (lambda () (setq henry:save-desktop t)))
+      (lambda () (setq henry:save-desktop t)))
 
     (advice-add 'desktop-save :around
-                (lambda (fn &rest args)
-                (if (bound-and-true-p henry:save-desktop)
-                    (apply fn args))))
+      (lambda (fn &rest args)
+              (if (bound-and-true-p henry:save-desktop)
+                  (apply fn args))))
     #+END_SRC
 
     Save current place within file
