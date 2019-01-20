@@ -605,8 +605,12 @@
     #+BEGIN_SRC emacs-lisp
     (add-hook 'c-mode-hook #'smartparens-mode)
     (add-hook 'c++-mode-hook #'smartparens-mode)
+    (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
     (add-hook 'js-mode-hook #'smartparens-mode)
     (add-hook 'org-mode-hook #'smartparens-mode)
+
+    ;; General programming mode
+    (add-hook 'prog-mode-hook #'smartparens-mode)
     #+END_SRC
 
 ** Telephone-line
