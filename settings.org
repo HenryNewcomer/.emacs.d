@@ -110,7 +110,6 @@
         magit
         mmm-mode
         modern-cpp-font-lock
-        multiple-cursors
         org-bullets
         smartparens
         rainbow-delimiters
@@ -560,17 +559,6 @@
 ;;    (modern-c++-font-lock-global-mode t)
     (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode)
     #+END_SRC
-
-** TODO Multiple Cursors
-   Repo: https://github.com/magnars/multiple-cursors.el
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-
-;;(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-;;(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-;;(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-#+END_SRC
 
 ** TODO Projectile
 
