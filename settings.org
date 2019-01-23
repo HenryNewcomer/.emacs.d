@@ -273,10 +273,10 @@
     (add-hook 'after-init-hook 'global-company-mode)
     ;; Set keybindings
     (define-key evil-normal-state-map (kbd "<C-tab>") 'company-complete)
-    (define-key evil-insert-state-map (kbd "<C-tab>") 'company-complete)
+;;    (define-key evil-insert-state-map (kbd "<C-tab>") 'company-complete)
 
     ;; Show results immediately
-;;    (setq company-idle-delay 0)
+    (setq company-idle-delay 0)
     #+END_SRC
 
 ** Dashboard
