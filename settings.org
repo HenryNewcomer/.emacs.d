@@ -454,8 +454,9 @@
     Repo: https://github.com/DarthFennec/highlight-indent-guides
 
     #+BEGIN_SRC emacs-lisp
+    (setq highlight-indent-guides-character ?\¦)
     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-    (setq highlight-indent-guides-method 'column)
+    (setq highlight-indent-guides-method 'character)
     #+END_SRC
 
 ** TODO Highlight Thing
@@ -623,26 +624,29 @@
     Manually add smartparens mode support for major modes
 
     #+BEGIN_SRC emacs-lisp
-    (add-hook 'c-mode-hook #'smartparens-mode)
-    (add-hook 'c++-mode-hook #'smartparens-mode)
-    (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
-    (add-hook 'js-mode-hook #'smartparens-mode)
     (add-hook 'org-mode-hook #'smartparens-mode)
-
-    ;; General programming mode
     (add-hook 'prog-mode-hook #'smartparens-mode)
+    #+END_SRC
+
+    C++
+
+    #+BEGIN_SRC emacs-lisp
+    (sp-with-modes '(c++-mode)
+      (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+      (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                                ("* ||\n[i]" "RET"))))
     #+END_SRC
 
 ** Telephone-line
     Repo: https://github.com/dbordak/telephone-line
 
     #+BEGIN_SRC emacs-lisp
-    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-        telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-        telephone-line-primary-right-separator 'telephone-line-cubed-right
-        telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
-    (setq telephone-line-height 16)
-    (telephone-line-mode 1)
+      (setq telephone-line-primary-left-separator 'telephone-line-identity-left
+          telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+          telephone-line-primary-right-separator 'telephone-line-identity-right
+          telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
+      (setq telephone-line-height 18)
+      (telephone-line-mode 1)
     #+END_SRC
 
 ** TODO Treemacs Icons Dired Mode
