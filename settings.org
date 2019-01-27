@@ -909,6 +909,12 @@
     (set-face-attribute 'mode-line nil :font "Iosevka-10")
     #+END_SRC
 
+** GDB (Debugger)
+
+    #+BEGIN_SRC emacs-lisp
+    (setq gdb-many-windows t)
+    #+END_SRC
+
 ** Highlights
 *** Current Line
 
