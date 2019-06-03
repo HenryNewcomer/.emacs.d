@@ -7,6 +7,7 @@
 # ============================================================================
 
 * #TODOs
+ * TODO Add Polymode: https://github.com/polymode/polymode
 ** Keybindings
 *** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
 *** TODO Make sexp keybinding for normal and visual [SPC e]; Auto jump to end of line (or last closing parenthesis?)
@@ -1400,6 +1401,20 @@ Repeated invocations toggle between the two most recently open buffers."
       (evil-normal-state))
 
     (define-key <Leader> (kbd "SPC") 'henry:double-space)
+    #+END_SRC
+
+** Commands through terminal
+
+    Build and install Fitbit App
+
+    #+BEGIN_SRC emacs-lisp
+    (defun henry:term-command-fitbit ()
+      "Runs command to build and install Fitbit App
+(assuming a connected dev device is available)"
+      (interactive)
+      (async-shell-command "npx fitbit build"))
+
+    (define-key <Leader> (kbd "b f") 'henry:term-command-fitbit)
     #+END_SRC
 
 ** TODO Compiler
