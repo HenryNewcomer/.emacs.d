@@ -114,6 +114,7 @@
         org-bullets
         smartparens
         rainbow-delimiters
+        rainbow-mode
         realgud
         telephone-line
 ;;      treemacs-icons-dired
@@ -338,7 +339,8 @@
 ** Doom Themes
     Repo: https://github.com/hlissner/emacs-doom-themes#install
 
-    #+BEGIN_SRC emacs-lisp
+NOTE TEMP 2019-06-11
+;;    #+BEGIN_SRC emacs-lisp
     (require 'doom-themes)
 
     ;; Global settings (defaults)
@@ -353,7 +355,7 @@
 
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
-    #+END_SRC
+;;    #+END_SRC
 
 ** Dumb Jump
     Repo: https://github.com/jacktasia/dumb-jump
@@ -911,7 +913,7 @@
 ;;  (set-default-font "Iosevka 11")
     (set-default-font "Hack 10")
     ;; To prevent odd graphical glitching, keep the mode-line's size small
-    (set-face-attribute 'mode-line nil :font "Iosevka-10")
+;;    (set-face-attribute 'mode-line nil :font "Iosevka-10")
     #+END_SRC
 
 ** GDB (Debugger)
@@ -1201,6 +1203,13 @@
     (add-hook 'lua-mode-hook 'my-setup-develop-environment)
     (add-hook 'web-mode-hook 'my-setup-develop-environment)
 #    #+END_SRC
+
+** Theme (custom)
+
+    #+BEGIN_SRC emacs-lisp
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(load-theme 'theme-untitled t)
+    #+END_SRC
 
 ** Tweak window UI
 *** Disable the tool & menu bars
