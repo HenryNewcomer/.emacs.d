@@ -105,9 +105,11 @@
         git-gutter
         google-this
         highlight-indent-guides
+;;      highlight-numbers
 ;;      highlight-thing
         ivy
 ;;      lispy
+;;laguna-theme
         magit
         mmm-mode
         modern-cpp-font-lock
@@ -117,8 +119,10 @@
         rainbow-mode
         realgud
         telephone-line
+        transient ;; Reguired for magit
 ;;      treemacs-icons-dired
-        undo-tree)
+        undo-tree
+        yascroll)
 ;;      visual-regexp
 ;;      yasnippet
 
@@ -146,6 +150,7 @@
           (when (not (package-installed-p p))
           (package-install p))))
     #+END_SRC
+
 
 
 
@@ -462,6 +467,15 @@ NOTE TEMP 2019-06-11
     (setq highlight-indent-guides-method 'character)
     #+END_SRC
 
+** Highlight Numbers
+    Repo: https://github.com/Fanael/highlight-numbers
+
+    FIXME: Overrides rainbow-mode. =\
+
+    #+BEGIN_SRC emacs-lisp
+;;(add-hook 'prog-mode-hook 'highlight-numbers-mode)
+    #+END_SRC
+
 ** TODO Highlight Thing
     Repo: https://github.com/fgeller/highlight-thing.el
 
@@ -503,7 +517,7 @@ NOTE TEMP 2019-06-11
     (setq enable-recursive-minibuffers t)
 
     (define-key <Leader> (kbd "s s") 'swiper) ;; Swiper->Search
-    (define-key <Leader> "f" 'project-find-file)
+    (define-key <Leader> (kbd "s f") 'project-find-file)
 
 ;; ~~~
 ;; Possible config additions:
@@ -601,7 +615,7 @@ NOTE TEMP 2019-06-11
 ** Rainbow Delimiters
 
     #+BEGIN_SRC emacs-lisp
-    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
     #+END_SRC
 
 ** TODO Realgud
@@ -669,6 +683,12 @@ NOTE TEMP 2019-06-11
     (define-key evil-normal-state-map (kbd "u") 'undo)
     (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
     (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
+    #+END_SRC
+
+** Yascroll
+
+    #+BEGIN_SRC emacs-lisp
+(global-yascroll-bar-mode 1)
     #+END_SRC
 
 ** TODO Yasnippet
@@ -861,7 +881,7 @@ NOTE TEMP 2019-06-11
     (setq column-enforce-column 80)
 
     ;; Customize the font style
-    (face-spec-set column-enforce-face '((t (:foreground "#ff2222" :bold t :underline t))))
+    ;; (face-spec-set column-enforce-face '((t (:foreground "#ff2222" :bold t :underline t))))
     ;;(face-spec-set column-enforce-face '((t (:background "dark red"))))
 
     (defun henry:custom-toggle-column-limit ()
@@ -920,6 +940,23 @@ NOTE TEMP 2019-06-11
 
     #+BEGIN_SRC emacs-lisp
     (setq gdb-many-windows t)
+    #+END_SRC
+
+** Get font face over point
+
+Source: https://stackoverflow.com/questions/1242352/get-font-face-under-cursor-in-emacs/1242366
+
+FIXME: Only grabs hl-line at the moment
+
+    #+BEGIN_SRC emacs-lisp
+(defun henry:face-over-point ()
+  (interactive)
+  (let ((face
+          (or (get-char-property (point) 'read-face-name)
+            (get-char-property (point) 'face))))
+    (if face (message "Font face: %s" face) (message "No font face at %d" pos))))
+
+(define-key <Leader> (kbd "f f") 'henry:face-over-point)
     #+END_SRC
 
 ** Highlights
@@ -1208,7 +1245,7 @@ NOTE TEMP 2019-06-11
 
     #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(load-theme 'theme-untitled t)
+(load-theme 'laguna t)
     #+END_SRC
 
 ** Tweak window UI
