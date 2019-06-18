@@ -7,12 +7,16 @@
 # ============================================================================
 
 #+BEGIN_SRC emacs-lisp
-(defconst emacs-start-time-settings (current-time))
 #+END_SRC
 
 * Startup
-** Init
-*** Garbage Collection
+** Start timer
+
+#+BEGIN_SRC emacs-lisp
+(defconst emacs-start-time-settings (current-time))
+#+END_SRC
+
+** Garbage Collection
     Drastically increase the garbage collection until the end of
     this file. Afterwards, lower it back down.
 
@@ -22,55 +26,58 @@
     (setq-default gc-cons-threshold 100000000)
     #+END_SRC
 
-*** Operating System
-    Detects the current Operating System
-    #+BEGIN_SRC emacs-lisp
-    (defun henry:detect-os ()
-    "Detects the current system's Operating System."
+** Operating System detection
 
-      (setq henry:current-os-detected nil)
+Detects the current Operating System
 
-      (cond
-        ((string-equal system-type "gnu/linux")
-          (setq henry:current-os "Linux")
-          (setq henry:current-os-detected t))
-        ((string-equal system-type "windows-nt")
-          (setq henry:current-os "Windows")
-          (setq henry:current-os-detected t))
-        ((string-equal system-type "darwin")
-          (setq henry:current-os "OSX")
-          (setq henry:current-os-detected t)))
+#+BEGIN_SRC emacs-lisp
+(defun henry:detect-os ()
+"Detects the current system's Operating System."
 
-    (if henry:current-os-detected
-        (progn
-          (message (concat "Current OS detected: " henry:current-os)))
-        (progn
-          (message "Warning! OS detection failed!"))))
+    (setq henry:current-os-detected nil)
 
-    ;; Initiates the function
-    (henry:detect-os)
-    #+END_SRC
+    (cond
+    ((string-equal system-type "gnu/linux")
+        (setq henry:current-os "Linux")
+        (setq henry:current-os-detected t))
+    ((string-equal system-type "windows-nt")
+        (setq henry:current-os "Windows")
+        (setq henry:current-os-detected t))
+    ((string-equal system-type "darwin")
+        (setq henry:current-os "OSX")
+        (setq henry:current-os-detected t)))
 
-*** <Leader> key
+(if henry:current-os-detected
+    (progn
+        (message (concat "Current OS detected: " henry:current-os)))
+    (progn
+        (message "Warning! OS detection failed!"))))
 
-    #+BEGIN_SRC emacs-lisp
-    (defvar <Leader> (make-sparse-keymap)
-      "Keymap for custom \"<Leader>\" keybindings.")
-    #+END_SRC
+;; Initiates the function
+(henry:detect-os)
+#+END_SRC
 
-** Repository sources
-    #+BEGIN_SRC emacs-lisp
-    (require 'package)
+** Define <Leader> key
 
-    (setq package-enable-at-startup nil)
+#+BEGIN_SRC emacs-lisp
+(defvar <Leader> (make-sparse-keymap)
+  "Keymap for custom \"<Leader>\" keybindings.")
+#+END_SRC
 
-    ;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-    (setq package-archives
-      '(("gnu"   . "http://elpa.gnu.org/packages/")
-        ("org"   . "https://orgmode.org/elpa/")
-        ("melpa" . "http://melpa.org/packages/")))
-    (package-initialize)
-    #+END_SRC
+** Package sources & initialization
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+(setq package-enable-at-startup nil)
+
+;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(setq package-archives
+  '(("gnu"   . "http://elpa.gnu.org/packages/")
+    ("org"   . "https://orgmode.org/elpa/")
+    ("melpa" . "http://melpa.org/packages/")))
+(package-initialize)
+#+END_SRC
 
 
 * Package Settings
@@ -385,6 +392,7 @@ Repo: https://github.com/magit/magit
   :after transient
   :config
     (setq evil-magit-state 'normal)
+
     (define-key <Leader> "g" 'magit-status)
     (define-key <Leader> "G" 'magit-dispatch-popup)
 
@@ -431,7 +439,8 @@ Repo: https://github.com/sabof/org-bullets
       ((string-equal system-type "gnu/linux")
          (require 'org-bullets)
          (setq org-bullets-bullet-list
-             '("✸" "▸" "✚" "○"))
+             ;; Some examples: ❍◌◯⌗⌖⌑▓░▒❏❑▩◈◇
+             '("✸" "◈" "✚" "○"))
         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
 )
     ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
@@ -776,13 +785,13 @@ FIXME: Only grabs hl-line at the moment
     (setq inhibit-compacting-font-caches t)
     #+END_SRC
 
-** Paragraphs
+** Paragraphs / Sentences
 
-    "Sentences" don't need to be followed by two spaces.
+"Sentences" don't need to be followed by two spaces.
 
-    #+BEGIN_SRC emacs-lisp
-    (setq sentence-end-double-space 'nil)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(setq sentence-end-double-space 'nil)
+#+END_SRC
 
 ** TODO Parentheses, braces, & brackets pairs
 
