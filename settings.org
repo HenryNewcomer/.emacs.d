@@ -384,7 +384,27 @@ Repo: https://github.com/magit/magit
 (use-package magit
   :after transient
   :config
-(define-key <Leader> (kbd "g") 'magit-status)
+    (setq evil-magit-state 'normal)
+    (define-key <Leader> "g" 'magit-status)
+    (define-key <Leader> "G" 'magit-dispatch-popup)
+
+    ;; After commits, close the leftover buffers
+    ;; Source: https://emacs.stackexchange.com/questions/35775/how-to-kill-magit-diffs-buffers-on-quit
+
+    (defun kill-magit-diff-buffer-in-current-repo (&rest _)
+      "Delete the magit-diff buffer related to the current repo"
+        (let ((magit-diff-buffer-in-current-repo
+            (magit-mode-get-buffer 'magit-diff-mode)))
+        (kill-buffer magit-diff-buffer-in-current-repo)))
+    ;;
+    ;; When 'C-c C-c' is pressed in the magit commit message buffer,
+    ;; delete the magit-diff buffer related to the current repo.
+    ;;
+    (add-hook 'git-commit-setup-hook
+      (lambda ()
+        (add-hook 'with-editor-post-finish-hook
+          #'kill-magit-diff-buffer-in-current-repo
+          nil t))) ; the t is important
 )
 #+END_SRC
 
@@ -499,7 +519,7 @@ Repo: https://github.com/dbordak/telephone-line
 (Required for Magit)
 
 #+BEGIN_SRC emacs-lisp
-(use-package transient :defer 4)
+(use-package transient)
 #+END_SRC
 
 ** Undo Tree
@@ -960,12 +980,28 @@ FIXME: Only grabs hl-line at the moment
     (add-hook 'web-mode-hook 'my-setup-develop-environment)
 #    #+END_SRC
 
+** Telephone Line
+
+Repo: https://github.com/dbordak/telephone-line
+
+#+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+  :config
+    (setq telephone-line-primary-left-separator 'telephone-line-identity-left
+      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-identity-right
+      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
+    (setq telephone-line-height 18)
+    (telephone-line-mode 1)
+)
+#+END_SRC
+
 ** Theme (custom)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (load-theme 'laguna t)
-    #+END_SRC
+#+END_SRC
 
 ** Tweak window UI
 *** Disable the tool & menu bars
