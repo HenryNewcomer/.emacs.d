@@ -6,15 +6,9 @@
 # ****************************************************************************
 # ============================================================================
 
-* #TODOs
- * TODO Add Polymode: https://github.com/polymode/polymode
-** Keybindings
-*** TODO Set toggle for tab's space count, OR make keybinding for tab=2 and for tab=4
-*** TODO Make sexp keybinding for normal and visual [SPC e]; Auto jump to end of line (or last closing parenthesis?)
-*** TODO Change keybinding for jumping to a mark - default: ` (backtick)
-*** TODO Jump to last buffer
-*** TODO Open last file
-
+#+BEGIN_SRC emacs-lisp
+(defconst emacs-start-time-settings (current-time))
+#+END_SRC
 
 * Startup
 ** Init
@@ -67,777 +61,511 @@
 ** Repository sources
     #+BEGIN_SRC emacs-lisp
     (require 'package)
+
+    (setq package-enable-at-startup nil)
+
     ;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
     (setq package-archives
       '(("gnu"   . "http://elpa.gnu.org/packages/")
         ("org"   . "https://orgmode.org/elpa/")
         ("melpa" . "http://melpa.org/packages/")))
-    #+END_SRC
-
-
-
-* Package Settings
-** :: LIST OF PACKAGES ::
-    #+BEGIN_SRC emacs-lisp
-    (defvar my-packages
-
-;;      ace-window
-      '(aggressive-indent
-        auto-package-update
-        beacon
-        clang-format
-        cmake-font-lock
-        column-enforce-mode
-        company
-        counsel-etags
-;;      dashboard
-        dimmer
-        doom-themes
-        dumb-jump
-        emmet-mode
-        esup
-        evil
-        evil-magit
-        evil-nerd-commenter
-        evil-surround
-        flycheck
-        flycheck-inline
-        git-gutter
-        google-this
-        highlight-indent-guides
-;;      highlight-numbers
-;;      highlight-thing
-        ivy
-;;      lispy
-;;laguna-theme
-        magit
-        mmm-mode
-        modern-cpp-font-lock
-        org-bullets
-        smartparens
-        rainbow-delimiters
-        rainbow-mode
-        realgud
-        telephone-line
-        transient ;; Reguired for magit
-;;      treemacs-icons-dired
-        undo-tree
-        yascroll)
-;;      visual-regexp
-;;      yasnippet
-
-    "A list of packages to install if not locally found.")
-    #+END_SRC
-
-*** Required (before package customizations)
-    #+BEGIN_SRC emacs-lisp
     (package-initialize)
     #+END_SRC
 
 
-*** Check for package installations & upgrades
+* Package Settings
+** Check for package installations & upgrades
 
     #+BEGIN_SRC emacs-lisp
-    (defun my-packages-installed-p ()
-      (cl-loop for p in my-packages
-              when (not (package-installed-p p)) do (cl-return nil)
-              finally (cl-return t)))
-      (unless (my-packages-installed-p)
-      ;; Check for new packages (package versions)
-      (package-refresh-contents)
-      ;; Install the missing packages
-      (dolist (p my-packages)
-          (when (not (package-installed-p p))
-          (package-install p))))
+;; Boostrap `use-package'
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+(package-install 'use-package))
+
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+
+(eval-when-compile
+(require 'use-package))
     #+END_SRC
 
 
 
-
-
-
-** Initialize Evil Mode
+** EVIL Mode
 
     #+BEGIN_SRC emacs-lisp
+(use-package evil
+:ensure t
+:init
     (setq evil-want-C-u-scroll t)
-    (require 'evil)
+:config
     (evil-mode 1)
 
 ;;    (define-key evil-normal-state-map (kbd "SPC") 'nil)
     (define-key evil-normal-state-map (kbd "SPC") <Leader>)
 
-    ;;(define-key <Leader> (kbd "h") 'test)
+;;
+
+    (evil-set-initial-state 'ibuffer-mode 'normal)
+
+    (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
+    (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
+
+
+    ;; Sets Alt-j/k to move lines up or down
+    (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
+    (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
+
+    ;; Allows the same keybindings to work within Insert mode
+    (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
+    (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
+
+
+    ;; Resize window panes
+    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
+    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
+    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
+    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
+)
+
+
     #+END_SRC
 
 
-** TODO Ace Window
-    Repo: https://github.com/abo-abo/ace-window
 
-    TODO: Remove package?
 
-    #+BEGIN_SRC emacs-lisp
-;;    (global-set-key (kbd "M-o") 'ace-window)
-    #+END_SRC
 
-** Aggressive Indent Mode
-    Repo: https://github.com/Malabarba/aggressive-indent-mode
 
-    #+BEGIN_SRC emacs-lisp
-    (global-aggressive-indent-mode 1)
-    ;; TODO: Determine if I prefer HTML mode to
-    ;; use Aggressive Indent Mode or not
-    (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 
-    ;; Prevents akward alignment blinkings within C++ Mode
-     (add-to-list
-      'aggressive-indent-dont-indent-if
-      '(and (derived-mode-p 'c++-mode)
-            (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                                (thing-at-point 'line)))))
-    #+END_SRC
+** Aggressive Indent
 
-** Auto Package Update
-    Repo: https://github.com/rranelli/auto-package-update.el
+Repo: https://github.com/Malabarba/aggressive-indent-mode
 
-    #+BEGIN_SRC emacs-lisp
-    (auto-package-update-maybe)
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :defer t
+  :config
+(global-aggressive-indent-mode 1)
+;; TODO: Determine if I prefer HTML mode to use Aggressive Indent Mode or not
+(add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 
-    (add-hook 'auto-package-update-before-hook
-      (lambda () (message "Checking for package updates...")))
-    (add-hook 'auto-package-update-after-hook
-      (lambda () (message "Finished updating packages.")))
-    #+END_SRC
+;; Prevents akward alignment blinkings within C++ Mode
+(add-to-list
+  'aggressive-indent-dont-indent-if
+  '(and (derived-mode-p 'c++-mode)
+     (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+             (thing-at-point 'line))))))
+#+END_SRC
 
 ** Beacon
-    Repo: https://github.com/Malabarba/beacon
 
-    #+BEGIN_SRC emacs-lisp
-    (beacon-mode 1)
-    #+END_SRC
+Repo: https://github.com/Malabarba/beacon
+
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+  :defer t
+  :config (beacon-mode 1))
+#+END_SRC
 
 ** Clang Format
-    Repo: https://clang.llvm.org/docs/ClangFormat.html
 
-    #+BEGIN_SRC emacs-lisp
-    (define-key <Leader> (kbd "c f") 'clang-format-region)
-    #+END_SRC
+Repo: https://clang.llvm.org/docs/ClangFormat.html
+
+#+BEGIN_SRC emacs-lisp
+(use-package clang-format
+  :defer t
+  :config
+    (define-key <Leader> (kbd "c f") 'clang-format-region))
+
+#+END_SRC
 
 ** Cmake Font Lock
-    Repo: https://github.com/Lindydancer/cmake-font-lock
 
-    #+BEGIN_SRC emacs-lisp
+Repo: https://github.com/Lindydancer/cmake-font-lock
+
+#+BEGIN_SRC emacs-lisp
+(use-package cmake-font-lock
+  :defer t
+  :config
     (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
-    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
-    #+END_SRC
+    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate))
+#+END_SRC
 
-** Counsel eTags
-    Repo: https://github.com/redguardtoo/counsel-etags
+** Column Enforce Mode
 
-    Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
+#+BEGIN_SRC emacs-lisp
+(use-package column-enforce-mode
+  :defer t
+  :config
+    ;; Run this package, but disable it by default
+    (column-enforce-mode -1)
 
-    #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "M-.") 'counsel-etags-find-tag-at-point)
-    (define-key evil-normal-state-map (kbd "M-*") 'counsel-etags-grep-symbol-at-point)
-    (define-key evil-normal-state-map (kbd "M-f") 'counsel-etags-find-tag)
+    (setq column-enforce-column 80)
 
-    ;; Ignore files above 1Mb
-    (setq counsel-etags-max-file-size 1024)
+    ;; Customize the font style
+    ;; (face-spec-set column-enforce-face '((t (:foreground "#ff2222" :bold t :underline t))))
+    ;;(face-spec-set column-enforce-face '((t (:background "dark red"))))
+)
+#+END_SRC
 
-    ;; Ignore build directories
-    (eval-after-load 'counsel-etags
-      '(progn
-        ;; counsel-etags-ignore-directories does NOT support wildcast
-        (add-to-list 'counsel-etags-ignore-directories "build")
-        (add-to-list 'counsel-etags-ignore-directories ".vscode")
-        ;; counsel-etags-ignore-filenames DOES support wildcast
-        (add-to-list 'counsel-etags-ignore-filenames "TAGS")
-        (add-to-list 'counsel-etags-ignore-filenames "*.clang-format")))
+** Company
 
-    ;; Don't ask before re-reading the TAGS files if they have changed
-    (setq tags-revert-without-query t)
+Repo: http://company-mode.github.io/
 
-    ;; Don't warn when TAGS files are large
-    ;;(setq large-file-warning-threshold nil)
+TODO: Decide whether to use a keybinding or the delay...
 
-    ;; How many seconds to wait before rerunning tags for auto-update
-    (setq counsel-etags-update-interval 180)
-
-    ;; Set up auto-update
-    (add-hook 'prog-mode-hook
-        (lambda () (add-hook 'after-save-hook
-            (lambda ()
-                (counsel-etags-virtual-update-tags)))))
-    #+END_SRC
-
-** TODO Company Mode
-    Repo: http://company-mode.github.io/
-
-    TODO: Decide whether to use a keybinding or the delay...
-
-    #+BEGIN_SRC emacs-lisp
-    (add-hook 'after-init-hook 'global-company-mode)
-    ;; Set keybindings
-    (define-key evil-normal-state-map (kbd "<C-tab>") 'company-complete)
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :defer t
+  :config
+(add-hook 'after-init-hook 'global-company-mode)
+;; Set keybindings
+(define-key evil-normal-state-map (kbd "<C-tab>") 'company-complete)
 ;;    (define-key evil-insert-state-map (kbd "<C-tab>") 'company-complete)
 
-    ;; Show results immediately
-    (setq company-idle-delay 0)
-    #+END_SRC
+;; Show results immediately
+(setq company-idle-delay 0))
 
-** Dashboard
-    Repo: https://github.com/rakanalh/emacs-dashboard
+#+END_SRC
 
-    DISABLED:
+** Counsel eTags
 
-;;    #+BEGIN_SRC emacs-lisp
-    (dashboard-setup-startup-hook)
+Repo: https://github.com/redguardtoo/counsel-etags
 
-    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
 
-    ;; Set the title
-    ;;  - Time and gc info from:
-    ;; https://www.reddit.com/r/emacs/comments/8jaflq/tip_how_to_use_your_dashboard_properly/
-    (setq dashboard-banner-logo-title
-      (format "Emacs Dashboard: %.2f seconds to load & %d garbage collections."
-        (float-time (time-subtract after-init-time before-init-time)) gcs-done))
+#+BEGIN_SRC emacs-lisp
+(use-package counsel-etags
+  :defer t
+  :config
 
-    ;; Set the banner
-    (setq dashboard-startup-banner 'logo)
-    ;; Value can be
-    ;; 'official which displays the official emacs logo
-    ;; 'logo which displays an alternative emacs logo
-    ;; 1, 2 or 3 which displays one of the text banners
-    ;; "path/to/your/image.png" which displays whatever image you would prefer
+(define-key evil-normal-state-map (kbd "M-.") 'counsel-etags-find-tag-at-point)
+(define-key evil-normal-state-map (kbd "M-*") 'counsel-etags-grep-symbol-at-point)
+(define-key evil-normal-state-map (kbd "M-f") 'counsel-etags-find-tag)
 
-;; Currently causing a glitch with Dashboard hook @2019-01-15
-;;    (setq dashboard-items '((recents  . 10)
-;;                            (bookmarks . 5)
-;;                            (projects . 5)))
-    ;;                        (agenda . 5)
-    ;;                        (registers . 5)))
+;; Ignore files above 1Mb
+(setq counsel-etags-max-file-size 1024)
 
+;; Ignore build directories
+(eval-after-load 'counsel-etags
+  '(progn
+     ;; counsel-etags-ignore-directories does NOT support wildcast
+     (add-to-list 'counsel-etags-ignore-directories "build")
+     (add-to-list 'counsel-etags-ignore-directories ".vscode")
+     ;; counsel-etags-ignore-filenames DOES support wildcast
+     (add-to-list 'counsel-etags-ignore-filenames "TAGS")
+     (add-to-list 'counsel-etags-ignore-filenames "*.clang-format")))
 
-    (defun henry:show-formfeed-as-line ()
-      "Display the formfeed ^L char as line.
-    URL `http://ergoemacs.org/emacs/emacs_form_feed_section_paging.html'
-    Version 2018-08-30"
-      (interactive)
-      ;; 2016-10-11 thanks to Steve Purcell's page-break-lines.el
-      (progn
-        (when (not buffer-display-table)
-          (setq buffer-display-table (make-display-table)))
-        (aset buffer-display-table ?\^L
-          (vconcat (make-list 70 (make-glyph-code ?─ 'font-lock-comment-face))))
-        (redraw-frame)))
-    (add-hook 'dashboard-mode-hook 'henry:show-formfeed-as-line)
-;;    #+END_SRC
+;; Don't ask before re-reading the TAGS files if they have changed
+(setq tags-revert-without-query t)
+
+;; Don't warn when TAGS files are large
+;;(setq large-file-warning-threshold nil)
+
+;; How many seconds to wait before rerunning tags for auto-update
+(setq counsel-etags-update-interval 180)
+
+;; Set up auto-update
+(add-hook 'prog-mode-hook
+  (lambda () (add-hook 'after-save-hook
+               (lambda ()
+                 (counsel-etags-virtual-update-tags))))))
+#+END_SRC
 
 ** Dimmer
-    Repo: https://github.com/gonewest818/dimmer.el
 
-    #+BEGIN_SRC emacs-lisp
-    (dimmer-mode)
-    #+END_SRC
+Repo: https://github.com/gonewest818/dimmer.el
 
-** Doom Themes
-    Repo: https://github.com/hlissner/emacs-doom-themes#install
+#+BEGIN_SRC emacs-lisp
+(use-package dimmer
+  :defer t
+  :config (dimmer-mode))
+#+END_SRC
 
-NOTE TEMP 2019-06-11
-;;    #+BEGIN_SRC emacs-lisp
-    (require 'doom-themes)
+** TODO Dumb Jump
 
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+Repo: https://github.com/jacktasia/dumb-jump
 
-    ;; Load the specific theme
-    (load-theme 'doom-city-lights t)
+#+BEGIN_SRC emacs-lisp
+(use-package dumb-jump
+  :defer t
+  :config
+(dumb-jump-mode)
+;; TODO Think of better key bindings
+(define-key <Leader> (kbd "C-8") 'dumb-jump-go)
+(define-key <Leader> (kbd "C-*") 'dumb-jump-back))
 
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
+#+END_SRC
 
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config)
-;;    #+END_SRC
+** TODO Emmet Mode
 
-** Dumb Jump
-    Repo: https://github.com/jacktasia/dumb-jump
+Repo: https://github.com/smihica/emmet-mode
 
-    #+BEGIN_SRC emacs-lisp
-    (dumb-jump-mode)
-    (define-key <Leader> (kbd "* f") 'dumb-jump-go)
-    (define-key <Leader> (kbd "* F") 'dumb-jump-back)
-    #+END_SRC
+TODO Edit or remove this package
 
-** Emmet Mode
-    Repo: https://github.com/smihica/emmet-mode
-
-    #+BEGIN_SRC emacs-lisp
-    ;;(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
-    ;;(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+  :defer t
+  :config
+;;(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+;;(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+)
+#+END_SRC
 
 ** Esup
-    Repo: https://github.com/jschaf/esup
 
-    #+BEGIN_SRC emacs-lisp
-    ;; Open->Startup profiler (eSup)
-    (define-key <Leader> (kbd "o s") 'esup)
-    #+END_SRC
+Repo: https://github.com/jschaf/esup
 
-** Evil
+#+BEGIN_SRC emacs-lisp
+(use-package esup
+  :defer t
+  :config
+    (define-key <Leader> (kbd "o s") 'esup))
 
-    #+BEGIN_SRC emacs-lisp
-    ;; Change to Evil's Normal Mode regardless of current state
-    (global-set-key (kbd "<C-escape>") 'evil-normal-state)
-    #+END_SRC
+#+END_SRC
 
-** Evil Nerd Commenter
-   Repo: https://github.com/redguardtoo/evil-nerd-commenter
+** Evil Magit
 
-    #+BEGIN_SRC emacs-lisp
-    ;;evilnc-default-hotkeys)
+#+BEGIN_SRC emacs-lisp
+(use-package evil-magit :after magit)
+#+END_SRC
 
-    (define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
-    (define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
-    (define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
-    (define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
-    ;; TODO: This might need changed to use Visual Mode instead of Normal Mode
-    (define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region)
+** TODO Evil Nerd Commenter
 
-    ;; List of possible function calls:
-    ;; --------------------------------
-    ;; 'evilnc-comment-or-uncomment-lines
-    ;; 'evilnc-quick-comment-or-uncomment-to-the-line
-    ;; 'evilnc-copy-and-comment-lines
-    ;; 'evilnc-comment-or-uncomment-paragraphs
-    ;; 'comment-or-uncomment-region
-    ;; 'evilnc-toggle-invert-comment-line-by-line
-    ;; 'evilnc-copy-and-comment-operator
-    ;; 'evilnc-comment-operator ; if you prefer backslash key
-    #+END_SRC
+Repo: https://github.com/redguardtoo/evil-nerd-commenter
 
-** TODO Evil Surround
-   Repo: https://github.com/emacs-evil/evil-surround
+#+BEGIN_SRC emacs-lisp
+(use-package evil-nerd-commenter
+  :defer t
+  :config
+(define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
+(define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
+(define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
+(define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
+;; TODO: This might need changed to use Visual Mode instead of Normal Mode
+(define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region))
+#+END_SRC
 
-    #+BEGIN_SRC emacs-lisp
-    #+END_SRC
+** Evil Surround
+
+Repo: https://github.com/emacs-evil/evil-surround
+
+#+BEGIN_SRC emacs-lisp
+(use-package evil-surround :defer t)
+#+END_SRC
 
 ** Flycheck
-    Repo: https://github.com/flycheck/flycheck
 
-    #+BEGIN_SRC emacs-lisp
-    (add-hook 'after-init-hook #'global-flycheck-mode)
-    #+END_SRC
+Repo: https://github.com/flycheck/flycheck
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :defer 10
+  :config
+    (add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
 
 ** Flycheck Inline
-    Repo: https://github.com/flycheck/flycheck-inline
 
-    #+BEGIN_SRC emacs-lisp
-    (with-eval-after-load 'flycheck
+Repo: https://github.com/flycheck/flycheck-inline
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck-inline
+  :after flycheck
+  :config
       (global-flycheck-inline-mode))
-    #+END_SRC
-
-** Git Gutter
-    Repo: https://github.com/syohex/emacs-git-gutter
-
-    #+BEGIN_SRC emacs-lisp
-    (global-git-gutter-mode +1)
-    #+END_SRC
-
-** Google This
-    Repo: https://github.com/Malabarba/emacs-google-this
-
-    #+BEGIN_SRC emacs-lisp
-    (google-this-mode 1)
-    ;; Not sure what keybinding I want to use for these commands
-    ;; Open->Google
-    (define-key <Leader> (kbd "o g") 'google-this-mode-submap)
-    ;;(define-key <Leader> (kbd "o g e") 'google-error)
-    #+END_SRC
-
-** TODO Highlight Indent (<TAB>) Guides
-    Repo: https://github.com/DarthFennec/highlight-indent-guides
-
-    #+BEGIN_SRC emacs-lisp
-    (setq highlight-indent-guides-character ?\¦)
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-    (setq highlight-indent-guides-method 'character)
-    #+END_SRC
-
-** Highlight Numbers
-    Repo: https://github.com/Fanael/highlight-numbers
-
-    FIXME: Overrides rainbow-mode. =\
-
-    #+BEGIN_SRC emacs-lisp
-;;(add-hook 'prog-mode-hook 'highlight-numbers-mode)
-    #+END_SRC
-
-** TODO Highlight Thing
-    Repo: https://github.com/fgeller/highlight-thing.el
-
-    TODO: Decide if I want to keep this or not.
-
-    #+BEGIN_SRC emacs-lisp
-    ;; (global-highlight-thing-mode)
-    ;; Alternatively, use this to only enable during prog-mode
-    ;;(add-hook 'prog-mode-hook 'highlight-thing-mode)
-
-    ;; (setq highlight-thing-delay-seconds 1.5)
-
-    ;; Customize the highlight
-    ;; (set-face-background 'hi-yellow "#111111")
-    #+END_SRC
-
-** Improved Org Mode Bullet Symbols
-
-    Only customize the bullet symbols when on a Linux distro
-
-    - Source: https://github.com/sabof/org-bullets
-
-    #+BEGIN_SRC emacs-lisp
-    (cond
-      ((string-equal system-type "gnu/linux")
-         ;;(require 'org-bullets)
-         (setq org-bullets-bullet-list
-             '("✸" "▸" "✚" "○"))
-         :config
-             (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
-    #+END_SRC
-
-** Ivy / Swiper
-    Repo: https://github.com/abo-abo/swiper
-
-    #+BEGIN_SRC emacs-lisp
-    (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-
-    (define-key <Leader> (kbd "s s") 'swiper) ;; Swiper->Search
-    (define-key <Leader> (kbd "s f") 'project-find-file)
-
-;; ~~~
-;; Possible config additions:
-;;    (global-set-key "\C-s" 'swiper)
-;;    (global-set-key (kbd "C-c C-r") 'ivy-resume)
-;;    (global-set-key (kbd "<f6>") 'ivy-resume)
-;;    (global-set-key (kbd "M-x") 'counsel-M-x)
-;;    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-;;    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-;;    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-;;    (global-set-key (kbd "<f1> l") 'counsel-find-library)
-;;    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-;;    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-;;    (global-set-key (kbd "C-c g") 'counsel-git)
-;;    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-;;    (global-set-key (kbd "C-c k") 'counsel-ag)
-;;    (global-set-key (kbd "C-x l") 'counsel-locate)
-;;    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-;;    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-    #+END_SRC
-
-** TODO Lispy
-
-    Repo: https://github.com/abo-abo/lispy
-
-    #+BEGIN_SRC emacs-lisp
-    ;;(add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-    #+END_SRC
+#+END_SRC
 
 ** Magit
 
-    #+BEGIN_SRC emacs-lisp
-    (setq evil-magit-state 'normal)
-    #+END_SRC
-
-    #+BEGIN_SRC emacs-lisp
-    (define-key <Leader> "g" 'magit-status)
-    (define-key <Leader> "G" 'magit-dispatch-popup)
-    #+END_SRC
-
-    After commits, close the leftover buffers
-    - Source: https://emacs.stackexchange.com/questions/35775/how-to-kill-magit-diffs-buffers-on-quit
-
-    #+BEGIN_SRC emacs-lisp
-    (defun kill-magit-diff-buffer-in-current-repo (&rest _)
-      "Delete the magit-diff buffer related to the current repo"
-        (let ((magit-diff-buffer-in-current-repo
-            (magit-mode-get-buffer 'magit-diff-mode)))
-        (kill-buffer magit-diff-buffer-in-current-repo)))
-    ;;
-    ;; When 'C-c C-c' is pressed in the magit commit message buffer,
-    ;; delete the magit-diff buffer related to the current repo.
-    ;;
-    (add-hook 'git-commit-setup-hook
-      (lambda ()
-        (add-hook 'with-editor-post-finish-hook
-          #'kill-magit-diff-buffer-in-current-repo
-          nil t))) ; the t is important
-    #+END_SRC
-
-** TODO MMM-Mode
-    Repo: https://github.com/purcell/mmm-mode
-
-    #+BEGIN_SRC emacs-lisp
-    ;; FIXME: mmm-add-mode-ext-class is throwing an error; void definition
-    ;;(setq mmm-global-mode 'maybe)
-    ;;(mmm-add-mode-ext-class 'html-mode "\\.php\\'" 'html-php)
-
-    ;; FIXME: Verify this is working as expected
-    ;;(mmm-add-mode-ext-class 'org-mode "\\.org\\'" 'emacs-lisp-mode)
-    #+END_SRC
-
-** Modern C++ Font Lock
-    Repo: https://github.com/ludwigpacifici/modern-cpp-font-lock
-
-    #+BEGIN_SRC emacs-lisp
-;;    (modern-c++-font-lock-global-mode t)
-    (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode)
-    #+END_SRC
-
-** TODO Projectile
-
-    #+BEGIN_SRC emacs-lisp
-;;    (projectile-mode +1)
-;;    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-    #+END_SRC
-
-** TODO PHP mode
+Repo: https://github.com/magit/magit
 
 #+BEGIN_SRC emacs-lisp
-;;(add-to-list 'load-path "~/.emacs.d/from_backup/php-mode")
-;;(require 'php-mode)
+(use-package magit
+  :after transient
+  :config
+(define-key <Leader> (kbd "g") 'magit-status)
+)
+#+END_SRC
+
+** Modern C++ Font Lock
+
+Repo: https://github.com/ludwigpacifici/modern-cpp-font-lock
+
+#+BEGIN_SRC emacs-lisp
+(use-package modern-cpp-font-lock
+  :defer t
+  :hook (c++-mode-mode . modern-c++-font-lock-mode)
+)
+#+END_SRC
+
+** Org Bullet
+
+Repo: https://github.com/sabof/org-bullets
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :config
+;; Only customize the bullet symbols when on a Linux distro
+    (cond
+      ((string-equal system-type "gnu/linux")
+         (require 'org-bullets)
+         (setq org-bullets-bullet-list
+             '("✸" "▸" "✚" "○"))
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+)
+    ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
 #+END_SRC
 
 ** Rainbow Delimiters
 
-    #+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :defer t
+  :config
+    (add-hook 'org-mode-hook #'rainbow-delimiters-mode)
+    (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+)
+#+END_SRC
+
+** Rainbow Mode
+
+Repo: https://github.com/realgud/realgud
+
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode :defer t)
+#+END_SRC
 
 ** TODO Realgud
-    Repo: https://github.com/realgud/realgud
 
-    #+BEGIN_SRC emacs-lisp
-    ;; Run->Debugger
-    (define-key <Leader> (kbd "r d") 'realgud:gdb)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package realgud
+  :defer 10
+  :config
+(define-key <Leader> (kbd "r d") 'realgud:gdb)
+)
+#+END_SRC
 
-** Smart Parens
-    Repo: https://github.com/Fuco1/smartparens
+** FIXME Smartparens
 
-    #+BEGIN_SRC emacs-lisp
-    ;; Load default config
-    (require 'smartparens-config)
-    ;; Enable smartparens mode
-    (show-smartparens-global-mode +1)
-    ;; Keeps parens balanced
-    (smartparens-strict-mode)
-    #+END_SRC
+FIXME I'm having issues with this after switching to use-package
 
-    Manually add smartparens mode support for major modes
+Repo: https://github.com/Fuco1/smartparens
 
-    #+BEGIN_SRC emacs-lisp
-    (add-hook 'org-mode-hook #'smartparens-mode)
-    (add-hook 'prog-mode-hook #'smartparens-mode)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package smartparens
+  :defer t
+  :config
+;; Load default config
+(require 'smartparens-config)
+;; Enable smartparens mode
+(show-smartparens-global-mode +1)
+;; Keeps parens balanced
+(smartparens-strict-mode)
 
-    C++
+;; NOTE I'm not sure what I did wrong with :hook but having these
+;; hooks added here still work.
+;;Manually add smartparens mode support for major modes
+(add-hook 'org-mode-hook #'smartparens-mode)
+(add-hook 'prog-mode-hook #'smartparens-mode)
 
-    #+BEGIN_SRC emacs-lisp
-    (sp-with-modes '(c++-mode)
-      (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
-      (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
-                                                ("* ||\n[i]" "RET"))))
-    #+END_SRC
+;; C++
+(sp-with-modes '(c++-mode)
+  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                             ("* ||\n[i]" "RET"))))
+)
+#+END_SRC
 
-** Telephone-line
-    Repo: https://github.com/dbordak/telephone-line
+** Telephone Line
 
-    #+BEGIN_SRC emacs-lisp
-      (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-          telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-          telephone-line-primary-right-separator 'telephone-line-identity-right
-          telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
-      (setq telephone-line-height 18)
-      (telephone-line-mode 1)
-    #+END_SRC
+Repo: https://github.com/dbordak/telephone-line
 
-** TODO Treemacs Icons Dired Mode
-    Repo: https://dm.reddit.com/r/emacs/comments/aaa66z/treemacsiconsdired_treemacs_file_icons_for_your/
+#+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+  :defer t
+  :config
+(setq telephone-line-primary-left-separator 'telephone-line-identity-left
+  telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+  telephone-line-primary-right-separator 'telephone-line-identity-right
+  telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
+(setq telephone-line-height 18)
+(telephone-line-mode 1)
+)
+#+END_SRC
 
-    Icons aren't transparent at the moment, so I'm disabling this for now.
+** Transient
 
-    #+BEGIN_SRC emacs-lisp
-;;  (treemacs-icons-dired-mode)
-    #+END_SRC
+(Required for Magit)
+
+#+BEGIN_SRC emacs-lisp
+(use-package transient :defer 4)
+#+END_SRC
 
 ** Undo Tree
 
-    #+BEGIN_SRC emacs-lisp
-    (global-undo-tree-mode 1)
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :defer t
+  :config
+(require 'undo-tree)
+(global-undo-tree-mode)
 
-    (define-key evil-normal-state-map (kbd "u") 'undo)
-    (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
-    (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
-    #+END_SRC
+(define-key evil-normal-state-map (kbd "u") 'undo)
+(define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
+(define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
+)
+#+END_SRC
 
-** Yascroll
+** YAScroll
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
+(use-package yascroll
+  :defer t
+  :config
 (global-yascroll-bar-mode 1)
-    #+END_SRC
+)
+#+END_SRC
 
-** TODO Yasnippet
-    Source: https://github.com/joaotavora/yasnippet
+** TODO YASnippet
 
-    For a list of Snippets, check out:
-    https://github.com/AndreaCrotti/yasnippet-snippets/tree/master/snippets
+Source: https://github.com/joaotavora/yasnippet
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :defer t
+  :config
 ;;    (yas-global-mode 1)
-    #+END_SRC
+)
+#+END_SRC
+
 
 
 * General emacs settings
 ** Automatic backups
-    Source: https://www.emacswiki.org/emacs/ForceBackups
 
-    #+BEGIN_SRC emacs-lisp
-    ;; Default and per-save backups go here:
-    (setq backup-directory-alist '(("" . "~/.emacs.d/backups/per-save")))
+Source: https://www.emacswiki.org/emacs/ForceBackups
 
-    (defun force-backup-of-buffer ()
-    ;; Make a special "per session" backup at the first save of each
-    ;; emacs session.
-    (when (not buffer-backed-up)
-        ;; Override the default parameters for per-session backups.
-        (let ((backup-directory-alist '(("" . "~/.emacs.d/backups/per-session")))
-            (kept-new-versions 3))
-        (backup-buffer)))
-    ;; Make a "per save" backup on each save.  The first save results in
-    ;; both a per-session and a per-save backup, to keep the numbering
-    ;; of per-save backups consistent.
-    (let ((buffer-backed-up nil))
-        (backup-buffer)))
+#+BEGIN_SRC emacs-lisp
+;; Default and per-save backups go here:
+(setq backup-directory-alist '(("" . "~/.emacs.d/backups/per-save")))
 
-    (add-hook 'before-save-hook  'force-backup-of-buffer)
-    #+END_SRC
+(defun force-backup-of-buffer ()
+;; Make a special "per session" backup at the first save of each
+;; emacs session.
+(when (not buffer-backed-up)
+    ;; Override the default parameters for per-session backups.
+    (let ((backup-directory-alist '(("" . "~/.emacs.d/backups/per-session")))
+        (kept-new-versions 3))
+    (backup-buffer)))
+;; Make a "per save" backup on each save.  The first save results in
+;; both a per-session and a per-save backup, to keep the numbering
+;; of per-save backups consistent.
+(let ((buffer-backed-up nil))
+    (backup-buffer)))
 
-** Build / Compile / Run
-
-    My custom keybindings and functions related to project builds,
-    compilation, and execution. While this is based on a C++ project,
-    it's designed to be useful for other options as well - provided
-    that you add a .dir-locals.el file (with specific function calls)
-    within the project root.
-
-    #+BEGIN_SRC emacs-lisp
-    ;; TODO: Change message calls to terminal echos
-    ;; TODO: add cond to check if build string == nil
-
-    ;; By default, set these vars to nil
-    (setq henry:custom-build-process:build-string nil) ;; CMake
-    (setq henry:custom-build-process:compile-string nil) ;; Makefile
-    (setq henry:custom-build-process:run-string nil)
-
-    ;; Async settings - keep buffer active; hide async buffer
-    ;; Source: https://stackoverflow.com/questions/13901955/how-to-avoid-pop-up-of-async-shell-command-buffer-in-emacs
-    (add-to-list 'display-buffer-alist
-      (cons "\\*Async Shell Command\\*.*" (cons #'display-buffer-no-window nil)))
-
-    ;; Build (example: cmake)
-
-    (defun henry:custom-build-process:setBuild (x)
-      "Set a custom string of commands for running a build (uses local .dir-locals.el file).
-       For example, cmake commands."
-      (interactive "s")
-      (setq henry:custom-build-process:build-string x))
-
-    (defun henry:custom-build-process:build ()
-      "Run a custom compile command based on local .dir-locals.el file.
-        For example, this is used for cmake builds within C++ mode."
-      (interactive)
-      (message (concat "Building project:\nRunning command(s): " henry:custom-build-process:build-string))
-      (async-shell-command henry:custom-build-process:build-string)
-      (message "\n")
-      (message "--------- Finished running: Build project ---------\n")
-    )
-
-    ;; Build->Build
-    (define-key <Leader> (kbd "b b") 'henry:custom-build-process:build)
-
-    ;; Compile (example: Makefile)
-
-    (defun henry:custom-build-process:setCompile (x)
-      "Set a custom string of commands for compiling (uses local .dir-locals.el file)."
-      (interactive "s")
-      (setq henry:custom-build-process:compile-string x))
-
-    (defun henry:custom-build-process:compile ()
-      "Run a custom compile command based on local .dir-locals.el file.
-        For example, this is used for cmake builds within C++ mode."
-      (interactive)
-      (message (concat "Compiling project:\nRunning command(s): " henry:custom-build-process:compile-string))
-      (message "\n")
-      (async-shell-command henry:custom-build-process:compile-string)
-      (message "-------- Finished running: Compile project --------\n")
-    )
-
-    ;; Build->Compile
-    (define-key <Leader> (kbd "b c") 'henry:custom-build-process:compile)
-
-    ;; Run program (example: ./a.exe)
-
-    (defun henry:custom-build-process:setRun (x)
-      "Set a custom string of commands for running an executable (uses local .dir-locals.el file)."
-      (interactive "s")
-      (setq henry:custom-build-process:run-string x))
-
-    (defun henry:custom-build-process:run ()
-      "Run a custom command to start an executable; based on local .dir-locals.el file."
-      (interactive)
-      (message (concat "Starting application:\nRunning command(s): " henry:custom-build-process:run-string))
-      (message "\n")
-      (async-shell-command henry:custom-build-process:run-string)
-      (message "--------- Finished running: Run executable --------\n")
-    )
-
-    ;; Build->Run
-    (define-key <Leader> (kbd "b r") 'henry:custom-build-process:run)
-
-    ;; Custom hook
-    ;; Not working (possible scope issues)
-    ;;(defun henry:custom-build-process:buildHook ()
-    ;;  (interactive)
-    ;;  (message "Adding hook")
-    ;;  (add-hook 'prog-mode-hook
-    ;;    (lambda () (add-hook 'after-save-hook
-    ;;        'henry:custom-build-process:build))))
-    #+END_SRC
-
-    Example code to put within a project root's .dir-locals.el file:
-
-((nil . ((eval . (progn
-                   ;; Cmake
-                   (henry:custom-build-process:setBuild
-                     "cd ${PWD%%/src/*}/../build && cmake ..")
-                   ;; Makefile
-                   (henry:custom-build-process:setCompile
-                     "cd ${PWD%%/src/*}/../build && make all")
-                   ;; Run .exe
-                   (henry:custom-build-process:setRun
-                     "cd ${PWD%%/src/*}/../build && ./a.exe"))))))
-
-                   ;; After every save, rebuild the cmake file
-                   (add-hook 'prog-mode-hook
-                     (lambda () (add-hook 'after-save-hook
-                                  (lambda ()
-                                    (henry:custom-build-process:build))))))))))
-
+(add-hook 'before-save-hook  'force-backup-of-buffer)
+#+END_SRC
 
 ** Cursor
 *** Cursor settings
@@ -875,15 +603,6 @@ NOTE TEMP 2019-06-11
 ** Column Enforce Mode (80-char Toggle)
 
     #+BEGIN_SRC emacs-lisp
-    ;; Run this package, but disable it by default
-    (column-enforce-mode -1)
-
-    (setq column-enforce-column 80)
-
-    ;; Customize the font style
-    ;; (face-spec-set column-enforce-face '((t (:foreground "#ff2222" :bold t :underline t))))
-    ;;(face-spec-set column-enforce-face '((t (:background "dark red"))))
-
     (defun henry:custom-toggle-column-limit ()
       "Toggles the column limit from 80 to unlimited"
       (interactive)
@@ -1334,7 +1053,7 @@ FIXME: Only grabs hl-line at the moment
 
     #+BEGIN_SRC emacs-lisp
     ;; Force Ibuffer to use Evil keybindings
-    (evil-set-initial-state 'ibuffer-mode 'normal)
+;;    (evil-set-initial-state 'ibuffer-mode 'normal)
     ;; Prevents prompting for permission to delete unmodified buffers
     (setq ibuffer-expert t)
     ;; Don't show groups that are empty
@@ -1508,8 +1227,8 @@ Repeated invocations toggle between the two most recently open buffers."
       (move-end-of-line nil)
       (newline))
 
-    (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
-    (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
+    ;; (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
+    ;; (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
     #+END_SRC
 
 *** Move current line up/down
@@ -1539,12 +1258,12 @@ Repeated invocations toggle between the two most recently open buffers."
         (forward-line -1)))
 
     ;; Sets Alt-j/k to move lines up or down
-    (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
-    (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
+;;    (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
+;; (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
 
     ;; Allows the same keybindings to work within Insert mode
-    (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
-    (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
+;; (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
+;; (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
     #+END_SRC
 
 ** Reload Emacs settings
@@ -1631,10 +1350,10 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     Resize window panes
 
     #+BEGIN_SRC emacs-lisp
-    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
-    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
-    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
-    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
+;;    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
+;;    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
+;;    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
+;;    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
     #+END_SRC
 
     Close active window
@@ -1739,12 +1458,26 @@ horizontally, respectively."
     #+END_SRC
 
 
-* Closure
+* TODO Closure
+** Reset Garbage Collector
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 5 nil (lambda ()
   (setq-default gc-cons-threshold 800000)
   (message "gc-cons-threshold restored to %s" gc-cons-threshold)))
+#+END_SRC
 
-(run-with-idle-timer 7 nil (lambda ()
-  (message "Finished loading emacs settings.")))
+** Show timer results
+
+#+BEGIN_SRC emacs-lisp
+(let ((elapsed (float-time (time-subtract (current-time)
+                             emacs-start-time-settings))))
+  (message " --- Loading %s...done (%.3fs)" load-file-name elapsed))
+
+(add-hook 'after-init-hook
+  `(lambda ()
+     (let ((elapsed
+             (float-time
+               (time-subtract (current-time) emacs-start-time-settings))))
+       (message " --- Loading %s...done (%.3fs) [after-init]"
+         ,load-file-name elapsed))) t)
 #+END_SRC
