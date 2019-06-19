@@ -25,11 +25,7 @@
   (expand-file-name "~/.emacs.d/settings.org"
     user-emacs-directory))
 
-;; ----------------------------
-;; Emacs auto-generation: START
-;; ----------------------------
-;; TODO REMOVE THESE (implement them within settings.org)
-
+;; TODO Move these into theme
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -40,14 +36,4 @@
  '(org-tag ((t (:weight bold height 0.8))))
  '(org-verbatim ((t (:weight bold height 0.8)))))
 
-;; ----------------------------
-;; Emacs auto-generation: END
-;; ----------------------------
-
 ;;; .emacs ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (org-bullets use-package evil))))
