@@ -138,6 +138,9 @@ Detects the current Operating System
 
     #+END_SRC
 
+    #+RESULTS:
+    : t
+
 
 
 
@@ -164,13 +167,15 @@ Repo: https://github.com/Malabarba/aggressive-indent-mode
              (thing-at-point 'line))))))
 #+END_SRC
 
+#+RESULTS:
+
 ** Beacon
 
 Repo: https://github.com/Malabarba/beacon
 
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
-  :defer t
+:defer 4
   :config (beacon-mode 1))
 #+END_SRC
 
@@ -202,7 +207,7 @@ Repo: https://github.com/Lindydancer/cmake-font-lock
 
 #+BEGIN_SRC emacs-lisp
 (use-package column-enforce-mode
-  :defer t
+  :defer 8
   :config
     ;; Run this package, but disable it by default
     (column-enforce-mode -1)
@@ -223,7 +228,7 @@ TODO: Decide whether to use a keybinding or the delay...
 
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :defer t
+  :defer 8
   :config
 (add-hook 'after-init-hook 'global-company-mode)
 ;; Set keybindings
@@ -243,7 +248,7 @@ Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6
 
 #+BEGIN_SRC emacs-lisp
 (use-package counsel-etags
-  :defer t
+  :defer 6
   :config
 
 (define-key evil-normal-state-map (kbd "M-.") 'counsel-etags-find-tag-at-point)
@@ -285,7 +290,7 @@ Repo: https://github.com/gonewest818/dimmer.el
 
 #+BEGIN_SRC emacs-lisp
 (use-package dimmer
-  :defer t
+  :defer 4
   :config (dimmer-mode))
 #+END_SRC
 
@@ -295,7 +300,7 @@ Repo: https://github.com/jacktasia/dumb-jump
 
 #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
-  :defer t
+  :defer 8
   :config
 (dumb-jump-mode)
 ;; TODO Think of better key bindings
@@ -325,7 +330,7 @@ Repo: https://github.com/jschaf/esup
 
 #+BEGIN_SRC emacs-lisp
 (use-package esup
-  :defer t
+  :defer 8
   :config
     (define-key <Leader> (kbd "o s") 'esup))
 
@@ -343,7 +348,7 @@ Repo: https://github.com/redguardtoo/evil-nerd-commenter
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil-nerd-commenter
-  :defer t
+  :defer 8
   :config
 (define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
 (define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
@@ -358,7 +363,7 @@ Repo: https://github.com/redguardtoo/evil-nerd-commenter
 Repo: https://github.com/emacs-evil/evil-surround
 
 #+BEGIN_SRC emacs-lisp
-(use-package evil-surround :defer t)
+(use-package evil-surround :defer 8)
 #+END_SRC
 
 ** Flycheck
@@ -367,7 +372,7 @@ Repo: https://github.com/flycheck/flycheck
 
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :defer 10
+  :defer 6
   :config
     (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
@@ -433,6 +438,7 @@ Repo: https://github.com/sabof/org-bullets
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
+  :defer 2
   :config
 ;; Only customize the bullet symbols when on a Linux distro
     (cond
@@ -450,7 +456,7 @@ Repo: https://github.com/sabof/org-bullets
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :defer t
+  :defer 4
   :config
     (add-hook 'org-mode-hook #'rainbow-delimiters-mode)
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
@@ -462,7 +468,7 @@ Repo: https://github.com/sabof/org-bullets
 Repo: https://github.com/realgud/realgud
 
 #+BEGIN_SRC emacs-lisp
-(use-package rainbow-mode :defer t)
+(use-package rainbow-mode :defer 2)
 #+END_SRC
 
 ** TODO Realgud
@@ -483,7 +489,7 @@ Repo: https://github.com/Fuco1/smartparens
 
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
-  :defer t
+  :defer 2
   :config
 ;; Load default config
 (require 'smartparens-config)
@@ -550,7 +556,7 @@ Repo: https://github.com/dbordak/telephone-line
 
 #+BEGIN_SRC emacs-lisp
 (use-package yascroll
-  :defer t
+  :defer 8
   :config
 (global-yascroll-bar-mode 1)
 )
@@ -562,7 +568,7 @@ Source: https://github.com/joaotavora/yasnippet
 
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :defer t
+  :defer 8
   :config
 ;;    (yas-global-mode 1)
 )
