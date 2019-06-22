@@ -185,7 +185,7 @@ Repo: https://clang.llvm.org/docs/ClangFormat.html
 
 #+BEGIN_SRC emacs-lisp
 (use-package clang-format
-  :defer t
+  :defer 4
   :config
     (define-key <Leader> (kbd "c f") 'clang-format-region))
 
@@ -372,7 +372,6 @@ Repo: https://github.com/flycheck/flycheck
 
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :defer 6
   :config
     (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
