@@ -376,6 +376,17 @@ Repo: https://github.com/flycheck/flycheck
     (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
 
+** Flycheck Clang Analyzer
+
+Repo: https://github.com/alexmurray/flycheck-clang-analyzer
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck-clang-analyzer
+  :after flycheck
+  :config
+      (flycheck-clang-analyzer-setup))
+#+END_SRC
+
 ** Flycheck Inline
 
 Repo: https://github.com/flycheck/flycheck-inline
@@ -455,7 +466,7 @@ Repo: https://github.com/sabof/org-bullets
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :defer 4
+  :defer 2
   :config
     (add-hook 'org-mode-hook #'rainbow-delimiters-mode)
     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
@@ -464,10 +475,8 @@ Repo: https://github.com/sabof/org-bullets
 
 ** Rainbow Mode
 
-Repo: https://github.com/realgud/realgud
-
 #+BEGIN_SRC emacs-lisp
-(use-package rainbow-mode :defer 2)
+(use-package rainbow-mode)
 #+END_SRC
 
 ** TODO Realgud
