@@ -745,6 +745,13 @@ FIXME: Only grabs hl-line at the moment
     (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
     #+END_SRC
 
+** Me (Henry)
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Henry Newcomer")
+(setq user-mail-address "a.cliche.email@gmail.com")
+#+END_SRC
+
 ** Org Mode
 *** Customizes the colors
     Source: https://orgmode.org/manual/Faces-for-TODO-keywords.html
