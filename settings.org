@@ -203,6 +203,15 @@ Repo: https://github.com/Lindydancer/cmake-font-lock
     (add-hook 'cmake-mode-hook 'cmake-font-lock-activate))
 #+END_SRC
 
+** Cmake IDE
+
+#+BEGIN_SRC emacs-lisp
+(use-package cmake-ide
+  :defer 2
+  :config
+    (cmake-ide-setup))
+#+END_SRC
+
 ** Column Enforce Mode
 
 #+BEGIN_SRC emacs-lisp
