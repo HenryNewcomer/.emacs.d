@@ -701,8 +701,8 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
     TODO: See if fonts can be found with relative paths instead of being "installed"
 
     #+BEGIN_SRC emacs-lisp
-;;  (set-default-font "Iosevka 11")
-    (set-default-font "Hack 10")
+;;  (set-frame-font "Iosevka 11")
+    (set-frame-font "Hack 10")
     ;; To prevent odd graphical glitching, keep the mode-line's size small
 ;;    (set-face-attribute 'mode-line nil :font "Iosevka-10")
     #+END_SRC
@@ -1038,8 +1038,12 @@ Repo: https://github.com/dbordak/telephone-line
 ** Theme (custom)
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(load-theme 'laguna t)
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+;; (load-theme 'laguna t)
+(use-package laguna-theme
+  :init (progn (load-theme 'laguna t))
+  :defer t
+  :ensure t)
 #+END_SRC
 
 ** Tweak window UI
