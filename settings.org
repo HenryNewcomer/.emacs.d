@@ -318,6 +318,28 @@ Repo: https://github.com/jacktasia/dumb-jump
 
 #+END_SRC
 
+** Elpy
+
+Documents: https://elpy.readthedocs.io/en/latest/index.html
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :ensure t
+  :defer t
+  :config
+    ;; TODO : Think of better key-combos
+    (define-key evil-normal-state-map (kbd "M-TAB") 'elpy-company-backend)
+    (define-key <Leader> (kbd "p c") 'elpy-shell-send-region-or-buffer)
+    (define-key <Leader> (kbd "p .") 'elpy-goto-definition-other-window)
+
+    ;; Use standard Python interpreter
+    (setq python-shell-interpreter "python"
+          python-shell-interpreter-args "-i")
+  :init
+    (advice-add 'python-mode :before 'elpy-enable))
+
+#+END_SRC
+
 ** TODO Emmet Mode
 
 Repo: https://github.com/smihica/emmet-mode
