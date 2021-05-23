@@ -117,6 +117,10 @@ Detects the current Operating System
 
     (evil-set-initial-state 'ibuffer-mode 'normal)
 
+
+    (global-undo-tree-mode) ;; Moved here to allow undo/redo to properly work.
+    (evil-set-undo-system 'undo-tree)
+
     (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
     (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
 
@@ -591,7 +595,6 @@ Repo: https://github.com/dbordak/telephone-line
   :defer t
   :config
 (require 'undo-tree)
-(global-undo-tree-mode)
 
 (define-key evil-normal-state-map (kbd "u") 'undo)
 (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
