@@ -1,13 +1,9 @@
-
 # ============================================================================
 # ****************************************************************************
 #+TITLE: Emacs Settings
 #+AUTHOR: Henry Newcomer
 # ****************************************************************************
 # ============================================================================
-
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
 
 * Startup
 ** Start timer
@@ -16,14 +12,14 @@
 (defconst emacs-start-time-settings (current-time))
 #+END_SRC
 
-** Garbage Collection
+** TODO Garbage Collection
     Drastically increase the garbage collection until the end of
     this file. Afterwards, lower it back down.
 
     Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
 
     #+BEGIN_SRC emacs-lisp
-    (setq-default gc-cons-threshold 100000000)
+        (setq-default gc-cons-threshold 100000000)
     #+END_SRC
 
 ** Operating System detection
@@ -71,11 +67,11 @@ Detects the current Operating System
 
 (setq package-enable-at-startup nil)
 
-;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (setq package-archives
-  '(("gnu"   . "http://elpa.gnu.org/packages/")
+  '(("gnu"   . "https://elpa.gnu.org/packages/")
     ("org"   . "https://orgmode.org/elpa/")
-    ("melpa" . "http://melpa.org/packages/")))
+    ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 #+END_SRC
 
@@ -83,7 +79,7 @@ Detects the current Operating System
 * Package Settings
 ** Check for package installations & upgrades
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;; Boostrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -94,13 +90,30 @@ Detects the current Operating System
 
 (eval-when-compile
 (require 'use-package))
-    #+END_SRC
+#+END_SRC
 
+
+** Straight.el
+
+#+BEGIN_SRC emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+END_SRC
 
 
 ** EVIL Mode
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package evil
 :ensure t
 :init
@@ -142,10 +155,10 @@ Detects the current Operating System
 )
 
 
-    #+END_SRC
+#+END_SRC
 
-    #+RESULTS:
-    : t
+#+RESULTS:
+: t
 
 
 
@@ -181,8 +194,20 @@ Repo: https://github.com/Malabarba/beacon
 
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
-:defer 4
+  :defer 4
   :config (beacon-mode 1))
+#+END_SRC
+
+** Benchmark Init
+
+Repo: https://github.com/dholm/benchmark-init-el
+
+#+BEGIN_SRC emacs-lisp
+(use-package benchmark-init
+  :ensure t
+  :config
+    ;; To disable collection of benchmark data after init is done.
+    (add-hook 'after-init-hook 'benchmark-init/deactivate))
 #+END_SRC
 
 ** Clang Format
@@ -237,13 +262,12 @@ Repo: https://github.com/Lindydancer/cmake-font-lock
 
 ** Company
 
-Repo: http://company-mode.github.io/
+Repo: https://company-mode.github.io/
 
 TODO: Decide whether to use a keybinding or the delay...
 
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :defer 8
   :config
 (add-hook 'after-init-hook 'global-company-mode)
 ;; Set keybindings
@@ -253,6 +277,43 @@ TODO: Decide whether to use a keybinding or the delay...
 ;; Show results immediately
 (setq company-idle-delay 0))
 
+#+END_SRC
+
+** Counsel - Counsel / Ivy / Swiper
+
+Repo:
+https://github.com/abo-abo/swiper
+
+Config copied from:
+https://dev.to/deciduously/how-i-emacs-and-so-can-you-packages-m9p
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :diminish (ivy-mode . "")
+  :init (ivy-mode 1)
+  :config
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-height 20)
+    (setq ivy-count-format "%d/%d "))
+(provide 'init-ivy)
+
+(use-package counsel
+  :bind* ; Load when pressed.
+    (("M-x"     . counsel-M-x)
+     ("C-s"     . swiper)
+     ("C-x C-f" . counsel-find-file)
+     ("C-x C-r" . counsel-recentf)  ; search for recently edited
+     ("C-c g"   . counsel-git)      ; search for files in git repo
+     ("C-c j"   . counsel-git-grep) ; search for regexp in git repo
+     ("C-c /"   . counsel-ag)       ; Use ag for regexp
+     ("C-x l"   . counsel-locate)
+     ("C-x C-f" . counsel-find-file)
+     ("<f1> f"  . counsel-describe-function)
+     ("<f1> v"  . counsel-describe-variable)
+     ("<f1> l"  . counsel-find-library)
+     ("<f2> i"  . counsel-info-lookup-symbol)
+     ("<f2> u"  . counsel-unicode-char)
+     ("C-c C-r" . ivy-resume)))     ; Resume last Ivy-based completion
 #+END_SRC
 
 ** Counsel eTags
@@ -413,9 +474,16 @@ Repo: https://github.com/emacs-evil/evil-surround
 
 Repo: https://github.com/flycheck/flycheck
 
+Note: You have to install Pylint (Python) and ESLint (JavaScript).
+
+`pip install pylint`
+`npm install eslint`
+
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :config
+  :ensure t
+  :init
+    (global-flycheck-mode)
     (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
 
@@ -439,6 +507,19 @@ Repo: https://github.com/flycheck/flycheck-inline
   :after flycheck
   :config
       (global-flycheck-inline-mode))
+#+END_SRC
+
+** gdscript-mode
+
+Repo: https://github.com/godotengine/emacs-gdscript-mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package gdscript-mode
+    :straight
+      (gdscript-mode
+        :type git
+        :host github
+        :repo "godotengine/emacs-gdscript-mode"))
 #+END_SRC
 
 ** Magit
@@ -505,6 +586,17 @@ Repo: https://github.com/sabof/org-bullets
     ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
 #+END_SRC
 
+** PHP Mode
+
+Repo: https://github.com/emacs-php/php-mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package php-mode
+  :defer t
+  :config
+    (require 'php-mode))
+#+END_SRC
+
 ** Rainbow Delimiters
 
 #+BEGIN_SRC emacs-lisp
@@ -516,7 +608,7 @@ Repo: https://github.com/sabof/org-bullets
 )
 #+END_SRC
 
-** Rainbow Mode
+** Rainbow Mode (HEX colors)
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-mode)
@@ -595,11 +687,24 @@ Repo: https://github.com/dbordak/telephone-line
   :defer t
   :config
 (require 'undo-tree)
-
 (define-key evil-normal-state-map (kbd "u") 'undo)
 (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
-(define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
-)
+(define-key <Leader> (kbd "C-r") 'undo-tree-visualize))
+#+END_SRC
+
+** Web Mode
+Website: https://web-mode.org/
+
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :defer t
+  :config
+(add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+(require 'web-mode))
+
 #+END_SRC
 
 ** YAScroll
@@ -608,8 +713,7 @@ Repo: https://github.com/dbordak/telephone-line
 (use-package yascroll
   :defer 8
   :config
-(global-yascroll-bar-mode 1)
-)
+(global-yascroll-bar-mode 1))
 #+END_SRC
 
 ** TODO YASnippet
@@ -633,23 +737,24 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 
 #+BEGIN_SRC emacs-lisp
 ;; Default and per-save backups go here:
+
 (setq backup-directory-alist '(("" . "~/.emacs.d/backups/per-save")))
 
 (defun force-backup-of-buffer ()
-;; Make a special "per session" backup at the first save of each
-;; emacs session.
-(when (not buffer-backed-up)
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
     ;; Override the default parameters for per-session backups.
     (let ((backup-directory-alist '(("" . "~/.emacs.d/backups/per-session")))
         (kept-new-versions 3))
     (backup-buffer)))
-;; Make a "per save" backup on each save.  The first save results in
-;; both a per-session and a per-save backup, to keep the numbering
-;; of per-save backups consistent.
-(let ((buffer-backed-up nil))
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  (let ((buffer-backed-up nil))
     (backup-buffer)))
 
-(add-hook 'before-save-hook  'force-backup-of-buffer)
+(add-hook 'before-save-hook 'force-backup-of-buffer)
 #+END_SRC
 
 ** Cursor
@@ -665,16 +770,16 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 
     - Source: https://stackoverflow.com/questions/34087964/visual-studio-style-curly-brackets-auto-completion-in-emacs
     #+BEGIN_SRC emacs-lisp
-    (defun electric-pair-brace-fixup ()
-      (when (and electric-pair-mode
-              (if (functionp electric-pair-open-newline-between-pairs)
-                (funcall electric-pair-open-newline-between-pairs)
-                electric-pair-open-newline-between-pairs)
-              (eq last-command-event ?\{)
-              (= ?\{ (char-before)) (= ?\} (char-after)))
-        (newline nil t)))
+      (defun electric-pair-brace-fixup ()
+        (when (and electric-pair-mode
+                (if (functionp electric-pair-open-newline-between-pairs)
+                  (funcall electric-pair-open-newline-between-pairs)
+                  electric-pair-open-newline-between-pairs)
+                (eq last-command-event ?\{)
+                (= ?\{ (char-before)) (= ?\} (char-after)))
+          (newline nil t)))
 
-    (advice-add 'electric-pair-post-self-insert-function :after #'electric-pair-brace-fixup)
+      (advice-add 'electric-pair-post-self-insert-function :after #'electric-pair-brace-fixup)
     #+END_SRC
 
 ** C++
@@ -763,6 +868,18 @@ FIXME: Only grabs hl-line at the moment
 (define-key <Leader> (kbd "f f") 'henry:face-over-point)
     #+END_SRC
 
+** Hide ^M
+
+Source: https://stackoverflow.com/questions/730751/hiding-m-in-emacs
+#+BEGIN_SRC emacs-lisp
+(defun remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
+(add-hook 'text-mode-hook 'remove-dos-eol)
+#+END_SRC
+
 ** Highlights
 *** Current Line
 
@@ -779,7 +896,7 @@ FIXME: Only grabs hl-line at the moment
         ;; Disabled in cmake-mode due to glitch (see Author's comment in source)
         (when (not (derived-mode-p 'cmake-mode))
           (font-lock-add-keywords nil
-            '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TEMP\\|TODO\\)"
+            '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TEMP\\|TODO\\|HENRY\\)"
                 1 font-lock-warning-face t))))))
     #+END_SRC
 
@@ -822,7 +939,7 @@ FIXME: Only grabs hl-line at the moment
     (custom-theme-set-faces
       'user
       '(org-document-info         ((t (:foreground "dark orange"))))
-      '(org-link                  ((t (:foreground "royal blue" :underline t))))
+    ;;'(org-link                  ((t (:foreground "royal blue" :underline t))))
       '(org-tag                   ((t (:weight bold height 0.8))))
       '(org-verbatim               ((t (:weight bold height 0.8)))))
 
@@ -833,7 +950,6 @@ FIXME: Only grabs hl-line at the moment
     ;;  '(org-block                 ((t (:inherit fixed-pitch))))
     ;;  '(org-document-info         ((t (:foreground "dark orange"))))
     ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-    ;;  '(org-link                  ((t (:foreground "royal blue" :underline t))))
     ;;  '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
     ;;  '(org-property-value        ((t (:inherit fixed-pitch))) t)
     ;;  '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
@@ -1001,7 +1117,7 @@ FIXME: Only grabs hl-line at the moment
     # and customize this usage instead:
     # --------------------------------------------------- #
 
-    Source: http://blog.binchen.org/posts/easy-indentation-setup-in-emacs-for-web-development.html
+    Source: https://blog.binchen.org/posts/easy-indentation-setup-in-emacs-for-web-development.html
 #    #+BEGIN_SRC emacs-lisp
     (defun my-setup-indent (n)
         ;; java/c/c++
@@ -1071,8 +1187,9 @@ Repo: https://github.com/dbordak/telephone-line
 ** Theme (custom)
 
 #+BEGIN_SRC emacs-lisp
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-;; (load-theme 'laguna t)
+; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes") ;; for local testing
+;; (load-theme 'laguna t) ;; for local testing
+
 (use-package laguna-theme
   :init (progn (load-theme 'laguna t))
   :defer t
@@ -1137,7 +1254,7 @@ Repo: https://github.com/dbordak/telephone-line
     #+END_SRC
 
 *** Create empty buffer
-    Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
+    Source: https://ergoemacs.org/emacs/emacs_new_empty_buffer.html
 
     #+BEGIN_SRC emacs-lisp
     (defun henry:new-empty-buffer ()
@@ -1218,7 +1335,7 @@ Repo: https://github.com/dbordak/telephone-line
     #+END_SRC
 
     Creates custom Ibuffer groups
-    Based on: http://martinowen.net/blog/2010/02/03/tips-for-emacs-ibuffer.html
+    Based on: https://martinowen.net/blog/2010/02/03/tips-for-emacs-ibuffer.html
 
     #+BEGIN_SRC emacs-lisp
     (setq ibuffer-saved-filter-groups
@@ -1242,21 +1359,26 @@ Repo: https://github.com/dbordak/telephone-line
 
     #+END_SRC
 
-*** TODO Swap between previous buffer
+*** TODO Swap between previous buffer - TODO
     Source: https://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
 
-    TODO: Buffer List ruins this... Figure out a fix.
+#+BEGIN_SRC emacs-lisp
+      (setq last-buffer-name nil)
 
-    #+BEGIN_SRC emacs-lisp
-    (defun henry:switch-to-previous-buffer ()
-      "Switch to previously open buffer.
+      (defun henry:update-name-last-buffer ()
+  setq last-buffer-name (buffer-name))
 
-Repeated invocations toggle between the two most recently open buffers."
-      (interactive)
-      (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-    (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
-    #+END_SRC
+      (defun henry:switch-to-previous-buffer ()
+          "Switch to previously open buffer.
+      Repeated invocations toggle between the two most recently open buffers."
+          (interactive)
+          (if (eq (buffer-name) "*Ibuffer*")
+            (message "OMG this worked!!!! FUCK YEAH!!!")
+            (message "nope...")))
+    (buffer-name)
+          ;(switch-to-buffer (other-buffer (current-buffer) 2)))
+      (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
+#+END_SRC
 
 *** Swap to *Scratch*
     #+BEGIN_SRC emacs-lisp
@@ -1312,6 +1434,13 @@ Repeated invocations toggle between the two most recently open buffers."
       (call-interactively 'eval-last-sexp))
 
     (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
+    #+END_SRC
+
+** Help commands
+*** Apropos
+
+    #+BEGIN_SRC emacs-lisp
+    (define-key <Leader> (kbd "/ a") 'apropos)
     #+END_SRC
 
 ** Line manipulations
@@ -1493,11 +1622,11 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     TODO Check OS before trying to access settings file
 
     #+BEGIN_SRC emacs-lisp
-    ;; Think: Edit->Settings
-    (define-key <Leader> (kbd "e s") (lambda()
-      (interactive)
-      (message "Loading Emacs Settings.org file...")
-      (find-file "~/.emacs.d/settings.org")))
+      ;; Think: Edit->Settings
+      (define-key <Leader> (kbd "e s") (lambda()
+        (interactive)
+        (message "Loading Emacs Settings.org file...")
+        (find-file "~/.emacs.d/settings.org")))
     #+END_SRC
 
 *** File and folder management
@@ -1570,8 +1699,63 @@ horizontally, respectively."
     #+END_SRC
 
 
+** For Work:
+*** Insert get_defined_vars()
+
+    #+BEGIN_SRC emacs-lisp
+      (defun henry:insert-get-defined-vars ()
+        "Inserts PHP code to spit out all accessible vars. Also kills the rest of the script."
+        (interactive)
+        (evil-insert-state)
+        (insert "\n echo '<pre>';\n print_r(get_defined_vars());\n exit('DEBUG');\n")
+        (evil-normal-state))
+
+      (define-key <Leader> (kbd "i v") 'henry:insert-get-defined-vars)
+    #+END_SRC
+
+*** Edit notes (shortcut)
+
+    #+BEGIN_SRC emacs-lisp
+      ;; Think: Edit->Notes
+      (define-key <Leader> (kbd "e n") (lambda()
+        (interactive)
+        (message "Loading Project Notes.")
+        (find-file "~/dev/ee/_hold-ontos_/_my-notes_.org")))
+    #+END_SRC
+
+
+* Manual package control
+** TODO EAF - Emacs Application Framework
+    Repo: https://github.com/emacs-eaf/emacs-application-framework
+
+#+BEGIN_SRC bash
+// TODO Move this into a bash script.
+git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/
+cd ~/.emacs.d/site-lisp/emacs-application-framework
+chmod +x ./install-eaf.py
+./install-eaf.py
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+; (use-package eaf
+; :load-path "~/.emacs.d/site-lisp/emacs-application-framework" ; Set to "/usr/share/emacs/site-lisp/eaf" if installed from AUR
+; :custom
+; ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
+; (eaf-browser-continue-where-left-off t)
+; (eaf-browser-enable-adblocker t)
+; (browse-url-browser-function 'eaf-open-browser)
+; :config
+; (defalias 'browse-web #'eaf-open-browser)
+; (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+; (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+; (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+; (eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
+#+END_SRC
+
+
+
 * TODO Closure
-** Reset Garbage Collector
+** TODO Reset Garbage Collector
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 5 nil (lambda ()
   (setq-default gc-cons-threshold 800000)
