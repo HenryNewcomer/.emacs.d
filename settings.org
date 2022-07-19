@@ -104,7 +104,7 @@ Detects the current Operating System
 (use-package evil
 :ensure t
 :init
-    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-u-scroll nil)
     (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
     (setq evil-want-keybinding nil)
 :config
@@ -504,6 +504,14 @@ Repo: https://github.com/sabof/org-bullets
 )
     ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
 #+END_SRC
+
+** PHP Mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package php-mode)
+#+END_SRC
+
+** TODO Parentheses, braces, & brackets pairs
 
 ** Rainbow Delimiters
 
