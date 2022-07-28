@@ -495,14 +495,17 @@ Repo: https://github.com/sabof/org-bullets
   :config
 ;; Only customize the bullet symbols when on a Linux distro
     (cond
+      ((string-equal system-type "darwin")
+         (require 'org-bullets)
+         (setq org-bullets-bullet-list
+             '("❖" "✸" "✱" "◈"))
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
       ((string-equal system-type "gnu/linux")
          (require 'org-bullets)
          (setq org-bullets-bullet-list
-             ;; Some examples: ❍◌◯⌗⌖⌑▓░▒❏❑▩◈◇
+             ;; Some examples: ❖✸✱❍◌◯⌗⌖⌑▓░▒❏❑▩◈◇
              '("✸" "◈" "✚" "○"))
-        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
-)
-    ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
 #+END_SRC
 
 ** PHP Mode
@@ -608,6 +611,13 @@ Repo: https://github.com/dbordak/telephone-line
 (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
 (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
 )
+#+END_SRC
+
+** Web Mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :defer 2)
 #+END_SRC
 
 ** YAScroll
