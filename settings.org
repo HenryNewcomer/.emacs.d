@@ -753,9 +753,17 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 
     #+BEGIN_SRC emacs-lisp
 ;;  (set-frame-font "Iosevka 11")
-    (set-frame-font "Hack 10")
+    (set-frame-font "Hack 11")
+
+
+
+    (if
+      (string-equal system-type "darwin")
+        (set-frame-font "Fira Code 11")
+        (set-frame-font "Hack 11"))
+
     ;; To prevent odd graphical glitching, keep the mode-line's size small
-;;    (set-face-attribute 'mode-line nil :font "Iosevka-10")
+;;    (set-face-attribute 'mode-line nil :font "Iosevka-11")
     #+END_SRC
 
 ** GDB (Debugger)
