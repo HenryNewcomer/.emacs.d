@@ -493,8 +493,6 @@ Repo: https://github.com/sabof/org-bullets
 (use-package org-bullets
   :defer 2
   :config
-    (setq org-agenda-files
-      '("/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/tasks.org"))
     ;; Only customize the bullet symbols when on a Linux distro
     (cond
       ((string-equal system-type "darwin")
@@ -867,6 +865,16 @@ FIXME: Only grabs hl-line at the moment
     #+BEGIN_SRC emacs-lisp
     (setq inhibit-compacting-font-caches t)
     #+END_SRC
+
+*** Extra Settings
+
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-files
+  '("/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/tasks.org"))
+(setq org-agenda-start-with-log-mode t)
+(setq org-log-done t)
+(setq org-log-into-drawer t)
+#+END_SRC
 
 ** Paragraphs / Sentences
 
