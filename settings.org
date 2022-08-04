@@ -493,7 +493,9 @@ Repo: https://github.com/sabof/org-bullets
 (use-package org-bullets
   :defer 2
   :config
-;; Only customize the bullet symbols when on a Linux distro
+    (setq org-agenda-files
+      '("/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/tasks.org"))
+    ;; Only customize the bullet symbols when on a Linux distro
     (cond
       ((string-equal system-type "darwin")
          (require 'org-bullets)
@@ -1395,6 +1397,12 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
 ;; (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
     #+END_SRC
+
+** Org mode - shortcuts
+#+BEGIN_SRC emacs-lisp
+    (define-key <Leader> (kbd "o a") 'org-agenda)
+    (define-key <Leader> (kbd "o s") 'org-schedule)
+#+END_SRC
 
 ** Reload Emacs settings
 
