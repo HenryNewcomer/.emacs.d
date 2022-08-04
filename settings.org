@@ -1472,8 +1472,8 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 ** Text Scaling
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C-=") 'text-scale-decrease)
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C-+") 'text-scale-decrease)
 #+END_SRC
 
 ** Window management
