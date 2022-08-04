@@ -1104,12 +1104,12 @@ Repo: https://github.com/dbordak/telephone-line
 ** Theme (custom)
 
 #+BEGIN_SRC emacs-lisp
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-;; (load-theme 'laguna t)
-(use-package laguna-theme
-  :init (progn (load-theme 'laguna t))
-  :defer t
-  :ensure t)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/laguna-theme/")
+(load-theme 'laguna t)
+;; (use-package laguna-theme
+  ;; :init (progn (load-theme 'laguna t))
+  ;; :defer t
+  ;; :ensure t)
 #+END_SRC
 
 ** Tweak window UI
