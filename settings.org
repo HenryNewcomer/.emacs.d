@@ -401,6 +401,16 @@ Repo: https://github.com/redguardtoo/evil-nerd-commenter
 (define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region))
 #+END_SRC
 
+** TODO Evil Numbers
+
+Repo: https://github.com/cofi/evil-numbers
+
+(use-package evil-numbers
+  :defer 8
+  :config
+(define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt))
+
 ** Evil Surround
 
 Repo: https://github.com/emacs-evil/evil-surround
