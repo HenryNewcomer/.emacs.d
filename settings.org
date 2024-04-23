@@ -16,15 +16,24 @@
 (defconst emacs-start-time-settings (current-time))
 #+END_SRC
 
+** Set initial frame size for macOS
+  This ensures that on macOS, Emacs will start with a window size
+  that fills half the screen's width and the full height of the screen.
+
+#+BEGIN_SRC emacs-lisp
+(when (string-equal system-type "darwin")
+  (setq initial-frame-alist '((top . 0) (left . 0) (height . 1.0) (width . 0.5))))
+#+END_SRC
+
 ** Garbage Collection
-    Drastically increase the garbage collection until the end of
-    this file. Afterwards, lower it back down.
+  Drastically increase the garbage collection until the end of
+  this file. Afterwards, lower it back down.
 
-    Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
+Source: https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
 
-    #+BEGIN_SRC emacs-lisp
-    (setq-default gc-cons-threshold 100000000)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(setq-default gc-cons-threshold 100000000)
+#+END_SRC
 
 ** Operating System detection
 
@@ -34,24 +43,24 @@ Detects the current Operating System
 (defun henry:detect-os ()
 "Detects the current system's Operating System."
 
-    (setq henry:current-os-detected nil)
+  (setq henry:current-os-detected nil)
 
-    (cond
-    ((string-equal system-type "gnu/linux")
-        (setq henry:current-os "Linux")
-        (setq henry:current-os-detected t))
-    ((string-equal system-type "windows-nt")
-        (setq henry:current-os "Windows")
-        (setq henry:current-os-detected t))
-    ((string-equal system-type "darwin")
-        (setq henry:current-os "OSX")
-        (setq henry:current-os-detected t)))
+  (cond
+  ((string-equal system-type "gnu/linux")
+      (setq henry:current-os "Linux")
+      (setq henry:current-os-detected t))
+  ((string-equal system-type "windows-nt")
+      (setq henry:current-os "Windows")
+      (setq henry:current-os-detected t))
+  ((string-equal system-type "darwin")
+      (setq henry:current-os "OSX")
+      (setq henry:current-os-detected t)))
 
 (if henry:current-os-detected
-    (progn
-        (message (concat "Current OS detected: " henry:current-os)))
-    (progn
-        (message "Warning! OS detection failed!"))))
+  (progn
+      (message (concat "Current OS detected: " henry:current-os)))
+  (progn
+      (message "Warning! OS detection failed!"))))
 
 ;; Initiates the function
 (henry:detect-os)
@@ -173,7 +182,6 @@ Repo: https://github.com/Malabarba/aggressive-indent-mode
              (thing-at-point 'line))))))
 #+END_SRC
 
-#+RESULTS:
 
 ** Beacon
 
@@ -254,6 +262,78 @@ TODO: Decide whether to use a keybinding or the delay...
 (setq company-idle-delay 0))
 
 #+END_SRC
+
+** Copilot
+
+Repos:
+ - https://github.com/copilot-emacs/copilot.el
+ - https://github.com/jart/emacs-copilot
+
+GitHub Copilot provides AI-powered code completion features within Emacs. It's based on binaries provided by copilot.vim and requires Node.js v18+.
+
+#+BEGIN_SRC emacs-lisp
+;; Ensure quelpa and quelpa-use-package are installed and loaded
+(unless (featurep 'quelpa-use-package)
+  (quelpa
+   '(quelpa-use-package
+     :fetcher git
+     :url "https://github.com/quelpa/quelpa-use-package.git"))
+  (require 'quelpa-use-package))
+
+;; Configure and install GitHub Copilot
+(use-package copilot
+  :quelpa (copilot :fetcher github :repo "copilot-emacs/copilot.el")
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-mode-map
+              ("<tab>" . copilot-accept-completion)
+              ("C-TAB" . copilot-accept-completion)
+              ("C-<tab>" . copilot-accept-completion)
+              ("M-C-<return>" . copilot-accept-completion)
+              ("C-<right>" . copilot-accept-completion-by-word)
+              ("C-<down>" . copilot-accept-completion-by-line)
+              ("C-c C-c" . copilot-complete)
+              ("C-c C-a" . copilot-accept-completion)
+              ("C-c C-n" . copilot-next-completion)
+              ("C-c C-p" . copilot-previous-completion)
+              ("C-c C-x" . copilot-clear-overlay))
+  :config
+  ;; Define Node.js executable path
+  (setq copilot-node-executable (or (executable-find "node")
+                                    "/usr/local/bin/node"  ;; macOS and most UNIX systems
+                                    "/opt/homebrew/bin/node"))  ;; Homebrew on macOS
+
+  ;; Clear Copilot overlay function
+  (defun copilot-clear-overlay ()
+    "Clear the Copilot overlay in the current buffer."
+    (interactive)
+    (copilot--clear-overlay))
+
+  ;; Custom login function to manually handle token input
+  (defun copilot-login ()
+    "Log in to GitHub Copilot."
+    (interactive)
+    (copilot--authenticate))
+
+  ;; Ensure Copilot starts up on Emacs launch
+  (add-hook 'emacs-startup-hook 'copilot-login))
+
+;; Custom function for integrating Copilot with company-mode
+(defun my-tab ()
+  "Complete by Copilot first, then fallback to company-mode."
+  (interactive)
+  (or (copilot-accept-completion)
+      (company-indent-or-complete-common nil)))
+
+(global-set-key (kbd "TAB") 'my-tab)
+#+END_SRC
+
+**Note:** Ensure Node.js v18+ is installed on your system. The login function will prompt you for authentication on startup.
+
+**Installation Steps:**
+1. Install Node.js v18+.
+2. Ensure `quelpa` and `quelpa-use-package` are installed.
+3. Add the Copilot package and configuration to your Emacs init file.
+4. Restart Emacs to initiate the Copilot login process.
 
 ** Counsel eTags
 
@@ -516,6 +596,25 @@ Repo: https://github.com/sabof/org-bullets
              ;; Some examples: ❖✸✱❍◌◯⌗⌖⌑▓░▒❏❑▩◈◇
              '("✸" "◈" "✚" "○"))
         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
+#+END_SRC
+
+** Quelpa
+
+Repo: https://github.com/quelpa/quelpa
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+
+(require 'quelpa-use-package)
 #+END_SRC
 
 ** PHP Mode
@@ -1150,6 +1249,23 @@ Repo: https://github.com/dbordak/telephone-line
     (add-to-list 'default-frame-alist '(fullscreen . maximized))
     #+END_SRC
 
+*** Adjust window size [edit: why isn't fullscreen working, nor this?]
+
+   Set the initial window size to half of the screen width and full height.
+
+   #+BEGIN_SRC emacs-lisp
+
+(defun henry:set-initial-frame-size ()
+  "Set the initial size of the frame to half of the screen width and full height."
+  (when (display-graphic-p)
+    (add-to-list 'initial-frame-alist `(width . ,(/ (display-pixel-width) 2 (frame-char-width))))
+    (add-to-list 'initial-frame-alist `(height . ,(/ (display-pixel-height) (frame-char-height))))
+    (add-to-list 'initial-frame-alist '(top . 0))
+    (add-to-list 'initial-frame-alist '(left . 0))))
+
+(add-hook 'emacs-startup-hook 'henry:set-initial-frame-size)
+   #+END_SRC
+
 
 ** Web browser (internal)
     Eww
@@ -1168,6 +1284,7 @@ Repo: https://github.com/dbordak/telephone-line
     (setq whitespace-style '(face tabs trailing))
     (global-whitespace-mode t)
     #+END_SRC
+
 
 
 * Keybindings
@@ -1434,7 +1551,9 @@ Repeated invocations toggle between the two most recently open buffers."
       "Reload Emacs settings files"
       (interactive)
       (load "~/.emacs")
-      (message "Emacs settings were reloaded."))
+      (if (featurep 'copilot)
+          (message "Emacs settings reloaded successfully, and Copilot is active!")
+        (message "Emacs settings reloaded, but Copilot is not active. Please check your configuration.")))
 
     (define-key <Leader> (kbd "r s") 'henry:reload-settings)
     #+END_SRC
@@ -1546,7 +1665,8 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     (define-key <Leader> (kbd "e s") (lambda()
       (interactive)
       (message "Loading Emacs Settings.org file...")
-      (find-file "~/.emacs.d/settings.org")))
+      (find-file "~/.emacs.d/settings.org")
+      (message "Settings file loaded for editing.")))
     #+END_SRC
 
 *** File and folder management
@@ -1641,4 +1761,17 @@ horizontally, respectively."
                (time-subtract (current-time) emacs-start-time-settings))))
        (message " --- Loading %s...done (%.3fs) [after-init]"
          ,load-file-name elapsed))) t)
+#+END_SRC
+
+** Display a message when Emacs finishes loading
+
+TODO: Include the timer results.
+
+#+BEGIN_SRC emacs-lisp
+(defun henry/display-startup-message ()
+  "Display a message when Emacs finishes loading the settings."
+  (message "*** Emacs finished instantiating. ✔ ***")
+  (run-with-timer 5 nil (lambda () (message ""))))
+
+(add-hook 'emacs-startup-hook 'henry/display-startup-message)
 #+END_SRC
