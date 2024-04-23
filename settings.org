@@ -88,11 +88,10 @@ Detects the current Operating System
 (package-initialize)
 #+END_SRC
 
-
 * Package Settings
 ** Check for package installations & upgrades
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;; Boostrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -103,13 +102,13 @@ Detects the current Operating System
 
 (eval-when-compile
 (require 'use-package))
-    #+END_SRC
+#+END_SRC
 
 
 
 ** EVIL Mode
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package evil
 :ensure t
 :init
@@ -118,16 +117,13 @@ Detects the current Operating System
     (setq evil-want-keybinding nil)
 :config
     (evil-mode 1)
-
-;;    (define-key evil-normal-state-map (kbd "SPC") 'nil)
+;;  (define-key evil-normal-state-map (kbd "SPC") 'nil)
     (define-key evil-normal-state-map (kbd "SPC") <Leader>)
 
 ;;
 
     (evil-set-initial-state 'ibuffer-mode 'normal)
 
-
-    (global-undo-tree-mode) ;; Moved here to allow undo/redo to properly work.
     (evil-set-undo-system 'undo-tree)
 
     (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
@@ -151,11 +147,30 @@ Detects the current Operating System
 )
 
 
-    #+END_SRC
+#+END_SRC
 
     #+RESULTS:
     : t
 
+** Quelpa
+
+Repo: https://github.com/quelpa/quelpa
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://github.com/quelpa/quelpa/raw/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+
+(require 'quelpa)
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+
+(require 'quelpa-use-package)
+#+END_SRC
 
 
 
@@ -273,40 +288,14 @@ GitHub Copilot provides AI-powered code completion features within Emacs. It's b
 
 #+BEGIN_SRC emacs-lisp
 ;; Ensure quelpa and quelpa-use-package are installed and loaded
-(unless (featurep 'quelpa-use-package)
-  (quelpa
-   '(quelpa-use-package
-     :fetcher git
-     :url "https://github.com/quelpa/quelpa-use-package.git"))
-  (require 'quelpa-use-package))
-
-;; Configure and install GitHub Copilot
 (use-package copilot
   :quelpa (copilot :fetcher github :repo "copilot-emacs/copilot.el")
   :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-mode-map
-              ("<tab>" . copilot-accept-completion)
-              ("C-TAB" . copilot-accept-completion)
-              ("C-<tab>" . copilot-accept-completion)
-              ("M-C-<return>" . copilot-accept-completion)
-              ("C-<right>" . copilot-accept-completion-by-word)
-              ("C-<down>" . copilot-accept-completion-by-line)
-              ("C-c C-c" . copilot-complete)
-              ("C-c C-a" . copilot-accept-completion)
-              ("C-c C-n" . copilot-next-completion)
-              ("C-c C-p" . copilot-previous-completion)
-              ("C-c C-x" . copilot-clear-overlay))
   :config
   ;; Define Node.js executable path
   (setq copilot-node-executable (or (executable-find "node")
                                     "/usr/local/bin/node"  ;; macOS and most UNIX systems
                                     "/opt/homebrew/bin/node"))  ;; Homebrew on macOS
-
-  ;; Clear Copilot overlay function
-  (defun copilot-clear-overlay ()
-    "Clear the Copilot overlay in the current buffer."
-    (interactive)
-    (copilot--clear-overlay))
 
   ;; Custom login function to manually handle token input
   (defun copilot-login ()
@@ -315,7 +304,19 @@ GitHub Copilot provides AI-powered code completion features within Emacs. It's b
     (copilot--authenticate))
 
   ;; Ensure Copilot starts up on Emacs launch
-  (add-hook 'emacs-startup-hook 'copilot-login))
+  (add-hook 'emacs-startup-hook 'copilot-login)
+
+  (define-key copilot-mode-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "C-TAB") 'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "C-<tab>") 'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "M-C-<return>") 'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "C-<right>") 'copilot-accept-completion-by-word)
+  (define-key copilot-mode-map (kbd "C-<down>") 'copilot-accept-completion-by-line)
+  (define-key copilot-mode-map (kbd "C-c C-c") 'copilot-complete)
+  (define-key copilot-mode-map (kbd "C-c C-a") 'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "C-c C-n") 'copilot-next-completion)
+  (define-key copilot-mode-map (kbd "C-c C-p") 'copilot-previous-completion)
+  (define-key copilot-mode-map (kbd "C-c C-x") 'copilot-clear-overlay))
 
 ;; Custom function for integrating Copilot with company-mode
 (defun my-tab ()
@@ -536,6 +537,8 @@ Repo: https://github.com/flycheck/flycheck-inline
 Repo: https://github.com/magit/magit
 
 #+BEGIN_SRC emacs-lisp
+(use-package transient
+  :ensure t)
 (use-package magit
   :after transient
   :config
@@ -596,25 +599,6 @@ Repo: https://github.com/sabof/org-bullets
              ;; Some examples: ❖✸✱❍◌◯⌗⌖⌑▓░▒❏❑▩◈◇
              '("✸" "◈" "✚" "○"))
         (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))))
-#+END_SRC
-
-** Quelpa
-
-Repo: https://github.com/quelpa/quelpa
-
-#+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-
-(require 'quelpa-use-package)
 #+END_SRC
 
 ** PHP Mode
@@ -705,6 +689,10 @@ Repo: https://github.com/dbordak/telephone-line
 (Required for Magit)
 
 #+BEGIN_SRC emacs-lisp
+(setq package-install-upgrade-built-in t)
+(package-install 'seq)
+(progn (unload-feature 'seq t) (require 'seq))
+
 (use-package transient)
 #+END_SRC
 
@@ -712,13 +700,12 @@ Repo: https://github.com/dbordak/telephone-line
 
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
-  :defer t
+  :ensure t
   :config
-(require 'undo-tree)
-
-(define-key evil-normal-state-map (kbd "u") 'undo)
-(define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
-(define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
+  (global-undo-tree-mode 1)
+  (define-key evil-normal-state-map (kbd "u") 'undo)
+  (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
+  (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
 )
 #+END_SRC
 
@@ -784,14 +771,14 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 
     Don't blink the cursor
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (blink-cursor-mode -1)
-    #+END_SRC
+#+END_SRC
 
 *** Cursor between braces
 
     - Source: https://stackoverflow.com/questions/34087964/visual-studio-style-curly-brackets-auto-completion-in-emacs
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun electric-pair-brace-fixup ()
       (when (and electric-pair-mode
               (if (functionp electric-pair-open-newline-between-pairs)
@@ -802,19 +789,19 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
         (newline nil t)))
 
     (advice-add 'electric-pair-post-self-insert-function :after #'electric-pair-brace-fixup)
-    #+END_SRC
+#+END_SRC
 
 ** C++
 
     Makes header files (.h) use C++ Mode rather than C Mode.
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-    #+END_SRC
+#+END_SRC
 
 ** Column Enforce Mode (80-char Toggle)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:custom-toggle-column-limit ()
       "Toggles the column limit from 80 to unlimited"
       (interactive)
@@ -830,19 +817,19 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 
     ;; Toggle->Limit
     (define-key <Leader> (kbd "t l") 'henry:custom-toggle-column-limit)
-    #+END_SRC
+#+END_SRC
 
 ** Dired Mode
 
     Auto-refresh dired on file change
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (add-hook 'dired-mode-hook 'auto-revert-mode)
-    #+END_SRC
+#+END_SRC
 
 ** Font settings
     Set default language and encodings
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setenv "LANG" "en_US.UTF-8")
     (setenv "LC_ALL" "en_US.UTF-8")
     (setenv "LC_CTYPE" "en_US")
@@ -854,13 +841,13 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
     (set-selection-coding-system 'utf-8)
     (set-file-name-coding-system 'utf-8)
     (set-terminal-coding-system 'utf-8)
-    #+END_SRC
+#+END_SRC
 
     Set default font
 
     TODO: See if fonts can be found with relative paths instead of being "installed"
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;;  (set-frame-font "Iosevka 11")
     (set-frame-font "Hack 11")
     (if
@@ -869,13 +856,13 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
       (set-frame-font "Hack 11"))
     ;; To prevent odd graphical glitching, keep the mode-line's size small
 ;;    (set-face-attribute 'mode-line nil :font "Iosevka-11")
-    #+END_SRC
+#+END_SRC
 
 ** GDB (Debugger)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq gdb-many-windows t)
-    #+END_SRC
+#+END_SRC
 
 ** Get font face over point
 
@@ -883,7 +870,7 @@ Source: https://stackoverflow.com/questions/1242352/get-font-face-under-cursor-i
 
 FIXME: Only grabs hl-line at the moment
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun henry:face-over-point ()
   (interactive)
   (let ((face
@@ -892,19 +879,19 @@ FIXME: Only grabs hl-line at the moment
     (if face (message "Font face: %s" face) (message "No font face at %d" pos))))
 
 (define-key <Leader> (kbd "f f") 'henry:face-over-point)
-    #+END_SRC
+#+END_SRC
 
 ** Highlights
 *** Current Line
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (global-hl-line-mode +1)
-    #+END_SRC
+#+END_SRC
 
 *** Keywords (ex. "TODO")
     Source: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (add-hook 'prog-mode-hook
       (lambda ()
         ;; Disabled in cmake-mode due to glitch (see Author's comment in source)
@@ -912,11 +899,11 @@ FIXME: Only grabs hl-line at the moment
           (font-lock-add-keywords nil
             '(("\\<\\(BUG\\|DONE\\|FIXME\\|NOTE\\|TEMP\\|TODO\\)"
                 1 font-lock-warning-face t))))))
-    #+END_SRC
+#+END_SRC
 
 ** Ido
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
     (setq ido-enable-flex-matching t)
     (setq ido-everywhere t)
@@ -925,7 +912,7 @@ FIXME: Only grabs hl-line at the moment
     (setq ido-use-filename-at-point 'guess)
     (setq ido-create-new-buffer 'always)
     (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
-    #+END_SRC
+#+END_SRC
 
 ** Me (Henry)
 
@@ -938,18 +925,18 @@ FIXME: Only grabs hl-line at the moment
 *** Customizes the colors
     Source: https://orgmode.org/manual/Faces-for-TODO-keywords.html
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq org-todo-keyword-faces
         '(("TODO" . "#3399ff") ("STARTED" . "yellow")
             ("CANCELED" . (:foreground "blue" :weight bold))))
-    #+END_SRC
+#+END_SRC
 
     Colorize key areas within Org Mode
     Source: https://zzamboni.org/post/beautifying-org-mode-in-emacs/
 
     TODO: Use more of source author's code:
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (custom-theme-set-faces
       'user
       '(org-document-info         ((t (:foreground "dark orange"))))
@@ -970,14 +957,14 @@ FIXME: Only grabs hl-line at the moment
     ;;  '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
     ;;  '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
     ;;  '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
-    #+END_SRC
+#+END_SRC
 
 *** Attempt to improve org-mode performance
     Source: https://www.reddit.com/r/emacs/comments/98flwy/does_anyone_know_a_good_alternative_to_orgbullets/
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq inhibit-compacting-font-caches t)
-    #+END_SRC
+#+END_SRC
 
 *** Extra Settings
 
@@ -1001,7 +988,7 @@ FIXME: Only grabs hl-line at the moment
 ** TODO Parentheses, braces, & brackets pairs
 
     NOTE: Disabled this to test out Smart Parens package.
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;;    (show-paren-mode 1)
 ;;    (setq show-paren-delay 0)
 
@@ -1009,25 +996,25 @@ FIXME: Only grabs hl-line at the moment
     ;;(set-face-background 'show-paren-match (face-background 'default))
     ;;(set-face-foreground 'show-paren-match "#def")
     ;;(set-face-attribute 'show-paren-match nil :weight 'extra-bold)
-    #+END_SRC
+#+END_SRC
 
 ** Prompt for Y or N (not Yes or No)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defalias 'yes-or-no-p 'y-or-n-p)
-    #+END_SRC
+#+END_SRC
 
 ** TODO Recent mode
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (recentf-mode 1)
     (setq recentf-max-menu-items 25)
     (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-    #+END_SRC
+#+END_SRC
 
 ** TODO Relative line numbers (set custom colors)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq-default display-line-numbers 'relative
                 display-line-numbers-type 'visual
                 display-line-numbers-current-absolute t
@@ -1040,22 +1027,22 @@ FIXME: Only grabs hl-line at the moment
     ;;(custom-set-faces '(line-number-current-line ((t :weight bold
     ;;                                                 :foreground "goldenrod"
     ;;                                                 :background "slate gray"))))
-    #+END_SRC
+#+END_SRC
 
 ** Scrolling
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq scroll-step 1)
     (setq scroll-sconservatively 10000)
     (setq auto-window-vscroll nil)
-    #+END_SRC
+#+END_SRC
 
 ** Sessions: Save/Restore ("Desktop")
 
     Automatically save and restore sessions
     - Source: https://stackoverflow.com/questions/4477376/some-emacs-desktop-save-questions-how-to-change-it-to-save-in-emacs-d-emacs/4485083#4485083
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq desktop-dirname         "~/.emacs.d/desktop/"
       desktop-base-file-name      "emacs.desktop"
       desktop-base-lock-name      "lock"
@@ -1066,13 +1053,13 @@ FIXME: Only grabs hl-line at the moment
       desktop-auto-save-timeout   30)
 
     (desktop-save-mode 1)
-    #+END_SRC
+#+END_SRC
 
     To prevent potential corruption when saving files (prior to reading them all),
     test if it's okay to do, first.
     - Source: https://emacs.stackexchange.com/questions/17529/emacs-desktop-save-mode-only-save-desktop-when-previous-desktop-was-fully-rest
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defvar henry:save-desktop nil
       "Should I save the desktop when Emacs is shutting down?")
 
@@ -1083,33 +1070,33 @@ FIXME: Only grabs hl-line at the moment
       (lambda (fn &rest args)
               (if (bound-and-true-p henry:save-desktop)
                   (apply fn args))))
-    #+END_SRC
+#+END_SRC
 
     Save current place within file
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (save-place-mode 1)
-    #+END_SRC
+#+END_SRC
 
 ** Sound
 
     Disable the alert bell sound effect
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq ring-bell-function 'ignore)
-    #+END_SRC
+#+END_SRC
 
 ** Startup
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq inhibit-startup-message t)
     (setq initial-scratch-message nil)
-    #+END_SRC
+#+END_SRC
 
 ** TODO <TAB>s / indentation
 
     General default attributes
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Disables the Tab char
     (setq-default indent-tabs-mode nil)
     ;; Sets the default tab width to 4 spaces
@@ -1119,11 +1106,11 @@ FIXME: Only grabs hl-line at the moment
     ;; Prevent electric indent from indenting previous line
     ;; As mentioned here: https://dougie.io/emacs/indentation/#changing-the-tab-width
     (setq-default electric-indent-inhibit t)
-    #+END_SRC
+#+END_SRC
 
     <TAB> (as spaces) offsets
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq-default c-basic-offset 4)
     (setq-default coffee-tab-width 4)
     (setq-default javascript-indent-level 4)
@@ -1135,8 +1122,9 @@ FIXME: Only grabs hl-line at the moment
     (setq-default web-mode-css-indent-offset 4)
     (setq-default web-mode-code-indent-offset 4)
     (setq-default css-indent-offset 4)
+#+END_SRC
 
-    #+END_SRC
+** TODO ???
 
     # --------------------------------------------------- #
     # TODO: When I have time (or *ambition*), go through
@@ -1144,7 +1132,7 @@ FIXME: Only grabs hl-line at the moment
     # --------------------------------------------------- #
 
     Source: http://blog.binchen.org/posts/easy-indentation-setup-in-emacs-for-web-development.html
-#    #+BEGIN_SRC emacs-lisp
+##+BEGIN_SRC emacs-lisp
     (defun my-setup-indent (n)
         ;; java/c/c++
         (setq-local c-basic-offset n)
@@ -1192,7 +1180,7 @@ FIXME: Only grabs hl-line at the moment
     ;; a few major-modes does NOT inherited from prog-mode
     (add-hook 'lua-mode-hook 'my-setup-develop-environment)
     (add-hook 'web-mode-hook 'my-setup-develop-environment)
-#    #+END_SRC
+##+END_SRC
 
 ** Telephone Line
 
@@ -1214,46 +1202,49 @@ Repo: https://github.com/dbordak/telephone-line
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/laguna-theme/")
-(load-theme 'laguna t)
-;; (use-package laguna-theme
-  ;; :init (progn (load-theme 'laguna t))
-  ;; :defer t
-  ;; :ensure t)
+(load-theme 'laguna t t)
+(enable-theme 'laguna)
+;; Or, if you use `use-package', do something like this:
+;;(use-package laguna-theme
+;;  :init (progn (load-theme 'laguna t t))
+;;  :defer t
+;;  :ensure t)
 #+END_SRC
 
 ** Tweak window UI
 *** Disable the tool & menu bars
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (menu-bar-mode -1)
     (tool-bar-mode -1)
-    #+END_SRC
+#+END_SRC
 
 *** Disable the scroll bars
 
-    #+BEGIN_SRC emacs-lisp
-    (scroll-bar-mode -1)
+#+BEGIN_SRC emacs-lisp
+    (when (display-graphic-p)
+      (scroll-bar-mode -1))
     ;; Hide the minibuffer window's scrollbar
     (set-window-scroll-bars (minibuffer-window) nil nil)
-    #+END_SRC
+#+END_SRC
 
 *** Disable welcome screen
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq inhibit-startup-screen t)
-    #+END_SRC
+#+END_SRC
 
 *** Open Emacs as fullscreen by default
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (add-to-list 'default-frame-alist '(fullscreen . maximized))
-    #+END_SRC
+#+END_SRC
 
 *** Adjust window size [edit: why isn't fullscreen working, nor this?]
 
    Set the initial window size to half of the screen width and full height.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 
 (defun henry:set-initial-frame-size ()
   "Set the initial size of the frame to half of the screen width and full height."
@@ -1264,26 +1255,26 @@ Repo: https://github.com/dbordak/telephone-line
     (add-to-list 'initial-frame-alist '(left . 0))))
 
 (add-hook 'emacs-startup-hook 'henry:set-initial-frame-size)
-   #+END_SRC
+#+END_SRC
 
 
 ** Web browser (internal)
     Eww
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq browse-url-browser-function 'eww-browse-url)
-    #+END_SRC
+#+END_SRC
 
 ** Whitespace (trailing)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Before each save, trim the excess whitespace
     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
     ;; Set to true by default
     (setq whitespace-style '(face tabs trailing))
     (global-whitespace-mode t)
-    #+END_SRC
+#+END_SRC
 
 
 
@@ -1291,15 +1282,15 @@ Repo: https://github.com/dbordak/telephone-line
 ** Buffers
 *** Close buffer
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "c b") 'kill-this-buffer) ;; Close->Buffer
     (define-key <Leader> (kbd "c o b") 'kill-buffer) ;; Close->Other->Buffer [prompt buffer name]
-    #+END_SRC
+#+END_SRC
 
 *** Create empty buffer
     Source: http://ergoemacs.org/emacs/emacs_new_empty_buffer.html
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:new-empty-buffer ()
       "Create a new empty buffer.
        New buffer will be named “untitled” or “untitled<2>”, “untitled<3>”, etc.
@@ -1312,30 +1303,30 @@ Repo: https://github.com/dbordak/telephone-line
        $buf))
 
     (define-key <Leader> (kbd "n b") 'henry:new-empty-buffer)
-    #+END_SRC
+#+END_SRC
 
 *** Ibuffer
     Open Ibuffer
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "o b") 'ibuffer)
-    #+END_SRC
+#+END_SRC
 
     Config Ibuffer settings
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Force Ibuffer to use Evil keybindings
 ;;    (evil-set-initial-state 'ibuffer-mode 'normal)
     ;; Prevents prompting for permission to delete unmodified buffers
     (setq ibuffer-expert t)
     ;; Don't show groups that are empty
     (setq ibuffer-show-empty-filter-groups nil)
-    #+END_SRC
+#+END_SRC
 
     When opening Ibuffer, automatically highlight the most recent buffer.
     Source: https://stackoverflow.com/questions/3417438/close-all-buffers-besides-the-current-one-in-emacs
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defadvice ibuffer (around ibuffer-point-to-most-recent) ()
       "Open ibuffer with cursor pointed to most recent buffer name."
       (let ((recent-buffer-name (buffer-name)))
@@ -1343,13 +1334,13 @@ Repo: https://github.com/dbordak/telephone-line
         (ibuffer-jump-to-buffer recent-buffer-name)))
 
     (ad-activate 'ibuffer)
-    #+END_SRC
+#+END_SRC
 
 
     Kills all buffers besides the active one.
     Souce: https://www.emacswiki.org/emacs/KillingBuffers#toc2
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:kill-other-buffers ()
       "Kills all other buffers."
       (interactive)
@@ -1358,12 +1349,12 @@ Repo: https://github.com/dbordak/telephone-line
 
     ;; Close->All (other)->Buffers
     (define-key <Leader> (kbd "c a b") 'henry:kill-other-buffers)
-    #+END_SRC
+#+END_SRC
 
     Kills all Dired Mode buffers.
     Source: https://www.emacswiki.org/emacs/KillingBuffers#toc3
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:kill-dired-buffers ()
       "Kills all Dired Mode buffers."
       (interactive)
@@ -1375,12 +1366,12 @@ Repo: https://github.com/dbordak/telephone-line
 
     ;; Close->Dired->Buffers
     (define-key <Leader> (kbd "c d b") 'henry:kill-dired-buffers)
-    #+END_SRC
+#+END_SRC
 
     Creates custom Ibuffer groups
     Based on: http://martinowen.net/blog/2010/02/03/tips-for-emacs-ibuffer.html
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq ibuffer-saved-filter-groups
       '(("personal"
           ("C++" (mode . c++-mode))
@@ -1400,14 +1391,14 @@ Repo: https://github.com/dbordak/telephone-line
         (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
         (ibuffer-switch-to-saved-filter-groups "personal")))
 
-    #+END_SRC
+#+END_SRC
 
 *** TODO Swap between previous buffer
     Source: https://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
 
     TODO: Buffer List ruins this... Figure out a fix.
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:switch-to-previous-buffer ()
       "Switch to previously open buffer.
 
@@ -1416,20 +1407,20 @@ Repeated invocations toggle between the two most recently open buffers."
       (switch-to-buffer (other-buffer (current-buffer) 1)))
 
     (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
-    #+END_SRC
+#+END_SRC
 
 *** Swap to *Scratch*
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:swap-to-scratch ()
       "Changes buffer to the *Scratch* buffer."
       (interactive)
       (switch-to-buffer "*scratch*"))
     (define-key <Leader> (kbd "s t s") 'henry:swap-to-scratch)
-    #+END_SRC
+#+END_SRC
 
 ** Double space (Normal Mode)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:double-space ()
       "Creates a single blank space when the space key is pressed twice; finishes in Evil's Normal Mode."
       (interactive)
@@ -1438,13 +1429,13 @@ Repeated invocations toggle between the two most recently open buffers."
       (evil-normal-state))
 
     (define-key <Leader> (kbd "SPC") 'henry:double-space)
-    #+END_SRC
+#+END_SRC
 
 ** Commands through terminal
 
     Build and install Fitbit App
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:term-command-fitbit ()
       "Runs command to build and install Fitbit App
 (assuming a connected dev device is available)"
@@ -1452,19 +1443,19 @@ Repeated invocations toggle between the two most recently open buffers."
       (async-shell-command "npx fitbit build"))
 
     (define-key <Leader> (kbd "b f") 'henry:term-command-fitbit)
-    #+END_SRC
+#+END_SRC
 
 ** TODO Compiler
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Compile->Makefile
     (define-key <Leader> (kbd "c m") '(lambda ()
         (interactive) (compile "make all") (other-window 1)))
-    #+END_SRC
+#+END_SRC
 
 ** Evaluate Elisp (sexp)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:sexp-at-end-of-line ()
       "Jumps to the end of the line and runs 'eval-last-sexp'."
       (interactive)
@@ -1472,20 +1463,20 @@ Repeated invocations toggle between the two most recently open buffers."
       (call-interactively 'eval-last-sexp))
 
     (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
-    #+END_SRC
+#+END_SRC
 
 ** Line manipulations
 *** Jump to beginning/end of line
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Think: Move->First/Last
     (define-key <Leader> (kbd "m f") (kbd "^"))
     (define-key <Leader> (kbd "m l") (kbd "$"))
-    #+END_SRC
+#+END_SRC
 
 *** Jump above or below current line
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:new-blank-line-above ()
       "Create blank line above cursor without entering Insert Mode."
       (interactive)
@@ -1501,13 +1492,13 @@ Repeated invocations toggle between the two most recently open buffers."
 
     ;; (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
     ;; (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
-    #+END_SRC
+#+END_SRC
 
 *** Move current line up/down
 
     Source: https://www.emacswiki.org/emacs/MoveLine
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defmacro henry:move-line-save-column (&rest body)
       `(let ((column (current-column)))
          (unwind-protect
@@ -1536,7 +1527,7 @@ Repeated invocations toggle between the two most recently open buffers."
     ;; Allows the same keybindings to work within Insert mode
 ;; (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
 ;; (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
-    #+END_SRC
+#+END_SRC
 
 ** Org mode - shortcuts
 #+BEGIN_SRC emacs-lisp
@@ -1546,7 +1537,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ** Reload Emacs settings
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:reload-settings ()
       "Reload Emacs settings files"
       (interactive)
@@ -1556,23 +1547,23 @@ Repeated invocations toggle between the two most recently open buffers."
         (message "Emacs settings reloaded, but Copilot is not active. Please check your configuration.")))
 
     (define-key <Leader> (kbd "r s") 'henry:reload-settings)
-    #+END_SRC
+#+END_SRC
 
 ** Save / quit
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "w") 'save-buffer) ;; Save
     (define-key <Leader> (kbd "c e") 'save-buffers-kill-terminal) ;; Close->Emacs
     (define-key <Leader> (kbd "W") 'write-file) ;; Save-As...
-    #+END_SRC
+#+END_SRC
 
 ** TODO <TAB>s / indentation
 
     Indents a region of text
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "<C-M-tab>") 'indent-region)
-    #+END_SRC
+#+END_SRC
 
     -----
 
@@ -1582,7 +1573,7 @@ multiple major modes?
 
     Alternate between 2/4 tab widths
 
-;;    #+BEGIN_SRC emacs-lisp
+;;#+BEGIN_SRC emacs-lisp
     (defun henry:toggle-tab-widths ()
       "Toggles the tab widths between either 2 or 4 spaces.
 
@@ -1601,7 +1592,7 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 
     ;; Toggle->Tab length
     (define-key <Leader> (kbd "t t") 'henry:toggle-tab-widths)
-;;    #+END_SRC
+;;#+END_SRC
 
 ** Text Scaling
 
@@ -1612,33 +1603,33 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 
 ** Window management
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Think: Split->Horizontal or Vertical
     (define-key <Leader> (kbd "s h") '(lambda () (interactive) (progn (split-window-below) (other-window 1))))
     (define-key <Leader> (kbd "s v") '(lambda () (interactive) (progn (split-window-right) (other-window 1))))
-    #+END_SRC
+#+END_SRC
 
     Move across split windows
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "h") 'windmove-left)
     (define-key <Leader> (kbd "l") 'windmove-right)
     (define-key <Leader> (kbd "j") 'windmove-down)
     (define-key <Leader> (kbd "k") 'windmove-up)
-    #+END_SRC
+#+END_SRC
 
     Resize window panes
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;;    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
 ;;    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
 ;;    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
 ;;    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
-    #+END_SRC
+#+END_SRC
 
     Close active window
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "c w") 'delete-window)
 
     (define-key <Leader> (kbd "S-j") #'other-window)
@@ -1646,13 +1637,13 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     (defun prev-window ()
       (interactive)
       (other-window -1))
-    #+END_SRC
+#+END_SRC
 
 ** Word wrap (toggle)
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "t w") 'toggle-truncate-lines)
-    #+END_SRC
+#+END_SRC
 
 
 ** New/Open/Edit
@@ -1660,40 +1651,40 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 
     TODO Check OS before trying to access settings file
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Think: Edit->Settings
     (define-key <Leader> (kbd "e s") (lambda()
       (interactive)
       (message "Loading Emacs Settings.org file...")
       (find-file "~/.emacs.d/settings.org")
       (message "Settings file loaded for editing.")))
-    #+END_SRC
+#+END_SRC
 
 *** File and folder management
 **** Open Dired
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "o d") 'dired)
-    #+END_SRC
+#+END_SRC
 
 **** Open File
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "o f") 'find-file)
-    #+END_SRC
+#+END_SRC
 
 **** Open recent files
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "o r") 'recentf-open-files)
-    #+END_SRC
+#+END_SRC
 
 *** TODO Terminal
 
     TODO: Default terminal based on OS
     TODO: Automatically split vertically or horizontally based on available screen estate
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (defun henry:open-terminal (&optional arg)
       "Open a Terminal buffer.
 
@@ -1720,7 +1711,7 @@ horizontally, respectively."
     (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal)))
     (define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal "v")))
     (define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal "h")))
-    #+END_SRC
+#+END_SRC
 
 ** Toggles
 *** DONE Comment/uncomment
@@ -1728,7 +1719,7 @@ horizontally, respectively."
     TODO Verify how well this works
     TODO Switch to NERD-Commenter
 
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ;; Source: https://stackoverflow.com/questions/9688748/emacs-comment-uncomment-current-line
     (defun henry:toggle-comment-on-line ()
       "Comment or uncomment the current line"
@@ -1736,10 +1727,16 @@ horizontally, respectively."
       (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
 
 ;;    (define-key <Leader> (kbd "/") 'henry:toggle-comment-on-line)
-    #+END_SRC
+#+END_SRC
 
 
 * TODO Closure
+** TODO: RE-ARRANGE THIS (AND RENAME?)
+
+#+BEGIN_SRC emacs-lisp
+(setq package-install-upgrade-built-in t)
+#+END_SRC
+
 ** Reset Garbage Collector
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 5 nil (lambda ()
