@@ -22,7 +22,10 @@
 
 #+BEGIN_SRC emacs-lisp
 (when (string-equal system-type "darwin")
-  (setq initial-frame-alist '((top . 0) (left . 0) (height . 1.0) (width . 0.5))))
+  ;; Uncomment below to set a specific size.
+  ;; (Setq initial-frame-alist '((top . 0) (left . 0) (height . 50) (width . 100)))
+  ;; Start in fullscreen
+  (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+END_SRC
 
 ** Garbage Collection
@@ -287,45 +290,70 @@ Repos:
 GitHub Copilot provides AI-powered code completion features within Emacs. It's based on binaries provided by copilot.vim and requires Node.js v18+.
 
 #+BEGIN_SRC emacs-lisp
-;; Ensure quelpa and quelpa-use-package are installed and loaded
-(use-package copilot
-  :quelpa (copilot :fetcher github :repo "copilot-emacs/copilot.el")
-  :hook (prog-mode . copilot-mode)
-  :config
-  ;; Define Node.js executable path
-  (setq copilot-node-executable (or (executable-find "node")
-                                    "/usr/local/bin/node"  ;; macOS and most UNIX systems
-                                    "/opt/homebrew/bin/node"))  ;; Homebrew on macOS
+  ;; Ensure quelpa and quelpa-use-package are installed and loaded
+  (use-package copilot
+    :quelpa (copilot :fetcher github :repo "copilot-emacs/copilot.el")
+    :hook (prog-mode . copilot-mode)
+    :config
+    ;; Define Node.js executable path
+    (setq copilot-node-executable (or (executable-find "node")
+                                      "/usr/local/bin/node"  ;; macOS and most UNIX systems
+                                      "/opt/homebrew/bin/node"))  ;; Homebrew on macOS
 
-  ;; Custom login function to manually handle token input
-  (defun copilot-login ()
-    "Log in to GitHub Copilot."
-    (interactive)
-    (copilot--authenticate))
+    ;; Custom login function to manually handle token input
+    (defun copilot-login ()
+      "Log in to GitHub Copilot."
+      (interactive)
+      (copilot--authenticate))
 
-  ;; Ensure Copilot starts up on Emacs launch
-  (add-hook 'emacs-startup-hook 'copilot-login)
+    ;; Ensure Copilot starts up on Emacs launch
+    (add-hook 'emacs-startup-hook 'copilot-login)
 
-  (define-key copilot-mode-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "C-TAB") 'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "C-<tab>") 'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "M-C-<return>") 'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "C-<right>") 'copilot-accept-completion-by-word)
-  (define-key copilot-mode-map (kbd "C-<down>") 'copilot-accept-completion-by-line)
-  (define-key copilot-mode-map (kbd "C-c C-c") 'copilot-complete)
-  (define-key copilot-mode-map (kbd "C-c C-a") 'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "C-c C-n") 'copilot-next-completion)
-  (define-key copilot-mode-map (kbd "C-c C-p") 'copilot-previous-completion)
-  (define-key copilot-mode-map (kbd "C-c C-x") 'copilot-clear-overlay))
+    ;; Define keybindings for Copilot commands
+    (evil-define-key 'insert copilot-mode-map (kbd "<tab>") 'copilot-accept-completion)
+    (evil-define-key 'normal copilot-mode-map (kbd "<tab>") 'copilot-complete)
+    (evil-define-key 'insert copilot-mode-map (kbd "C-<right>") 'copilot-accept-completion-by-word)
+    (evil-define-key 'insert copilot-mode-map (kbd "C-<down>") 'copilot-accept-completion-by-line)
+    (evil-define-key 'insert copilot-mode-map (kbd "M-<tab>") 'copilot-next-completion)
+    (evil-define-key 'insert copilot-mode-map (kbd "M-S-<tab>") 'copilot-previous-completion)
+    (evil-define-key 'normal copilot-mode-map (kbd "C-c C-x") 'copilot-clear-overlay)
 
-;; Custom function for integrating Copilot with company-mode
-(defun my-tab ()
-  "Complete by Copilot first, then fallback to company-mode."
-  (interactive)
-  (or (copilot-accept-completion)
-      (company-indent-or-complete-common nil)))
+    ;; Custom function for integrating Copilot with company-mode
+    (defun my-tab ()
+      "Complete by Copilot first, then fallback to company-mode."
+      (interactive)
+      (or (copilot-accept-completion)
+          (company-indent-or-complete-common nil)))
 
-(global-set-key (kbd "TAB") 'my-tab)
+    (evil-define-key 'insert copilot-mode-map (kbd "<tab>") 'my-tab)
+
+    ;; Customize Copilot plugin settings
+    (setq copilot-idle-delay 0.2)  ;; Delay before starting completion
+    (setq copilot-max-char 100000)   ;; Maximum number of characters to send to Copilot
+
+    ;; Set default model path (GitHub Copilot)
+    (setq copilot-default-model-path nil)
+
+    ;; Set local model path (replace with your desired model path)
+    (setq copilot-local-model-path "~/models/microsoft/Phi-3-mini-4k-instruct-gguf/Phi-3-mini-4k-instruct-q4.gguf")
+
+    ;; Function to switch between GitHub Copilot and local model
+    (defun copilot-toggle-model ()
+      "Toggle between GitHub Copilot and local model."
+      (interactive)
+      (if (null copilot-default-model-path)
+          (progn
+            (setq copilot-default-model-path copilot-local-model-path)
+            (message "Switched to local model: %s" copilot-local-model-path))
+        (setq copilot-default-model-path nil)
+        (message "Switched to GitHub Copilot")))
+
+    ;; Set the model path based on the default
+    (setq copilot-model-path (or copilot-default-model-path copilot-local-model-path))
+
+    ;; Enable Copilot globally
+    (global-copilot-mode))
+
 #+END_SRC
 
 **Note:** Ensure Node.js v18+ is installed on your system. The login function will prompt you for authentication on startup.
@@ -334,7 +362,25 @@ GitHub Copilot provides AI-powered code completion features within Emacs. It's b
 1. Install Node.js v18+.
 2. Ensure `quelpa` and `quelpa-use-package` are installed.
 3. Add the Copilot package and configuration to your Emacs init file.
-4. Restart Emacs to initiate the Copilot login process.
+4. Set the `copilot-local-model-path` variable to the path of your local model file.
+5. Restart Emacs to initiate the Copilot login process.
+
+**Switching between GitHub Copilot and Local Model:**
+- You can use the `copilot-toggle-model` function to switch between GitHub Copilot and the local model.
+- By default, GitHub Copilot is used. If the authentication fails or you want to use the local model, you can call `copilot-toggle-model` to switch to the local model.
+- Calling `copilot-toggle-model` again will switch back to GitHub Copilot.
+
+**Using Custom Local Models:**
+- The provided configuration assumes you have downloaded a custom model file (e.g., `Phi-3-mini-4k-instruct-q4.gguf`) to a local directory (`~/models/microsoft/Phi-3-mini-4k-instruct-gguf/`).
+- Set the `copilot-local-model-path` variable to the path of your local model file.
+- Copilot will automatically detect and use the local model when `copilot-default-model-path` is set to `copilot-local-model-path`.
+
+**Fixing the `copilot-max-char` Warning:**
+- The `copilot-max-char` variable has been increased to `100000` to accommodate larger file sizes and avoid the warning message.
+
+**Fixing the `cl` Package Deprecation Warning:**
+- The `cl` package has been deprecated in favor of `cl-lib`. To fix the warning, you can replace any references to `cl` with `cl-lib` in your Emacs configuration.
+
 
 ** Counsel eTags
 
@@ -1092,39 +1138,36 @@ FIXME: Only grabs hl-line at the moment
     (setq initial-scratch-message nil)
 #+END_SRC
 
-** TODO <TAB>s / indentation
-
-    General default attributes
+** <TAB>s / indentation
 
 #+BEGIN_SRC emacs-lisp
-    ;; Disables the Tab char
-    (setq-default indent-tabs-mode nil)
-    ;; Sets the default tab width to 4 spaces
-    (setq-default tab-width 4)
-    ;; Enable automatic indentations
-    (electric-indent-mode +1)
-    ;; Prevent electric indent from indenting previous line
-    ;; As mentioned here: https://dougie.io/emacs/indentation/#changing-the-tab-width
-    (setq-default electric-indent-inhibit t)
+;; Custom function for indenting and de-indenting sections
+(defun my-indent-region ()
+  "Indent the selected region or the current line."
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (indent-rigidly (region-beginning) (region-end) 4)
+        (setq deactivate-mark nil))
+    (indent-rigidly (line-beginning-position) (line-end-position) 4)))
+
+(defun my-deindent-region ()
+  "De-indent the selected region or the current line."
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (indent-rigidly (region-beginning) (region-end) -4)
+        (setq deactivate-mark nil))
+    (indent-rigidly (line-beginning-position) (line-end-position) -4)))
+
+;; Define keybindings for indenting and de-indenting
+(evil-define-key 'normal 'global (kbd "<leader>s>") 'my-indent-region)
+(evil-define-key 'normal 'global (kbd "<leader>s<") 'my-deindent-region)
+(evil-define-key 'visual 'global (kbd "<leader>s>") 'my-indent-region)
+(evil-define-key 'visual 'global (kbd "<leader>s<") 'my-deindent-region)
 #+END_SRC
 
-    <TAB> (as spaces) offsets
-
-#+BEGIN_SRC emacs-lisp
-    (setq-default c-basic-offset 4)
-    (setq-default coffee-tab-width 4)
-    (setq-default javascript-indent-level 4)
-    (setq-default js-indent-level 4)
-    (setq-default js2-basic-offset 4)
-    (setq-default lisp-indent-offset 2)
-    (setq-default org-list-indent-offset 2)
-    (setq-default web-mode-markup-indent-offset 4)
-    (setq-default web-mode-css-indent-offset 4)
-    (setq-default web-mode-code-indent-offset 4)
-    (setq-default css-indent-offset 4)
-#+END_SRC
-
-** TODO ???
+** TODO additional customizations ???
 
     # --------------------------------------------------- #
     # TODO: When I have time (or *ambition*), go through
