@@ -91,6 +91,7 @@ Detects the current Operating System
 (package-initialize)
 #+END_SRC
 
+
 * Package Settings
 ** Check for package installations & upgrades
 
@@ -281,7 +282,7 @@ TODO: Decide whether to use a keybinding or the delay...
 
 #+END_SRC
 
-** Copilot
+** Copilot [WIP; disabled]
 
 Repos:
  - https://github.com/copilot-emacs/copilot.el
@@ -289,7 +290,7 @@ Repos:
 
 GitHub Copilot provides AI-powered code completion features within Emacs. It's based on binaries provided by copilot.vim and requires Node.js v18+.
 
-#+BEGIN_SRC emacs-lisp
++BEGIN_SRC emacs-lisp
   ;; Ensure quelpa and quelpa-use-package are installed and loaded
   (use-package copilot
     :quelpa (copilot :fetcher github :repo "copilot-emacs/copilot.el")
@@ -354,7 +355,7 @@ GitHub Copilot provides AI-powered code completion features within Emacs. It's b
     ;; Enable Copilot globally
     (global-copilot-mode))
 
-#+END_SRC
++END_SRC
 
 **Note:** Ensure Node.js v18+ is installed on your system. The login function will prompt you for authentication on startup.
 
@@ -727,7 +728,18 @@ Repo: https://github.com/dbordak/telephone-line
   telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
 (setq telephone-line-height 18)
 (telephone-line-mode 1)
-)
+
+  ;; Configure telephone-line with Evil
+  (defvar xah-fly-insert-state-p)
+  (defun telephone-line-modal-face (active)
+    "Return an appropriate face for the current mode, given whether the frame is ACTIVE."
+    (cond ((not active) 'mode-line-inactive)
+          ((bound-and-true-p xah-fly-keys)
+           (if xah-fly-insert-state-p
+               'telephone-line-evil-insert
+             'telephone-line-evil-normal))
+          ((not (bound-and-true-p evil-mode)) 'mode-line)
+          (t (intern (concat "telephone-line-evil-" (symbol-name evil-state)))))))
 #+END_SRC
 
 ** Transient
@@ -1225,22 +1237,6 @@ FIXME: Only grabs hl-line at the moment
     (add-hook 'web-mode-hook 'my-setup-develop-environment)
 ##+END_SRC
 
-** Telephone Line
-
-Repo: https://github.com/dbordak/telephone-line
-
-#+BEGIN_SRC emacs-lisp
-(use-package telephone-line
-  :config
-    (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-identity-right
-      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
-    (setq telephone-line-height 18)
-    (telephone-line-mode 1)
-)
-#+END_SRC
-
 ** Theme (custom)
 
 #+BEGIN_SRC emacs-lisp
@@ -1474,28 +1470,6 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "SPC") 'henry:double-space)
 #+END_SRC
 
-** Commands through terminal
-
-    Build and install Fitbit App
-
-#+BEGIN_SRC emacs-lisp
-    (defun henry:term-command-fitbit ()
-      "Runs command to build and install Fitbit App
-(assuming a connected dev device is available)"
-      (interactive)
-      (async-shell-command "npx fitbit build"))
-
-    (define-key <Leader> (kbd "b f") 'henry:term-command-fitbit)
-#+END_SRC
-
-** TODO Compiler
-
-#+BEGIN_SRC emacs-lisp
-    ;; Compile->Makefile
-    (define-key <Leader> (kbd "c m") '(lambda ()
-        (interactive) (compile "make all") (other-window 1)))
-#+END_SRC
-
 ** Evaluate Elisp (sexp)
 
 #+BEGIN_SRC emacs-lisp
@@ -1722,39 +1696,74 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
     (define-key <Leader> (kbd "o r") 'recentf-open-files)
 #+END_SRC
 
-*** TODO Terminal
+** TODO Terminal v2 <<<<<<<<<<
 
-    TODO: Default terminal based on OS
-    TODO: Automatically split vertically or horizontally based on available screen estate
+This function opens a terminal buffer in Emacs, with the ability to split
+the window vertically or horizontally. It automatically detects and uses the
+`zsh` shell if available, falling back to `bash` if `zsh` is not found.
+
+Additionally, it sets up asynchronous process support using the `make-process`
+function, allowing the terminal to run without blocking the Emacs UI.
+
+If you prefer to always use `bash` instead of `zsh`, you can set the
+`henry:default-shell` variable to "bash".
+
+To use this function, you can call it with the following keybindings:
+
+- <Leader> o t   - Open terminal in the current window
+- <Leader> o v t - Open terminal in a new vertical split
+- <Leader> o h t - Open terminal in a new horizontal split
+
 
 #+BEGIN_SRC emacs-lisp
-    (defun henry:open-terminal (&optional arg)
-      "Open a Terminal buffer.
+(defvar henry:default-shell nil
+  "The default shell to use for the terminal buffer.
+Set this to \"bash\" if you prefer to always use `bash` instead of `zsh`.")
+
+(defun henry:detect-shell ()
+  "Detect the preferred shell to use for the terminal buffer."
+  (or henry:default-shell
+      (when (executable-find "zsh") "zsh")
+      "bash"))
+
+(defun henry:open-terminal (&optional arg)
+  "Open a Terminal buffer.
 
 Passing \"v\" or \"h\" will split the window vertically or
 horizontally, respectively."
-      (interactive "sSplit window? (\"v\" or \"h\"):")
-      (cond
-        ((string= arg "v")
-          (progn
-            (message "Opening Terminal (vertically).")
-            (split-window-right)
-            (other-window 1)))
-        ((string= arg "h")
-          (progn
-            (message "Opening Terminal (horizontally).")
-            (split-window-below)
-            (other-window 1)))
-        ((string= arg nil) (message "Opening Terminal.")))
-      (set-buffer (make-term "terminal" "bash"))
-;;    (term "bash")
-      (switch-to-buffer "*terminal*"))
+  (interactive "sSplit window? (\"v\" or \"h\"):")
+  (let ((shell (henry:detect-shell)))
+    (cond
+     ((string= arg "v")
+      (progn
+        (message "Opening Terminal (vertically).")
+        (split-window-right)
+        (other-window 1)))
+     ((string= arg "h")
+      (progn
+        (message "Opening Terminal (horizontally).")
+        (split-window-below)
+        (other-window 1)))
+     ((string= arg nil) (message "Opening Terminal.")))
+    (let ((term-buffer (make-term "terminal" shell)))
+      (switch-to-buffer term-buffer)
+      ;; Set up async process support
+      (set-process-filter (get-buffer-process term-buffer)
+                          (lambda (proc string)
+                            (when (buffer-live-p (process-buffer proc))
+                              (with-current-buffer (process-buffer proc)
+                                (insert string)
+                                (run-with-idle-timer 0.1 nil 'henry:display-terminal-buffer))))))))
 
+(defun henry:display-terminal-buffer ()
+  "Display the terminal buffer after async process output."
+  (display-buffer (current-buffer)))
 
-    (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal)))
-    (define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal "v")))
-    (define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal "h")))
+(define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal)))
+(define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal "v")))
+(define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal "h")))
 #+END_SRC
+
 
 ** Toggles
 *** DONE Comment/uncomment
