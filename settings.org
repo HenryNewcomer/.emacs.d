@@ -670,7 +670,15 @@ Repo: https://github.com/sabof/org-bullets
 ** Rainbow Mode
 
 #+BEGIN_SRC emacs-lisp
-(use-package rainbow-mode)
+(use-package rainbow-mode
+  :defer t
+  :hook (prog-mode . rainbow-mode)
+  :config
+  (setq rainbow-x-colors nil)
+  (setq rainbow-ansi-colors nil)
+  (setq rainbow-html-colors t)
+  (setq rainbow-latex-colors nil)
+  (setq rainbow-r-colors nil))
 #+END_SRC
 
 ** TODO Realgud
