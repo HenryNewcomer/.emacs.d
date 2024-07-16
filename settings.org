@@ -930,11 +930,15 @@ FIXME: Only grabs hl-line at the moment
 
 #+BEGIN_SRC emacs-lisp
 (defun henry:face-over-point ()
+  "Display information about the face at point."
   (interactive)
-  (let ((face
-          (or (get-char-property (point) 'read-face-name)
-            (get-char-property (point) 'face))))
-    (if face (message "Font face: %s" face) (message "No font face at %d" pos))))
+  (let* ((face (or (get-char-property (point) 'read-face-name)
+                   (get-char-property (point) 'face)))
+         (face-name (if (listp face) (car face) face))
+         (face-attrs (face-all-attributes face-name (selected-frame))))
+    (if face
+        (message "Face: %s\nAttributes: %s" face-name face-attrs)
+      (message "No face at point %d" (point)))))
 
 (define-key <Leader> (kbd "f f") 'henry:face-over-point)
 #+END_SRC
@@ -1240,9 +1244,9 @@ FIXME: Only grabs hl-line at the moment
 ** Theme (custom)
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/laguna-theme/")
-(load-theme 'laguna t t)
-(enable-theme 'laguna)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/verditer-theme/")
+(load-theme 'verditer t t)
+(enable-theme 'verditer)
 ;; Or, if you use `use-package', do something like this:
 ;;(use-package laguna-theme
 ;;  :init (progn (load-theme 'laguna t t))
