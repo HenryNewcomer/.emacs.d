@@ -518,15 +518,15 @@ Repo: https://github.com/emacs-evil/evil-collection
 Repo: https://github.com/redguardtoo/evil-nerd-commenter
 
 #+BEGIN_SRC emacs-lisp
-(use-package evil-nerd-commenter
-  :defer 8
-  :config
-(define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
-(define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
-(define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
-(define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
-;; TODO: This might need changed to use Visual Mode instead of Normal Mode
-(define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region))
+  (use-package evil-nerd-commenter
+    :defer 8
+    :config
+  (define-key <Leader> (kbd "/ /") 'evilnc-comment-or-uncomment-lines)
+  (define-key <Leader> (kbd "/ l") 'evilnc-quick-comment-or-uncomment-to-the-line)
+  (define-key <Leader> (kbd "/ y") 'evilnc-copy-and-comment-lines)
+  (define-key <Leader> (kbd "/ p") 'evilnc-comment-or-uncomment-paragraphs)
+  ;; TODO: This might need changed to use Visual Mode instead of Normal Mode
+  (define-key evil-visual-state-map (kbd "SPC / r") 'comment-or-uncomment-region))
 #+END_SRC
 
 ** TODO Evil Numbers
@@ -885,6 +885,84 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
     (define-key <Leader> (kbd "t l") 'henry:custom-toggle-column-limit)
 #+END_SRC
 
+** Copy Thing At Point or Region
+
+#+BEGIN_SRC emacs-lisp
+(defun henry:copy-thing-at-point-or-region ()
+  "Copy the thing at point or the active region.
+If a region is active, copy that region.
+Otherwise, try to copy the thing at point, which could be:
+- A symbol
+- A line
+- A sentence
+- A paragraph
+- Any text between matching delimiters (parentheses, brackets, etc.)"
+  (interactive)
+  (cond
+   ;; If there's an active region, copy it
+   ((use-region-p)
+    (kill-ring-save (region-beginning) (region-end))
+    (message "Region copied"))
+
+   ;; Try to copy a symbol at point
+   ((thing-at-point 'symbol)
+    (kill-new (thing-at-point 'symbol))
+    (message "Symbol copied"))
+
+   ;; Try to copy delimited text (text between matching delimiters)
+   ((thing-at-point 'list)
+    (kill-new (thing-at-point 'list))
+    (message "Delimited text copied"))
+
+   ;; If not a symbol or delimited text, copy the current line
+   (t
+    (kill-ring-save (line-beginning-position) (line-end-position))
+    (message "Current line copied")))
+
+  ;; Optionally, you can add more conditions here for other types of "things"
+  ;; For example, to copy a sentence or a paragraph
+  )
+
+;; Bind this function to a convenient key combination
+(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)(defun henry:copy-thing-at-point-or-region ()
+  "Copy the thing at point or the active region.
+If a region is active, copy that region.
+Otherwise, try to copy the thing at point, which could be:
+- A symbol
+- A line
+- A sentence
+- A paragraph
+- Any text between matching delimiters (parentheses, brackets, etc.)"
+  (interactive)
+  (cond
+   ;; If there's an active region, copy it
+   ((use-region-p)
+    (kill-ring-save (region-beginning) (region-end))
+    (message "Region copied"))
+
+   ;; Try to copy a symbol at point
+   ((thing-at-point 'symbol)
+    (kill-new (thing-at-point 'symbol))
+    (message "Symbol copied"))
+
+   ;; Try to copy delimited text (text between matching delimiters)
+   ((thing-at-point 'list)
+    (kill-new (thing-at-point 'list))
+    (message "Delimited text copied"))
+
+   ;; If not a symbol or delimited text, copy the current line
+   (t
+    (kill-ring-save (line-beginning-position) (line-end-position))
+    (message "Current line copied")))
+
+  ;; Optionally, you can add more conditions here for other types of "things"
+  ;; For example, to copy a sentence or a paragraph
+  )
+
+;; Bind this function to a convenient key combination
+(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)
+#+END_SRC
+
 ** Dired Mode
 
     Auto-refresh dired on file change
@@ -938,15 +1016,18 @@ FIXME: Only grabs hl-line at the moment
 
 #+BEGIN_SRC emacs-lisp
 (defun henry:face-over-point ()
-  "Display information about the face at point."
+  "Display information about the face at point, ignoring hl-line."
   (interactive)
-  (let* ((face (or (get-char-property (point) 'read-face-name)
-                   (get-char-property (point) 'face)))
-         (face-name (if (listp face) (car face) face))
+  (let* ((pos (point))
+         (face (or (get-char-property pos 'read-face-name)
+                   (get-char-property pos 'face)))
+         (face-list (if (listp face) face (list face)))
+         (non-hl-face (seq-find (lambda (f) (not (eq f 'hl-line))) face-list))
+         (face-name (or non-hl-face 'default))
          (face-attrs (face-all-attributes face-name (selected-frame))))
-    (if face
+    (if face-name
         (message "Face: %s\nAttributes: %s" face-name face-attrs)
-      (message "No face at point %d" (point)))))
+      (message "No face at point %d" pos))))
 
 (define-key <Leader> (kbd "f f") 'henry:face-over-point)
 #+END_SRC
@@ -985,6 +1066,53 @@ FIXME: Only grabs hl-line at the moment
 #+END_SRC
 
 ** Me (Henry)
+
+Custom Functions
+
+TODO: Move other custom functions *here*!
+
+*** 1. My Find And Paste
+
+#+BEGIN_SRC emacs-lisp
+;; My: Find and Paste
+(defun henry:find-and-paste ()
+  "Search for text and paste promptsclipboard content at the found location."
+  (interactive)
+  (let ((search-text (read-string "Enter text to search for: "))
+        (clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
+    (if (string-empty-p clipboard-text)
+        (message "Clipboard is empty. Copy something first.")
+      (save-excursion
+        (goto-char (point-min))
+        (if (search-forward search-text nil t)
+            (progn
+              (backward-char (length search-text))
+              (insert clipboard-text)
+              (message "Pasted clipboard content after: %s" search-text))
+          (message "Search text not found: %s" search-text)))))
+
+;; Bind the function to a key combination
+(define-key <Leader> (kbd "f p") 'henry:find-and-paste )
+
+;; Paste clipboard and find
+(defun henry:search-clipboard-content ()
+  "Search for the content of the clipboard in the current buffer."
+  (interactive)
+  (let ((clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
+    (if (string-empty-p clipboard-text)
+        (message "Clipboard is empty. Copy something first.")
+      (deactivate-mark)
+      (goto-char (point-min))
+      (if (search-forward clipboard-text nil t)
+          (progn
+            (push-mark (match-beginning 0))
+            (message "Found clipboard content."))
+        (message "Clipboard content not found in buffer.")))))
+
+(define-key <Leader> (kbd "f s") 'henry:search-clipboard-content))
+#+END_SRC
+
+*** 2. My personal info
 
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Henry Newcomer")
