@@ -1074,42 +1074,29 @@ TODO: Move other custom functions *here*!
 *** 1. My Find And Paste
 
 #+BEGIN_SRC emacs-lisp
-;; My: Find and Paste
-(defun henry:find-and-paste ()
-  "Search for text and paste promptsclipboard content at the found location."
-  (interactive)
-  (let ((search-text (read-string "Enter text to search for: "))
-        (clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
-    (if (string-empty-p clipboard-text)
-        (message "Clipboard is empty. Copy something first.")
-      (save-excursion
-        (goto-char (point-min))
-        (if (search-forward search-text nil t)
-            (progn
-              (backward-char (length search-text))
-              (insert clipboard-text)
-              (message "Pasted clipboard content after: %s" search-text))
-          (message "Search text not found: %s" search-text)))))
-
-;; Bind the function to a key combination
-(define-key <Leader> (kbd "f p") 'henry:find-and-paste )
-
-;; Paste clipboard and find
 (defun henry:search-clipboard-content ()
-  "Search for the content of the clipboard in the current buffer."
+  "Search for the content of the clipboard in the current buffer and highlight it, unfolding Org mode sections as needed."
   (interactive)
   (let ((clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
     (if (string-empty-p clipboard-text)
         (message "Clipboard is empty. Copy something first.")
       (deactivate-mark)
       (goto-char (point-min))
-      (if (search-forward clipboard-text nil t)
-          (progn
-            (push-mark (match-beginning 0))
-            (message "Found clipboard content."))
-        (message "Clipboard content not found in buffer.")))))
+      (let ((found nil))
+        (while (and (not found)
+                    (search-forward clipboard-text nil t))
+          (when (eq major-mode 'org-mode)
+            (org-reveal '(4)))
+          (setq found t))
+        (if found
+            (progn
+              (push-mark (match-beginning 0))
+              (setq isearch-string clipboard-text)
+              (isearch-search-and-update)
+              (message "Found and highlighted clipboard content."))
+          (message "Clipboard content not found in buffer."))))))
 
-(define-key <Leader> (kbd "f s") 'henry:search-clipboard-content))
+(global-set-key (kbd "s-f") 'henry:search-clipboard-content)
 #+END_SRC
 
 *** 2. My personal info
@@ -1462,8 +1449,8 @@ TODO: Move other custom functions *here*!
 *** Close buffer
 
 #+BEGIN_SRC emacs-lisp
-    (define-key <Leader> (kbd "c b") 'kill-this-buffer) ;; Close->Buffer
-    (define-key <Leader> (kbd "c o b") 'kill-buffer) ;; Close->Other->Buffer [prompt buffer name]
+    (define-key <Leader> (kbd "c b") (lambda () (interactive) (kill-this-buffer))) ;; Close->Buffer
+    (define-key <Leader> (kbd "c o b") (lambda () (interactive) (call-interactively 'kill-buffer))) ;; Close->Other->Buffer [prompt buffer name]
 #+END_SRC
 
 *** Create empty buffer
