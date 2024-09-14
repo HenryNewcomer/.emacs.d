@@ -1609,6 +1609,15 @@ Repeated invocations toggle between the two most recently open buffers."
     (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
 #+END_SRC
 
+** Find Name (Dired)
+
+#+BEGIN_SRC emacs-lisp
+;; Dired-related keybindings for search
+(with-eval-after-load 'dired
+  (define-key <Leader> (kbd "f n") 'find-name-dired))(define-key <Leader> (kbd "f n") 'find-name-dired)
+#+END_SRC
+
+
 ** Line manipulations
 *** Jump to beginning/end of line
 
