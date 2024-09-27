@@ -1096,10 +1096,25 @@ TODO: Move other custom functions *here*!
               (message "Found and highlighted clipboard content."))
           (message "Clipboard content not found in buffer."))))))
 
-(global-set-key (kbd "s-f") 'henry:search-clipboard-content)
+(define-key <Leader> (kbd "s f") 'henry:search-clipboard-content)
 #+END_SRC
 
-*** 2. My personal info
+*** 2. Update Packages
+
+#+BEGIN_SRC emacs-lisp
+(defun henry:update-all-packages ()
+  "Update all installed packages without confirmation."
+  (interactive)
+  (package-refresh-contents)
+  (dolist (package (mapcar 'car package-alist))
+    (unless (package-installed-p package)
+      (package-install package)))
+  (message "Package update complete!"))
+
+(define-key <Leader> (kbd "p u") 'henry:update-all-packages)
+#+END_SRC
+
+*** 3. My personal info
 
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Henry Newcomer")
