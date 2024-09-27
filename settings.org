@@ -85,9 +85,9 @@ Detects the current Operating System
 
 ;;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (setq package-archives
-  '(("gnu"   . "http://elpa.gnu.org/packages/")
+  '(("melpa" . "https://melpa.org/packages/")
     ("org"   . "https://orgmode.org/elpa/")
-    ("melpa" . "http://melpa.org/packages/")))
+    ("gnu"   . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 #+END_SRC
 
@@ -152,32 +152,6 @@ Detects the current Operating System
 
 
 #+END_SRC
-
-    #+RESULTS:
-    : t
-
-** Quelpa
-
-Repo: https://github.com/quelpa/quelpa
-
-#+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://github.com/quelpa/quelpa/raw/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-
-(require 'quelpa)
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-
-(require 'quelpa-use-package)
-#+END_SRC
-
-
-
 
 
 
