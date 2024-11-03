@@ -6,9 +6,6 @@
 # ****************************************************************************
 # ============================================================================
 
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
-
 * Startup
 ** Start timer
 
@@ -67,6 +64,14 @@ Detects the current Operating System
 
 ;; Initiates the function
 (henry:detect-os)
+#+END_SRC
+
+** Add Homebrew paths for macOS
+
+#+BEGIN_SRC emacs-lisp
+(when (eq system-type 'darwin)
+  (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
+  (push "/opt/homebrew/bin" exec-path))
 #+END_SRC
 
 ** Define <Leader> key
@@ -560,8 +565,12 @@ Repo: https://github.com/magit/magit
 #+BEGIN_SRC emacs-lisp
 (use-package transient
   :ensure t)
+
 (use-package magit
   :after transient
+  :init
+    (when (eq system-type 'darwin)
+      (setq with-editor-emacsclient-executable "/opt/homebrew/bin/emacsclient"))
   :config
     (setq evil-magit-state 'normal)
 
@@ -1050,12 +1059,25 @@ TODO: Move other custom functions *here*!
 #+BEGIN_SRC emacs-lisp
 (defun henry:replace-smart-quotes-in-string (string)
   "Replace smart quotes in STRING with straight quotes."
-  (replace-regexp-in-string "[‘’]" "'" (replace-regexp-in-string "[“”]" "\"" string)))
+  (when (stringp string)
+    (let ((replaced (replace-regexp-in-string "[‘’]" "'"
+                     (replace-regexp-in-string "[“”]" "\"" string))))
+      (if (equal replaced string)
+          string  ; Return original if no replacements made
+        replaced))))
 
 (defun henry:replace-smart-quotes-on-paste (orig-fun &rest args)
   "Advice to replace smart quotes with straight quotes on paste."
-  (let ((yanked-text (current-kill 0)))
-    (funcall orig-fun (henry:replace-smart-quotes-in-string yanked-text))))
+  (let* ((inhibit-message t)  ; Prevent "mark set" message
+         (yanked-text (current-kill 0))
+         (replaced-text (when yanked-text
+                         (henry:replace-smart-quotes-in-string yanked-text))))
+    (if replaced-text
+        (progn
+          (push-mark (point) t)  ; Set mark quietly
+          (insert replaced-text)
+          (setq deactivate-mark t))  ; Clear mark after insert
+      (apply orig-fun args))))
 
 (advice-add 'yank :around #'henry:replace-smart-quotes-on-paste)
 #+END_SRC
@@ -1066,9 +1088,12 @@ TODO: Move other custom functions *here*!
 (defun henry:search-clipboard-content ()
   "Search for the content of the clipboard in the current buffer and highlight it, unfolding Org mode sections as needed."
   (interactive)
-  (let ((clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
+  (let* ((clipboard-content (gui-get-selection 'CLIPBOARD 'STRING))
+         (clipboard-text (if (stringp clipboard-content)
+                             (henry:replace-smart-quotes-in-string clipboard-content)
+                           "")))
     (if (string-empty-p clipboard-text)
-        (message "Clipboard is empty. Copy something first.")
+        (message "Clipboard is empty or not a valid string. Copy something first.")
       (deactivate-mark)
       (goto-char (point-min))
       (let ((found nil))
