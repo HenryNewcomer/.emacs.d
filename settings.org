@@ -1665,25 +1665,27 @@ If BACKWARDS is non-nil, search in reverse."
     Based on: http://martinowen.net/blog/2010/02/03/tips-for-emacs-ibuffer.html
 
 #+BEGIN_SRC emacs-lisp
-    (setq ibuffer-saved-filter-groups
-      '(("personal"
-          ("C++" (mode . c++-mode))
-;;          ("C++ Headers" (filename . "\*.h"))
-;;          ("C++ Source Files" (filename . "\*.cpp"))
-          ("Web Development" (or (mode . html-mode)
-            (mode . css-mode)))
-          ("Magit" (name . "\*magit"))
-          ("Emacs Config/Settings" (or (filename . ".emacs")
-            (filename . "settings.org")))
-          ("Help" (or (name . "\*Help\*")
-            (name . "\*Apropos\*")
-            (name . "\*info\*"))))))
+      (setq ibuffer-saved-filter-groups
+        '(("personal"
+            ("C++" (mode . c++-mode))
+  ;;          ("C++ Headers" (filename . "\*.h"))
+  ;;          ("C++ Source Files" (filename . "\*.cpp"))
+            ("Python" (mode . python-mode))
+            ("Web Development" (or (mode . html-mode)
+                                   (mode . css-mode)
+                                   (mode . javascript-mode)
+                                   (mode . typescript-mode)))
+            ("Magit" (name . "\*magit"))
+            ("Emacs Config/Settings" (or (filename . ".emacs")
+              (filename . "settings.org")))
+            ("Help" (or (name . "\*Help\*")
+              (name . "\*Apropos\*")
+              (name . "\*info\*"))))))
 
-    (add-hook 'ibuffer-mode-hook
-      '(lambda ()
-        (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
-        (ibuffer-switch-to-saved-filter-groups "personal")))
-
+      (add-hook 'ibuffer-mode-hook
+        '(lambda ()
+          (ibuffer-auto-mode 1) ;; Keeps the buffer list up-to-date
+          (ibuffer-switch-to-saved-filter-groups "personal")))
 #+END_SRC
 
 *** TODO Swap between previous buffer
