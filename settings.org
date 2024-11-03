@@ -125,17 +125,24 @@ Detects the current Operating System
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-:ensure t
-:init
+  :ensure t
+  :init
     (setq evil-want-C-u-scroll nil)
     (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
     (setq evil-want-keybinding nil)
-:config
+  :config
     (evil-mode 1)
-;;  (define-key evil-normal-state-map (kbd "SPC") 'nil)
+
     (define-key evil-normal-state-map (kbd "SPC") <Leader>)
 
-;;
+    ;; Enhance the :w command to prompt for filename when needed
+    (evil-ex-define-cmd "w[rite]"
+      (lambda ()
+        (interactive)
+        (if (buffer-file-name)
+            (evil-write nil nil)
+          (let ((ido-enable-flex-matching nil))
+            (call-interactively #'write-file)))))
 
     ;; Fix Dired help summary (key: `?`)
     (evil-define-key 'normal dired-mode-map (kbd "?") 'dired-summary)
@@ -163,8 +170,6 @@ Detects the current Operating System
     (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
     (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
 )
-
-
 #+END_SRC
 
 
@@ -1102,14 +1107,27 @@ FIXME: Only grabs hl-line at the moment
 ** Ido
 
 #+BEGIN_SRC emacs-lisp
-    ;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
-    (setq ido-enable-flex-matching t)
-    (setq ido-everywhere t)
-    (ido-mode 1)
-    (setq ido-separator "\n")
-    (setq ido-use-filename-at-point 'guess)
-    (setq ido-create-new-buffer 'always)
-    (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+  ;; Source: https://www.masteringemacs.org/article/introduction-to-ido-mode
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (ido-mode 1)
+  (setq ido-separator "\n")
+  (setq ido-use-filename-at-point 'guess)
+  (setq ido-create-new-buffer 'always)
+  (setq ido-file-extensions-order '(".org" ".cpp" ".h" ".php" ".html" ".css"))
+  ; Allow spaces in file names
+  (setq ido-enable-space-matching t)
+  ; Use underscore to represent spaces during completion
+  (setq ido-space-match-char ?_)
+  ; Allow . files to be shown
+  (setq ido-enable-dot-prefix t)
+  ; Disable TRAMP completion for better local file handling
+  (setq ido-enable-tramp-completion nil)
+
+  (add-hook 'ido-setup-hook
+    (lambda ()
+    (define-key ido-completion-map (kbd "SPC") 'self-insert-command)))
+
 #+END_SRC
 
 ** Me (Henry)
@@ -1149,33 +1167,38 @@ TODO: Move other custom functions *here*!
 *** 2. Find via Clipboard
 
 #+BEGIN_SRC emacs-lisp
-(defun henry:search-clipboard-content ()
-  "Search for the content of the clipboard in the current buffer and highlight it, unfolding Org mode sections as needed."
+(defun henry:search-clipboard-content (&optional backwards)
+  "Search for clipboard content, with wrap-around and cycling support.
+If BACKWARDS is non-nil, search in reverse."
   (interactive)
-  (let* ((clipboard-content (gui-get-selection 'CLIPBOARD 'STRING))
-         (clipboard-text (if (stringp clipboard-content)
-                             (henry:replace-smart-quotes-in-string clipboard-content)
-                           "")))
-    (if (string-empty-p clipboard-text)
-        (message "Clipboard is empty or not a valid string. Copy something first.")
+  (let ((clipboard-text (gui-get-selection 'CLIPBOARD 'STRING)))
+    (if (or (null clipboard-text) (string-empty-p clipboard-text))
+        (message "Clipboard is empty. Copy something first.")
       (deactivate-mark)
-      (goto-char (point-min))
-      (let ((found nil))
-        (while (and (not found)
-                    (search-forward clipboard-text nil t))
+      (let ((found (if backwards
+                      (search-backward clipboard-text nil t)
+                    (search-forward clipboard-text nil t))))
+        (when (not found)
+          ;; If not found, wrap around and try again
+          (goto-char (if backwards (point-max) (point-min)))
+          (setq found (if backwards
+                         (search-backward clipboard-text nil t)
+                       (search-forward clipboard-text nil t))))
+        (when found
+          (push-mark (if backwards (point) (match-beginning 0)))
           (when (eq major-mode 'org-mode)
             (org-reveal '(4)))
-          (setq found t))
-        (if found
-            (progn
-              (push-mark (match-beginning 0))
-              (setq isearch-string clipboard-text)
-              (isearch-search-and-update)
-              (message "Found and highlighted clipboard content."))
-          (message "Clipboard content not found in buffer."))))))
+          (activate-mark)
+          (message "Found and highlighted clipboard content."))))))
 
+(defun henry:search-clipboard-backwards ()
+  "Search backwards for clipboard content."
+  (interactive)
+  (henry:search-clipboard-content t))
+
+;; Bind both forward and backward search
 (define-key <Leader> (kbd "s c") 'henry:search-clipboard-content)
-#+END_SRC
+(define-key <Leader> (kbd "s C") 'henry:search-clipboard-backwards)  ; Capital C for backwards#+END_SRC
 
 *** 3. Update Packages
 
@@ -1243,6 +1266,16 @@ TODO: Move other custom functions *here*!
 
 #+BEGIN_SRC emacs-lisp
     (setq inhibit-compacting-font-caches t)
+#+END_SRC
+
+*** Adjust indentation spacing
+
+#+BEGIN_SRC emacs-lisp
+;; Set org-mode specific indentation
+(add-hook 'org-mode-hook
+  (lambda ()
+    (setq-local tab-width 2)
+    (setq-local evil-shift-width 2)))
 #+END_SRC
 
 *** Extra Settings
