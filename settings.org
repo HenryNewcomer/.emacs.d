@@ -867,21 +867,48 @@ Source: https://www.emacswiki.org/emacs/ForceBackups
 ;; Default and per-save backups go here:
 (setq backup-directory-alist '(("" . "~/.emacs.d/backups/per-save")))
 
+;; Auto-save files go here
+(setq auto-save-file-name-transforms
+      `((".*" ,(concat user-emacs-directory "backups/auto-saves/") t)))
+
+;; Create auto-saves directory if it doesn't exist
+(make-directory (concat user-emacs-directory "backups/auto-saves/") t)
+
 (defun force-backup-of-buffer ()
-;; Make a special "per session" backup at the first save of each
-;; emacs session.
-(when (not buffer-backed-up)
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
     ;; Override the default parameters for per-session backups.
     (let ((backup-directory-alist '(("" . "~/.emacs.d/backups/per-session")))
-        (kept-new-versions 3))
-    (backup-buffer)))
-;; Make a "per save" backup on each save.  The first save results in
-;; both a per-session and a per-save backup, to keep the numbering
-;; of per-save backups consistent.
-(let ((buffer-backed-up nil))
+          (kept-new-versions 3))
+      (backup-buffer)))
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  (let ((buffer-backed-up nil))
     (backup-buffer)))
 
-(add-hook 'before-save-hook  'force-backup-of-buffer)
+;; Cleanup function for both backups and auto-saves
+(defun henry:cleanup-backup-files ()
+  "Remove backup and auto-save files older than 7 days."
+  (interactive)
+  (let ((age-limit (* 7 24 60 60)))  ; 7 days in seconds
+    (dolist (dir '("per-save" "per-session" "auto-saves"))
+      (let ((backup-dir (concat user-emacs-directory "backups/" dir)))
+        (when (file-directory-p backup-dir)
+          (dolist (file (directory-files backup-dir t))
+            (when (and (file-regular-p file)
+                      (not (member (file-name-nondirectory file) '("." "..")))
+                      (> (float-time (time-subtract (current-time)
+                                                  (nth 5 (file-attributes file))))
+                         age-limit))
+              (delete-file file))))))))
+
+;; Run cleanup on startup and daily
+(run-with-idle-timer 5 nil #'henry:cleanup-backup-files)
+(run-at-time "12:00am" (* 24 60 60) #'henry:cleanup-backup-files)
+
+(add-hook 'before-save-hook 'force-backup-of-buffer)
 #+END_SRC
 
 ** Cursor
