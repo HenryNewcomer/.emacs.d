@@ -137,6 +137,9 @@ Detects the current Operating System
 
 ;;
 
+    ;; Fix Dired help summary (key: `?`)
+    (evil-define-key 'normal dired-mode-map (kbd "?") 'dired-summary)
+
     (evil-set-initial-state 'ibuffer-mode 'normal)
 
     (evil-set-undo-system 'undo-tree)
@@ -757,11 +760,66 @@ Repo: https://github.com/dbordak/telephone-line
 (use-package undo-tree
   :ensure t
   :config
-  (global-undo-tree-mode 1)
+    (global-undo-tree-mode 1)
+
+    ;; Set up storage directory
+    (setq undo-tree-history-directory-alist
+	    `(("." . ,(concat user-emacs-directory "undo-tree-hist"))))
+
+    ;; Create the directory if it doesn't exist
+    (make-directory (concat user-emacs-directory "undo-tree-hist") t)
+
+    ;; Function to clean old undo-tree files
+    (defun henry:cleanup-undo-tree-history ()
+	"Remove undo-tree files older than 7 days."
+	(interactive)
+	(let* ((undo-tree-dir (concat user-emacs-directory "undo-tree-hist"))
+	    (days-to-keep 7)
+	    (current-time (float-time (current-time)))
+	    (age-limit (* days-to-keep 24 60 60)) ; convert days to seconds
+	    (files-removed 0))
+	(when (file-directory-p undo-tree-dir)
+	    (dolist (file (directory-files undo-tree-dir t))
+	    (when (and (file-regular-p file)
+			(not (member (file-name-nondirectory file) '("." "..")))
+			(> (- current-time (float-time (nth 5 (file-attributes file))))
+			    age-limit))
+		(delete-file file)
+		(setq files-removed (1+ files-removed))))
+	    (message "Removed %d old undo-tree history files" files-removed))))
+
+    ;; Run cleanup every week when Emacs starts
+    (defun henry:maybe-cleanup-undo-tree ()
+	"Run cleanup if it hasn't been done in the last week."
+	(let ((last-cleanup-file (concat user-emacs-directory "undo-tree-hist/.last-cleanup"))
+	    (week-seconds (* 7 24 60 60)))
+	(when (or (not (file-exists-p last-cleanup-file))
+		    (> (- (float-time (current-time))
+			(float-time (nth 5 (file-attributes last-cleanup-file))))
+		    week-seconds))
+	    ;; Do cleanup and update timestamp
+	    (henry:cleanup-undo-tree-history)
+        (with-temp-file last-cleanup-file
+          (insert (format-time-string "%Y-%m-%d %H:%M:%S"))))))
+
+  ;; Add cleanup to startup
+  (add-hook 'after-init-hook #'henry:maybe-cleanup-undo-tree)
+
+  (setq undo-tree-auto-save-history t
+        undo-tree-save-history t
+        undo-tree-enable-undo-in-region t
+        undo-tree-check-timestamp t)
+
+  ;; Maximum size for undo-tree files (in bytes)
+  (setq undo-tree-auto-save-history-size-limit (* 64 1024 1024)) ; 64MB limit
+
+  ;; Or disable saving for very large files
+  (setq undo-tree-auto-save-history-limit 10000) ; Don't save for files with more than 10k nodes
+
+  (define-key <Leader> (kbd "c u") 'henry:cleanup-undo-tree-history) ; "cleanup undo-tree"
   (define-key evil-normal-state-map (kbd "u") 'undo)
   (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
-  (define-key <Leader> (kbd "C-r") 'undo-tree-visualize)
-)
+  (define-key <Leader> (kbd "C-r") 'undo-tree-visualize))
 #+END_SRC
 
 ** Web Mode
@@ -1608,7 +1666,7 @@ Repeated invocations toggle between the two most recently open buffers."
       (interactive)
       (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-    (define-key <Leader> (kbd "s b") 'henry:switch-to-previous-buffer)
+    (define-key <Leader> (kbd "o o") 'henry:switch-to-previous-buffer) ; "Open Other"
 #+END_SRC
 
 *** Swap to *Scratch*
