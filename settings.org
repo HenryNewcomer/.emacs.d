@@ -1045,7 +1045,22 @@ Custom Functions
 
 TODO: Move other custom functions *here*!
 
-*** 1. My Find And Paste
+*** 1. Auto-replace smart quotes
+
+#+BEGIN_SRC emacs-lisp
+(defun henry:replace-smart-quotes-in-string (string)
+  "Replace smart quotes in STRING with straight quotes."
+  (replace-regexp-in-string "[‘’]" "'" (replace-regexp-in-string "[“”]" "\"" string)))
+
+(defun henry:replace-smart-quotes-on-paste (orig-fun &rest args)
+  "Advice to replace smart quotes with straight quotes on paste."
+  (let ((yanked-text (current-kill 0)))
+    (funcall orig-fun (henry:replace-smart-quotes-in-string yanked-text))))
+
+(advice-add 'yank :around #'henry:replace-smart-quotes-on-paste)
+#+END_SRC
+
+*** 2. Find via Clipboard
 
 #+BEGIN_SRC emacs-lisp
 (defun henry:search-clipboard-content ()
@@ -1070,10 +1085,10 @@ TODO: Move other custom functions *here*!
               (message "Found and highlighted clipboard content."))
           (message "Clipboard content not found in buffer."))))))
 
-(define-key <Leader> (kbd "s f") 'henry:search-clipboard-content)
+(define-key <Leader> (kbd "s c") 'henry:search-clipboard-content)
 #+END_SRC
 
-*** 2. Update Packages
+*** 3. Update Packages
 
 #+BEGIN_SRC emacs-lisp
 (defun henry:update-all-packages ()
@@ -1088,12 +1103,13 @@ TODO: Move other custom functions *here*!
 (define-key <Leader> (kbd "p u") 'henry:update-all-packages)
 #+END_SRC
 
-*** 3. My personal info
+*** 4. My personal info
 
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Henry Newcomer")
 (setq user-mail-address "a.cliche.email@gmail.com")
 #+END_SRC
+
 
 ** Org Mode
 *** Customizes the colors
