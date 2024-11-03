@@ -96,6 +96,12 @@ Detects the current Operating System
 (package-initialize)
 #+END_SRC
 
+** Replace highlighted text when pasting
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode 1)
+#+END_SRC
+
 
 * Package Settings
 ** Check for package installations & upgrades
