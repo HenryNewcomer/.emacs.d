@@ -1756,13 +1756,30 @@ Repeated invocations toggle between the two most recently open buffers."
 ** Evaluate Elisp (sexp)
 
 #+BEGIN_SRC emacs-lisp
-    (defun henry:sexp-at-end-of-line ()
-      "Jumps to the end of the line and runs 'eval-last-sexp'."
-      (interactive)
-      (move-end-of-line 1)
-      (call-interactively 'eval-last-sexp))
+(defun henry:sexp-at-end-of-line ()
+  "Evaluate expression at end of line, handling comments and org source blocks."
+  (interactive)
+  (let* ((line-end (save-excursion (end-of-line) (point)))
+         (comment-start (save-excursion
+                         (beginning-of-line)
+                         (when (comment-search-forward line-end t)
+                           (backward-char)
+                           (skip-chars-backward " \t")
+                           (point))))
+         (target-point (if comment-start
+                          comment-start
+                        line-end)))
+    ;; Move to the appropriate position
+    (goto-char target-point)
+    ;; Move backward to last closing paren if exists
+    (when (search-backward ")" (line-beginning-position) t))
+    ;; Evaluate the expression
+    (let ((inhibit-message t))
+      (condition-case nil
+          (eval-last-sexp nil)
+        (error nil)))))
 
-    (define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
+(define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
 #+END_SRC
 
 ** Find Name (Dired)
