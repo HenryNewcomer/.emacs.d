@@ -1226,6 +1226,7 @@ If BACKWARDS is non-nil, search in reverse."
 ;; Bind both forward and backward search
 (define-key <Leader> (kbd "s c") 'henry:search-clipboard-content)
 (define-key <Leader> (kbd "s C") 'henry:search-clipboard-backwards)  ; Capital C for backwards#+END_SRC
+#+END_SRC
 
 *** 3. Update Packages
 
