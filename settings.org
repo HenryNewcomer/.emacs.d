@@ -124,52 +124,38 @@ Detects the current Operating System
 ** EVIL Mode
 
 #+BEGIN_SRC emacs-lisp
+;; Ensure evil is installed first
+(unless (package-installed-p 'evil)
+  (package-refresh-contents)
+  (package-install 'evil))
+
 (use-package evil
   :ensure t
   :init
-    (setq evil-want-C-u-scroll nil)
-    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
-    (setq evil-want-keybinding nil)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll nil)
   :config
-    (evil-mode 1)
+  (evil-mode 1)
 
-    (define-key evil-normal-state-map (kbd "SPC") <Leader>)
+  ;; Define leader key after evil is loaded
+  (define-key evil-normal-state-map (kbd "SPC") <Leader>)
 
-    ;; Enhance the :w command to prompt for filename when needed
-    (evil-ex-define-cmd "w[rite]"
-      (lambda ()
-        (interactive)
-        (if (buffer-file-name)
-            (evil-write nil nil)
-          (let ((ido-enable-flex-matching nil))
-            (call-interactively #'write-file)))))
+  ;; Other evil-specific keybindings
+  (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
+  (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
 
-    ;; Fix Dired help summary (key: `?`)
-    (evil-define-key 'normal dired-mode-map (kbd "?") 'dired-summary)
+  ;; Move lines up/down
+  (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
+  (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
+  (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
+  (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
 
-    (evil-set-initial-state 'ibuffer-mode 'normal)
-
-    (evil-set-undo-system 'undo-tree)
-
-    (define-key evil-normal-state-map (kbd "O") 'henry:new-blank-line-above)
-    (define-key evil-normal-state-map (kbd "o") 'henry:new-blank-line-below)
-
-
-    ;; Sets Alt-j/k to move lines up or down
-    (define-key evil-normal-state-map (kbd "M-k") 'henry:move-line-up)
-    (define-key evil-normal-state-map (kbd "M-j") 'henry:move-line-down)
-
-    ;; Allows the same keybindings to work within Insert mode
-    (define-key evil-insert-state-map (kbd "M-k") 'henry:move-line-up)
-    (define-key evil-insert-state-map (kbd "M-j") 'henry:move-line-down)
-
-
-    ;; Resize window panes
-    (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
-    (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
-    (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
-    (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally)
-)
+  ;; Window resizing
+  (define-key evil-normal-state-map (kbd "<M-up>") 'shrink-window)
+  (define-key evil-normal-state-map (kbd "<M-down>") 'enlarge-window)
+  (define-key evil-normal-state-map (kbd "<M-left>") 'shrink-window-horizontally)
+  (define-key evil-normal-state-map (kbd "<M-right>") 'enlarge-window-horizontally))
 #+END_SRC
 
 
@@ -577,7 +563,8 @@ Repo: https://github.com/flycheck/flycheck-inline
 Repo: https://github.com/magit/magit
 
 #+BEGIN_SRC emacs-lisp
-(use-package transient
+;; Ensure compat & transient are installed
+(use-package (transient compat)
   :ensure t)
 
 (use-package magit
@@ -648,7 +635,9 @@ Repo: https://github.com/sabof/org-bullets
 ** PHP Mode
 
 #+BEGIN_SRC emacs-lisp
-(use-package php-mode)
+(use-package php-mode
+  :ensure t
+  :defer t)
 #+END_SRC
 
 ** TODO Parentheses, braces, & brackets pairs
