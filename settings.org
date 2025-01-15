@@ -1757,10 +1757,11 @@ Repeated invocations toggle between the two most recently open buffers."
 ** Evaluate Elisp (sexp)
 
 #+BEGIN_SRC emacs-lisp
-(defun henry:sexp-at-end-of-line ()
-  "Evaluate expression at end of line, handling comments and org source blocks."
+(defun henry:sexp-in-block ()
+  "Evaluate the containing sexp near point, handling comments."
   (interactive)
-  (let* ((line-end (save-excursion (end-of-line) (point)))
+  (let* ((orig-point (point))
+         (line-end (line-end-position))
          (comment-start (save-excursion
                          (beginning-of-line)
                          (when (comment-search-forward line-end t)
@@ -1770,17 +1771,37 @@ Repeated invocations toggle between the two most recently open buffers."
          (target-point (if comment-start
                           comment-start
                         line-end)))
-    ;; Move to the appropriate position
+    ;; Move to the target position
     (goto-char target-point)
-    ;; Move backward to last closing paren if exists
-    (when (search-backward ")" (line-beginning-position) t))
-    ;; Evaluate the expression
-    (let ((inhibit-message t))
-      (condition-case nil
-          (eval-last-sexp nil)
-        (error nil)))))
-
-(define-key <Leader> (kbd "e l") 'henry:sexp-at-end-of-line)
+    ;; Find the closing parenthesis of the containing sexp
+    (condition-case nil
+        (let ((close-pos (save-excursion
+                          ;; First try to find the closest closing paren after point
+                          (when (search-forward ")" nil t)
+                            (backward-char)
+                            ;; Now find the matching opening paren
+                            (when (ignore-errors (backward-sexp) t)
+                              (forward-sexp)
+                              (point))))))
+          (when close-pos
+            (goto-char close-pos)
+            (let* ((start-pos (save-excursion
+                               (forward-char)
+                               (backward-list)
+                               (point)))
+                   ;; Get the full expression for display
+                   (expr-string (buffer-substring-no-properties
+                                start-pos
+                                (1+ close-pos)))
+                   ;; Evaluate and capture result without inserting
+                   (result (save-excursion
+                            (let ((eval-result (eval-last-sexp nil)))
+                              eval-result))))
+              ;; Restore original point
+              (goto-char orig-point)
+              (message "henry: Evaluated: %s => %s" expr-string result))))
+      (error (message "No valid expression found")))))
+(define-key <Leader> (kbd "e l") 'henry:sexp-in-block)
 #+END_SRC
 
 ** Find Name (Dired)
