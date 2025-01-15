@@ -1722,13 +1722,25 @@ If BACKWARDS is non-nil, search in reverse."
     TODO: Buffer List ruins this... Figure out a fix.
 
 #+BEGIN_SRC emacs-lisp
-    (defun henry:switch-to-previous-buffer ()
-      "Switch to previously open buffer.
-
-Repeated invocations toggle between the two most recently open buffers."
-      (interactive)
-      (switch-to-buffer (other-buffer (current-buffer) 1)))
-
+(defun henry:switch-to-previous-buffer ()
+  "Switch to previously open buffer, skipping Dired and special buffers.
+Repeated invocations toggle between the two most recently open regular buffers."
+  (interactive)
+  (let* ((current (current-buffer))
+         (buffers (buffer-list))
+         ;; Filter function to identify buffers we want to skip
+         (skip-buffer-p
+          (lambda (buf)
+            (or (eq buf current)  ; Skip current buffer
+                (eq 'dired-mode (buffer-local-value 'major-mode buf))  ; Skip dired
+                (string-match-p "\\`[ *]" (buffer-name buf))))) ; Skip special buffers
+         ;; Find the first non-skippable buffer
+         (target
+          (seq-find (lambda (buf) (not (funcall skip-buffer-p buf)))
+                   buffers)))
+    (if target
+        (switch-to-buffer target)
+      (message "No suitable buffer to switch to"))))
     (define-key <Leader> (kbd "o o") 'henry:switch-to-previous-buffer) ; "Open Other"
 #+END_SRC
 
