@@ -827,10 +827,16 @@ Repo: https://github.com/dbordak/telephone-line
 
 #+BEGIN_SRC emacs-lisp
 (use-package yascroll
-  :defer 8
+  :ensure t
   :config
-(global-yascroll-bar-mode 1)
-)
+  (defcustom yascroll:scroll-bar
+    '(:foreground "#505050" :background "#505050")
+    "Customize the appearance of the scroll bar.
+The format should use proper quote escaping with \\='."
+    :type '(plist :key-type symbol :value-type string)
+    :group 'yascroll)
+
+  (global-yascroll-bar-mode 1))
 #+END_SRC
 
 ** TODO YASnippet
