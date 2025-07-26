@@ -564,7 +564,10 @@ Repo: https://github.com/magit/magit
 
 #+BEGIN_SRC emacs-lisp
 ;; Ensure compat & transient are installed
-(use-package (transient compat)
+(use-package transient
+  :ensure t)
+
+(use-package compat
   :ensure t)
 
 (use-package magit
@@ -736,17 +739,6 @@ Repo: https://github.com/dbordak/telephone-line
           (t (intern (concat "telephone-line-evil-" (symbol-name evil-state)))))))
 #+END_SRC
 
-** Transient
-
-(Required for Magit)
-
-#+BEGIN_SRC emacs-lisp
-(setq package-install-upgrade-built-in t)
-(package-install 'seq)
-(progn (unload-feature 'seq t) (require 'seq))
-
-(use-package transient)
-#+END_SRC
 
 ** Undo Tree
 
@@ -1297,7 +1289,8 @@ If BACKWARDS is non-nil, search in reverse."
 ;; Set org-mode specific indentation
 (add-hook 'org-mode-hook
   (lambda ()
-    (setq-local tab-width 2)
+    ;; Org mode requires tab-width to be 8
+    (setq-local tab-width 8)
     (setq-local evil-shift-width 2)))
 #+END_SRC
 
