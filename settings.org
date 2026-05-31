@@ -20,7 +20,7 @@
 #+BEGIN_SRC emacs-lisp
 (when (string-equal system-type "darwin")
   ;; Uncomment below to set a specific size.
-  ;; (Setq initial-frame-alist '((top . 0) (left . 0) (height . 50) (width . 100)))
+  ;; (setq initial-frame-alist '((top . 0) (left . 0) (height . 50) (width . 100)))
   ;; Start in fullscreen
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+END_SRC
@@ -600,6 +600,23 @@ Repo: https://github.com/magit/magit
           nil t))) ; the t is important
 )
 #+END_SRC
+
+** TODO Markdown (Needs review)
+
+;#+BEGIN_SRC emacs-lisp
+;; First, ensure the system-package extension is loaded
+(use-package use-package-ensure-system-package
+  :ensure t)
+
+;; Now configure markdown-mode and auto-install pandoc
+(use-package markdown-mode
+  :ensure t
+  :ensure-system-package (pandoc . "brew install pandoc") ; Note: Replace with proper OS command if not on Mac
+  :mode (("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . gfm-mode))
+  :init
+  (setq markdown-command "pandoc"))
+;#+END_SRC
 
 ** Modern C++ Font Lock
 
@@ -1212,7 +1229,7 @@ If BACKWARDS is non-nil, search in reverse."
 
 ;; Bind both forward and backward search
 (define-key <Leader> (kbd "s c") 'henry:search-clipboard-content)
-(define-key <Leader> (kbd "s C") 'henry:search-clipboard-backwards)  ; Capital C for backwards#+END_SRC
+(define-key <Leader> (kbd "s C") 'henry:search-clipboard-backwards)  ; Capital C for backwards
 #+END_SRC
 
 *** 3. Update Packages
@@ -1235,6 +1252,17 @@ If BACKWARDS is non-nil, search in reverse."
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Henry Newcomer")
 (setq user-mail-address "a.cliche.email@gmail.com")
+#+END_SRC
+
+
+** Mac Environment Fix
+#+BEGIN_SRC emacs-lisp
+  ;; Forces graphical macOS Emacs to inherit your terminal profile paths
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns))
+    :config
+    (exec-path-from-shell-initialize))
 #+END_SRC
 
 
@@ -1299,6 +1327,7 @@ If BACKWARDS is non-nil, search in reverse."
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files
     '("/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/tasks.org"
+      "/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/Work/PixelPeople/logs.org"
       "/Users/henry/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/daily.org"))
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done t)
@@ -1311,6 +1340,139 @@ If BACKWARDS is non-nil, search in reverse."
 
 #+BEGIN_SRC emacs-lisp
 (setq sentence-end-double-space 'nil)
+#+END_SRC
+
+** IMPORTANT: Physical Devices (Pico)
+*** Pico MicroPython Serial Configuration (Pico 2)
+
+    Setup for Pico 2
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-map (kbd "SPC m p") 'connect-pico-serial))
+
+  (defun connect-pico-serial ()
+    "Quickly open a serial terminal to a connected MicroPython Pico."
+    (interactive)
+    (let* ((port (if (eq system-type 'windows-nt)
+                     "COM3"               ; Adjust your COM port if on Windows
+                   "/dev/tty.usbmodem1101"))       ; Default for Linux/macOS
+           (buf-name (concat "*Pico-" port "*")))
+      (serial-term port 115200)
+      (rename-buffer buf-name)))
+#+END_SRC
+
+*** Pico Auto-Upload Pipeline (Pico 2)
+
+#+BEGIN_SRC emacs-lisp
+  (defun pico-deploy-buffer-as-main ()
+    "Saves the active buffer, matches the macOS USB layout, copies it to the device as 'main.py', and reboots."
+    (interactive)
+    (if (buffer-file-name)
+        (progn
+          (save-buffer)
+          (let* ((local-file (buffer-file-name))
+                 (cmd (format "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp %s :main.py + reset" local-file))
+                 (output (shell-command-to-string cmd)))
+            (if (or (string-match-p "no device found" output)
+                    (string-match-p "failed to access" output)
+                    (string-match-p "failed to open" output)
+                    (string-match-p "No device found" output))
+                (error "Hardware Flash Failed! No connected Pico detected on your Mac USB ports.")
+              (message "Successfully flashed %s to hardware as main.py!" (file-name-nondirectory local-file)))))
+      (error "Buffer must be saved to a local file first.")))
+
+  (defun pico-deploy-and-reboot ()
+    "Saves all open buffers, halts the running Pico loop, overwrites all files in workspace, and reboots."
+    (interactive)
+    (save-some-buffers t)
+    (message "Halting Pico loop, syncing workspace directory...")
+    (let* ((cmd "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp * : + reset")
+           (output (shell-command-to-string cmd)))
+      (if (or (string-match-p "no device found" output)
+              (string-match-p "failed to access" output)
+              (string-match-p "failed to open" output)
+              (string-match-p "No device found" output))
+          (error "Workspace Sync Failed! Check USB link or port locks.")
+        (message "Workspace sync successful! Pico has rebooted with all updated files."))))
+
+  (defun pico-sync-active-file ()
+    "Saves the active buffer and copies it to the root of the Pico using its original file name."
+    (interactive)
+    (if (buffer-file-name)
+        (progn
+          (save-buffer)
+          (let* ((local-file (buffer-file-name))
+                 (filename (file-name-nondirectory local-file))
+                 (cmd (format "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp %s :%s" local-file filename))
+                 (output (shell-command-to-string cmd)))
+            (if (or (string-match-p "no device found" output)
+                    (string-match-p "failed to access" output)
+                    (string-match-p "failed to open" output)
+                    (string-match-p "No device found" output))
+                (error "File Sync Failed! Check Pico connection.")
+              (message "Successfully updated %s on the Pico!" filename))))
+      (error "Buffer must be saved to a local file first.")))
+
+  (defun pico-open-repl-monitor ()
+    "Launches a native terminal emulator wrapping mpremote's macOS serial console connection."
+    (interactive)
+    (when (get-buffer "*Pico-Monitor*")
+      (kill-buffer "*Pico-Monitor*"))
+    (let ((term-buf (make-term "Pico-Monitor" "mpremote" nil "connect" "/dev/cu.usbmodem*" "repl")))
+      (switch-to-buffer term-buf)
+      (term-char-mode)
+      (message "Connected via macOS USB mapping! Press Leader m c to exit.")))
+
+  (defun pico-open-direct-interpreter ()
+    "Bypasses the log monitor files and hops straight into a clean hardware Python REPL shell."
+    (interactive)
+    (when (get-buffer "*Pico-Interpreter*")
+      (kill-buffer "*Pico-Interpreter*"))
+    ;; Calling mpremote without commands drops you into an instantaneous interactive session
+    (let ((term-buf (make-term "Pico-Interpreter" "mpremote" nil "connect" "/dev/cu.usbmodem*")))
+      (switch-to-buffer term-buf)
+      (term-char-mode)
+      (message "Direct interpreter ready! Press Leader m c to exit.")))
+
+  (defun pico-close-repl-monitor ()
+    "Cleanly kills any active Pico tracking terminal windows and releases serial locks."
+    (interactive)
+    (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
+      (let ((target-buf (get-buffer buf)))
+        (when target-buf
+          (let ((proc (get-buffer-process target-buf)))
+            (when proc (kill-process proc)))
+          (kill-buffer target-buf))))
+    (message "Pico serial locks released and windows closed."))
+
+  (defun pico-stop-execution ()
+    "Halts any running python loops or servers globally and places the Pico in an idle standby state."
+    (interactive)
+    (message "Sending global halt signal to Pico...")
+    (shell-command "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + reset")
+    (message "Pico halted successfully. All loops stopped."))
+
+  ;; Generalized Evil-Mode Terminal Navigation Policy Overrides
+  (with-eval-after-load 'evil
+    ;; Tell Evil mode to treat terminal screens as text interfaces by default
+    (evil-set-initial-state 'term-mode 'normal)
+
+    ;; Make sure Insert state passes raw keys directly into the terminal stream
+    (add-hook 'term-mode-hook
+              (lambda ()
+                (setq-local evil-insert-state-cursor 'box)
+                ;; Bind standard Normal mode motion into the term map
+                (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)
+                (define-key term-raw-map (kbd "C-c C-k") 'term-char-mode)))
+
+    ;; Inject all hotkeys cleanly into your Evil-Mode structure
+    (define-key evil-normal-state-map (kbd "SPC m a") 'pico-deploy-and-reboot)
+    (define-key evil-normal-state-map (kbd "SPC m c") 'pico-close-repl-monitor)
+    (define-key evil-normal-state-map (kbd "SPC m i") 'pico-open-direct-interpreter)
+    (define-key evil-normal-state-map (kbd "SPC m m") 'pico-deploy-buffer-as-main)
+    (define-key evil-normal-state-map (kbd "SPC m p") 'pico-open-repl-monitor)
+    (define-key evil-normal-state-map (kbd "SPC m r") 'pico-sync-active-file)
+    (define-key evil-normal-state-map (kbd "SPC m s") 'pico-stop-execution))
 #+END_SRC
 
 ** TODO Parentheses, braces, & brackets pairs
@@ -1890,12 +2052,23 @@ Repeated invocations toggle between the two most recently open regular buffers."
       "Reload Emacs settings files"
       (interactive)
       (load "~/.emacs")
+	(message "Emacs settings reloaded successfully!"))
+
+    (define-key <Leader> (kbd "r s") 'henry:reload-settings)
+#+END_SRC
+
+Commented out for now. (2026-05-31):
++BEGIN_SRC emacs-lisp
+    (defun henry:reload-settings ()
+      "Reload Emacs settings files"
+      (interactive)
+      (load "~/.emacs")
       (if (featurep 'copilot)
           (message "Emacs settings reloaded successfully, and Copilot is active!")
         (message "Emacs settings reloaded, but Copilot is not active. Please check your configuration.")))
 
     (define-key <Leader> (kbd "r s") 'henry:reload-settings)
-#+END_SRC
++END_SRC
 
 ** Save / quit
 
