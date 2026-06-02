@@ -399,11 +399,10 @@ Settings based off of: https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6
 ;; How many seconds to wait before rerunning tags for auto-update
 (setq counsel-etags-update-interval 180)
 
-;; Set up auto-update
+;; Set up auto-update - with fix to prevent extra instances from forming per new file
 (add-hook 'prog-mode-hook
-  (lambda () (add-hook 'after-save-hook
-               (lambda ()
-                 (counsel-etags-virtual-update-tags))))))
+  (lambda ()
+    (add-hook 'after-save-hook #'counsel-etags-virtual-update-tags nil t)))) ;; The 't' makes it buffer-local
 #+END_SRC
 
 ** Dimmer
@@ -1007,44 +1006,7 @@ Otherwise, try to copy the thing at point, which could be:
   )
 
 ;; Bind this function to a convenient key combination
-(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)(defun henry:copy-thing-at-point-or-region ()
-  "Copy the thing at point or the active region.
-If a region is active, copy that region.
-Otherwise, try to copy the thing at point, which could be:
-- A symbol
-- A line
-- A sentence
-- A paragraph
-- Any text between matching delimiters (parentheses, brackets, etc.)"
-  (interactive)
-  (cond
-   ;; If there's an active region, copy it
-   ((use-region-p)
-    (kill-ring-save (region-beginning) (region-end))
-    (message "Region copied"))
-
-   ;; Try to copy a symbol at point
-   ((thing-at-point 'symbol)
-    (kill-new (thing-at-point 'symbol))
-    (message "Symbol copied"))
-
-   ;; Try to copy delimited text (text between matching delimiters)
-   ((thing-at-point 'list)
-    (kill-new (thing-at-point 'list))
-    (message "Delimited text copied"))
-
-   ;; If not a symbol or delimited text, copy the current line
-   (t
-    (kill-ring-save (line-beginning-position) (line-end-position))
-    (message "Current line copied")))
-
-  ;; Optionally, you can add more conditions here for other types of "things"
-  ;; For example, to copy a sentence or a paragraph
-  )
-
-;; Bind this function to a convenient key combination
-(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)
-#+END_SRC
+(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)#+END_SRC
 
 ** Dired Mode
 
@@ -1364,20 +1326,31 @@ If BACKWARDS is non-nil, search in reverse."
 *** Pico Auto-Upload Pipeline (Pico 2)
 
 #+BEGIN_SRC emacs-lisp
+  (defun pico-clear-active-locks ()
+    "Internal helper to explicitly terminate any running terminal processes."
+    (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
+      (let ((target-buf (get-buffer buf)))
+        (when target-buf
+          (let ((proc (get-buffer-process target-buf)))
+            (when proc
+              (delete-process proc)))
+          (kill-buffer target-buf)))))
+
   (defun pico-deploy-buffer-as-main ()
-    "Saves the active buffer, matches the macOS USB layout, copies it to the device as 'main.py', and reboots."
+    "Saves the active buffer, clears locks, copies it to the device as 'main.py', and reboots."
     (interactive)
     (if (buffer-file-name)
         (progn
           (save-buffer)
+          (pico-clear-active-locks) ;; Force-clear background locks before flash
           (let* ((local-file (buffer-file-name))
-                 (cmd (format "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp %s :main.py + reset" local-file))
+                 (cmd (format "mpremote connect auto exec \"import sys; sys.exit()\" + cp %s :main.py + reset" local-file))
                  (output (shell-command-to-string cmd)))
             (if (or (string-match-p "no device found" output)
                     (string-match-p "failed to access" output)
                     (string-match-p "failed to open" output)
                     (string-match-p "No device found" output))
-                (error "Hardware Flash Failed! No connected Pico detected on your Mac USB ports.")
+                (error "Hardware Flash Failed! No connected Pico detected or port is locked outside Emacs.")
               (message "Successfully flashed %s to hardware as main.py!" (file-name-nondirectory local-file)))))
       (error "Buffer must be saved to a local file first.")))
 
@@ -1385,8 +1358,9 @@ If BACKWARDS is non-nil, search in reverse."
     "Saves all open buffers, halts the running Pico loop, overwrites all files in workspace, and reboots."
     (interactive)
     (save-some-buffers t)
+    (pico-clear-active-locks) ;; Force-clear background locks before workspace sync
     (message "Halting Pico loop, syncing workspace directory...")
-    (let* ((cmd "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp * : + reset")
+    (let* ((cmd "mpremote connect auto exec \"import sys; sys.exit()\" + cp * : + reset")
            (output (shell-command-to-string cmd)))
       (if (or (string-match-p "no device found" output)
               (string-match-p "failed to access" output)
@@ -1401,9 +1375,10 @@ If BACKWARDS is non-nil, search in reverse."
     (if (buffer-file-name)
         (progn
           (save-buffer)
+          (pico-clear-active-locks)
           (let* ((local-file (buffer-file-name))
                  (filename (file-name-nondirectory local-file))
-                 (cmd (format "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + cp %s :%s" local-file filename))
+                 (cmd (format "mpremote connect auto exec \"import sys; sys.exit()\" + cp %s :%s" local-file filename))
                  (output (shell-command-to-string cmd)))
             (if (or (string-match-p "no device found" output)
                     (string-match-p "failed to access" output)
@@ -1414,22 +1389,19 @@ If BACKWARDS is non-nil, search in reverse."
       (error "Buffer must be saved to a local file first.")))
 
   (defun pico-open-repl-monitor ()
-    "Launches a native terminal emulator wrapping mpremote's macOS serial console connection."
+    "Launches a native terminal emulator wrapping mpremote's automated serial console connection."
     (interactive)
-    (when (get-buffer "*Pico-Monitor*")
-      (kill-buffer "*Pico-Monitor*"))
-    (let ((term-buf (make-term "Pico-Monitor" "mpremote" nil "connect" "/dev/cu.usbmodem*" "repl")))
+    (pico-clear-active-locks) ;; Clear existing connections before taking the port handle
+    (let ((term-buf (make-term "Pico-Monitor" "mpremote" nil "connect" "auto" "repl")))
       (switch-to-buffer term-buf)
       (term-char-mode)
-      (message "Connected via macOS USB mapping! Press Leader m c to exit.")))
+      (message "Connected via mpremote auto-scan! Press Leader m c to exit.")))
 
   (defun pico-open-direct-interpreter ()
     "Bypasses the log monitor files and hops straight into a clean hardware Python REPL shell."
     (interactive)
-    (when (get-buffer "*Pico-Interpreter*")
-      (kill-buffer "*Pico-Interpreter*"))
-    ;; Calling mpremote without commands drops you into an instantaneous interactive session
-    (let ((term-buf (make-term "Pico-Interpreter" "mpremote" nil "connect" "/dev/cu.usbmodem*")))
+    (pico-clear-active-locks) ;; Clear existing connections before taking the port handle
+    (let ((term-buf (make-term "Pico-Interpreter" "mpremote" nil "connect" "auto")))
       (switch-to-buffer term-buf)
       (term-char-mode)
       (message "Direct interpreter ready! Press Leader m c to exit.")))
@@ -1437,25 +1409,28 @@ If BACKWARDS is non-nil, search in reverse."
   (defun pico-close-repl-monitor ()
     "Cleanly kills any active Pico tracking terminal windows and releases serial locks."
     (interactive)
-    (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
-      (let ((target-buf (get-buffer buf)))
-        (when target-buf
-          (let ((proc (get-buffer-process target-buf)))
-            (when proc (kill-process proc)))
-          (kill-buffer target-buf))))
+    (pico-clear-active-locks)
     (message "Pico serial locks released and windows closed."))
 
   (defun pico-stop-execution ()
     "Halts any running python loops or servers globally and places the Pico in an idle standby state."
     (interactive)
     (message "Sending global halt signal to Pico...")
-    (shell-command "mpremote connect /dev/cu.usbmodem* exec \"import sys; sys.exit()\" + reset")
+    (pico-clear-active-locks)
+    (shell-command "mpremote connect auto exec \"import sys; sys.exit()\" + reset")
     (message "Pico halted successfully. All loops stopped."))
 
   ;; Generalized Evil-Mode Terminal Navigation Policy Overrides
   (with-eval-after-load 'evil
     ;; Tell Evil mode to treat terminal screens as text interfaces by default
     (evil-set-initial-state 'term-mode 'normal)
+    (add-hook 'term-mode-hook
+              (lambda ()
+                (setq-local evil-insert-state-cursor 'box)
+                (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)
+                (define-key term-raw-map (kbd "C-c C-k") 'term-char-mode)))
+
+    ;; Inject all hotkeys cleanly into your Evil-Mode structure
 
     ;; Make sure Insert state passes raw keys directly into the terminal stream
     (add-hook 'term-mode-hook
@@ -1523,7 +1498,7 @@ If BACKWARDS is non-nil, search in reverse."
 
 #+BEGIN_SRC emacs-lisp
     (setq scroll-step 1)
-    (setq scroll-sconservatively 10000)
+    (setq scroll-conservatively 10000)
     (setq auto-window-vscroll nil)
 #+END_SRC
 
@@ -1971,7 +1946,7 @@ Repeated invocations toggle between the two most recently open regular buffers."
 #+BEGIN_SRC emacs-lisp
 ;; Dired-related keybindings for search
 (with-eval-after-load 'dired
-  (define-key <Leader> (kbd "f n") 'find-name-dired))(define-key <Leader> (kbd "f n") 'find-name-dired)
+  (define-key <Leader> (kbd "f n") 'find-name-dired))
 #+END_SRC
 
 
@@ -2218,7 +2193,6 @@ To use this function, you can call it with the following keybindings:
 - <Leader> o v t - Open terminal in a new vertical split
 - <Leader> o h t - Open terminal in a new horizontal split
 
-
 #+BEGIN_SRC emacs-lisp
 (defvar henry:default-shell nil
   "The default shell to use for the terminal buffer.
@@ -2231,33 +2205,25 @@ Set this to \"bash\" if you prefer to always use `bash` instead of `zsh`.")
       "bash"))
 
 (defun henry:open-terminal (&optional arg)
-  "Open a Terminal buffer.
-
-Passing \"v\" or \"h\" will split the window vertically or
-horizontally, respectively."
-  (interactive "sSplit window? (\"v\" or \"h\"):")
+  "Open a Terminal buffer with optional split ('v' or 'h')."
+  (interactive "sSplit window? (v/h): ")
   (let ((shell (henry:detect-shell)))
     (cond
      ((string= arg "v")
-      (progn
-        (message "Opening Terminal (vertically).")
-        (split-window-right)
-        (other-window 1)))
+      (split-window-right)
+      (other-window 1))
      ((string= arg "h")
-      (progn
-        (message "Opening Terminal (horizontally).")
-        (split-window-below)
-        (other-window 1)))
-     ((string= arg nil) (message "Opening Terminal.")))
+      (split-window-below)
+      (other-window 1)))
     (let ((term-buffer (make-term "terminal" shell)))
       (switch-to-buffer term-buffer)
-      ;; Set up async process support
       (set-process-filter (get-buffer-process term-buffer)
                           (lambda (proc string)
                             (when (buffer-live-p (process-buffer proc))
                               (with-current-buffer (process-buffer proc)
                                 (insert string)
                                 (run-with-idle-timer 0.1 nil 'henry:display-terminal-buffer))))))))
+
 
 (defun henry:display-terminal-buffer ()
   "Display the terminal buffer after async process output."
