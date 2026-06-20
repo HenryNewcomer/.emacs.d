@@ -169,19 +169,21 @@ Detects the current Operating System
 Repo: https://github.com/Malabarba/aggressive-indent-mode
 
 #+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent
-  :defer t
-  :config
-(global-aggressive-indent-mode 1)
-;; TODO: Determine if I prefer HTML mode to use Aggressive Indent Mode or not
-(add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+  (use-package aggressive-indent
+    :defer t
+    :config
+  (global-aggressive-indent-mode 1)
+  ;; TODO: Determine if I prefer HTML mode to use Aggressive Indent Mode or not
+  ;; Prevent aggressive-indent from fighting Python whitespace semantic structures
+  (add-to-list 'aggressive-indent-excluded-modes 'html-mode
+  (add-to-list 'aggressive-indent-excluded-modes 'python-mode))
 
-;; Prevents akward alignment blinkings within C++ Mode
-(add-to-list
-  'aggressive-indent-dont-indent-if
-  '(and (derived-mode-p 'c++-mode)
-     (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-             (thing-at-point 'line))))))
+  ;; Prevents akward alignment blinkings within C++ Mode
+  (add-to-list
+    'aggressive-indent-dont-indent-if
+    '(and (derived-mode-p 'c++-mode)
+       (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+               (thing-at-point 'line))))))
 #+END_SRC
 
 
@@ -1309,150 +1311,216 @@ If BACKWARDS is non-nil, search in reverse."
 #+END_SRC
 
 ** IMPORTANT: Physical Devices (Pico)
-*** Pico MicroPython Serial Configuration (Pico 2)
 
-    Setup for Pico 2
-#+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'evil
-    (define-key evil-normal-state-map (kbd "SPC m p") 'connect-pico-serial))
-
-  (defun connect-pico-serial ()
-    "Quickly open a serial terminal to a connected MicroPython Pico."
-    (interactive)
-    (let* ((port (if (eq system-type 'windows-nt)
-                     "COM3"               ; Adjust your COM port if on Windows
-                   "/dev/tty.usbmodem1101"))       ; Default for Linux/macOS
-           (buf-name (concat "*Pico-" port "*")))
-      (serial-term port 115200)
-      (rename-buffer buf-name)))
-#+END_SRC
-
-*** Pico Auto-Upload Pipeline (Pico 2)
+*** Microcontroller Command Center Hub & Interactive Panel
 
 #+BEGIN_SRC emacs-lisp
-  (defun pico-clear-active-locks ()
-    "Internal helper to explicitly terminate any running terminal processes."
-    (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
-      (let ((target-buf (get-buffer buf)))
-        (when target-buf
-          (let ((proc (get-buffer-process target-buf)))
-            (when proc
-              (delete-process proc)))
-          (kill-buffer target-buf)))))
+(defvar henry:pico-menu-buffer "*Microcontroller-Hub*"
+  "Name of the temporary interactive robotics project dashboard buffer interface.")
 
-  (defun pico-deploy-buffer-as-main ()
-    "Saves the active buffer, clears locks, copies it to the device as 'main.py', and reboots."
-    (interactive)
-    (if (buffer-file-name)
-        (progn
-          (save-buffer)
-          (pico-clear-active-locks) ;; Force-clear background locks before flash
-          (let* ((local-file (buffer-file-name))
-                 (cmd (format "mpremote connect auto exec \"import sys; sys.exit()\" + cp %s :main.py + reset" local-file))
-                 (output (shell-command-to-string cmd)))
-            (if (or (string-match-p "no device found" output)
-                    (string-match-p "failed to access" output)
-                    (string-match-p "failed to open" output)
-                    (string-match-p "No device found" output))
-                (error "Hardware Flash Failed! No connected Pico detected or port is locked outside Emacs.")
-              (message "Successfully flashed %s to hardware as main.py!" (file-name-nondirectory local-file)))))
-      (error "Buffer must be saved to a local file first.")))
+(define-derived-mode henry-pico-hub-mode special-mode "Pico-Hub"
+  "Major mode for the interactive Microcontroller Hub panel."
+  (setq buffer-read-only t)
+  (setq-local cursor-type nil))
 
-  (defun pico-deploy-and-reboot ()
-    "Saves all open buffers, halts the running Pico loop, overwrites all files in workspace, and reboots."
-    (interactive)
-    (save-some-buffers t)
-    (pico-clear-active-locks) ;; Force-clear background locks before workspace sync
-    (message "Halting Pico loop, syncing workspace directory...")
-    (let* ((cmd "mpremote connect auto exec \"import sys; sys.exit()\" + cp * : + reset")
-           (output (shell-command-to-string cmd)))
-      (if (or (string-match-p "no device found" output)
-              (string-match-p "failed to access" output)
-              (string-match-p "failed to open" output)
-              (string-match-p "No device found" output))
-          (error "Workspace Sync Failed! Check USB link or port locks.")
-        (message "Workspace sync successful! Pico has rebooted with all updated files."))))
+(with-eval-after-load 'evil
+  ;; Force Evil mode to hand keyboard control entirely to our Hub Map layout
+  (evil-set-initial-state 'henry-pico-hub-mode 'emacs))
 
-  (defun pico-sync-active-file ()
-    "Saves the active buffer and copies it to the root of the Pico using its original file name."
-    (interactive)
-    (if (buffer-file-name)
-        (progn
-          (save-buffer)
-          (pico-clear-active-locks)
-          (let* ((local-file (buffer-file-name))
-                 (filename (file-name-nondirectory local-file))
-                 (cmd (format "mpremote connect auto exec \"import sys; sys.exit()\" + cp %s :%s" local-file filename))
-                 (output (shell-command-to-string cmd)))
-            (if (or (string-match-p "no device found" output)
-                    (string-match-p "failed to access" output)
-                    (string-match-p "failed to open" output)
-                    (string-match-p "No device found" output))
-                (error "File Sync Failed! Check Pico connection.")
-              (message "Successfully updated %s on the Pico!" filename))))
-      (error "Buffer must be saved to a local file first.")))
+(defun henry:pico-insert-interactive-button (key label command)
+  "Inserts a cleanly formatted, mouse-clickable menu selector row line."
+  (insert "  ")
+  (insert-text-button (format "[%s]" key)
+                      'action (lambda (_) (interactive)
+                                (pico-close-hub-menu)
+                                (call-interactively command))
+                      'follow-link t)
+  (insert (propertize (format " │ %s\n" label) 'face 'font-lock-comment-face)))
 
-  (defun pico-open-repl-monitor ()
-    "Launches a native terminal emulator wrapping mpremote's automated serial console connection."
-    (interactive)
-    (pico-clear-active-locks) ;; Clear existing connections before taking the port handle
-    (let ((term-buf (make-term "Pico-Monitor" "mpremote" nil "connect" "auto" "repl")))
-      (switch-to-buffer term-buf)
-      (term-char-mode)
-      (message "Connected via mpremote auto-scan! Press Leader m c to exit.")))
+(defun henry:open-microcontroller-hub ()
+  "Launches a clean, dedicated split window displaying interactive shortcut map tracking hooks."
+  (interactive)
+  (let ((buf (get-buffer-create henry:pico-menu-buffer)))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+        (insert (propertize "  (PHYS) MICROCONTROLLER ROBOTICS & DEVELOPMENT PANEL HUB     \n" 'face 'bold))
+        (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+        (insert "  Click options, press their key, or hit 'q' / 'ESC' to exit panel:\n\n")
 
-  (defun pico-open-direct-interpreter ()
-    "Bypasses the log monitor files and hops straight into a clean hardware Python REPL shell."
-    (interactive)
-    (pico-clear-active-locks) ;; Clear existing connections before taking the port handle
-    (let ((term-buf (make-term "Pico-Interpreter" "mpremote" nil "connect" "auto")))
-      (switch-to-buffer term-buf)
-      (term-char-mode)
-      (message "Direct interpreter ready! Press Leader m c to exit.")))
+        (insert (propertize "  [ Script Deployment ]\n" 'face 'bold))
+        (henry:pico-insert-interactive-button "m" "Deploy active buffer script onto device layer as 'main.py'" 'pico-deploy-buffer-as-main)
+        (henry:pico-insert-interactive-button "a" "Sync whole workspace project directory onto hardware drive" 'pico-deploy-and-reboot)
+        (henry:pico-insert-interactive-button "r" "Sync active file onto hardware root via its original name" 'pico-sync-active-file)
+        (henry:pico-insert-interactive-button "w" "Mount local project folder directly onto virtual drive path" 'pico-mount-workspace)
 
-  (defun pico-close-repl-monitor ()
-    "Cleanly kills any active Pico tracking terminal windows and releases serial locks."
-    (interactive)
-    (pico-clear-active-locks)
-    (message "Pico serial locks released and windows closed."))
+        (insert "\n")
+        (insert (propertize "  [ Interface Signals & Telemetry ]\n" 'face 'bold))
+        (henry:pico-insert-interactive-button "p" "Launch passive diagnostic monitoring console logs buffer" 'pico-open-repl-monitor)
+        (henry:pico-insert-interactive-button "i" "Launch Core 0 interactive REPL Python interpreter prompt" 'pico-open-direct-interpreter)
+        (henry:pico-insert-interactive-button "g" "Toggle multi-channel oscilloscope telemetry scope window" 'henry:toggle-pico-plotter)
 
-  (defun pico-stop-execution ()
-    "Halts any running python loops or servers globally and places the Pico in an idle standby state."
-    (interactive)
-    (message "Sending global halt signal to Pico...")
-    (pico-clear-active-locks)
-    (shell-command "mpremote connect auto exec \"import sys; sys.exit()\" + reset")
-    (message "Pico halted successfully. All loops stopped."))
+        (insert "\n")
+        (insert (propertize "  [ System Maintenance Controls ]\n" 'face 'bold))
+        (henry:pico-insert-interactive-button "s" "Send global emergency hardware halt execution loop signal" 'pico-stop-execution)
+        (henry:pico-insert-interactive-button "x" "Execute full factory default reset (Nuke flash filesystem)" 'pico-factory-reset-prompt)
+        (henry:pico-insert-interactive-button "c" "Graceful shutdown of all active hardware ports and locks" 'pico-graceful-exit)
 
-  ;; Generalized Evil-Mode Terminal Navigation Policy Overrides
-  (with-eval-after-load 'evil
-    ;; Tell Evil mode to treat terminal screens as text interfaces by default
-    (evil-set-initial-state 'term-mode 'normal)
-    (add-hook 'term-mode-hook
-              (lambda ()
-                (setq-local evil-insert-state-cursor 'box)
-                (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)
-                (define-key term-raw-map (kbd "C-c C-k") 'term-char-mode)))
+        (insert (propertize "\n ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+        (henry-pico-hub-mode)))
 
-    ;; Inject all hotkeys cleanly into your Evil-Mode structure
+    (let ((menu-window (split-window-below -36)))
+      (set-window-buffer menu-window buf)
+      (select-window menu-window))))
 
-    ;; Make sure Insert state passes raw keys directly into the terminal stream
-    (add-hook 'term-mode-hook
-              (lambda ()
-                (setq-local evil-insert-state-cursor 'box)
-                ;; Bind standard Normal mode motion into the term map
-                (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)
-                (define-key term-raw-map (kbd "C-c C-k") 'term-char-mode)))
+;; Bind fast character execution keys inside our custom mode map
+(define-key henry-pico-hub-mode-map (kbd "m") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-buffer-as-main)))
+(define-key henry-pico-hub-mode-map (kbd "a") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-and-reboot)))
+(define-key henry-pico-hub-mode-map (kbd "r") (lambda () (interactive) (pico-close-hub-menu) (pico-sync-active-file)))
+(define-key henry-pico-hub-mode-map (kbd "w") (lambda () (interactive) (pico-close-hub-menu) (pico-mount-workspace)))
+(define-key henry-pico-hub-mode-map (kbd "p") (lambda () (interactive) (pico-close-hub-menu) (pico-open-repl-monitor)))
+(define-key henry-pico-hub-mode-map (kbd "i") (lambda () (interactive) (pico-close-hub-menu) (pico-open-direct-interpreter)))
+(define-key henry-pico-hub-mode-map (kbd "g") (lambda () (interactive) (pico-close-hub-menu) (henry:toggle-pico-plotter)))
+(define-key henry-pico-hub-mode-map (kbd "s") (lambda () (interactive) (pico-close-hub-menu) (pico-stop-execution)))
+(define-key henry-pico-hub-mode-map (kbd "x") (lambda () (interactive) (pico-close-hub-menu) (pico-factory-reset-prompt)))
+(define-key henry-pico-hub-mode-map (kbd "c") (lambda () (interactive) (pico-close-hub-menu) (pico-graceful-exit)))
+(define-key henry-pico-hub-mode-map (kbd "q") 'pico-close-hub-menu)
+(define-key henry-pico-hub-mode-map (kbd "<escape>") 'pico-close-hub-menu)
 
-    ;; Inject all hotkeys cleanly into your Evil-Mode structure
-    (define-key evil-normal-state-map (kbd "SPC m a") 'pico-deploy-and-reboot)
-    (define-key evil-normal-state-map (kbd "SPC m c") 'pico-close-repl-monitor)
-    (define-key evil-normal-state-map (kbd "SPC m i") 'pico-open-direct-interpreter)
-    (define-key evil-normal-state-map (kbd "SPC m m") 'pico-deploy-buffer-as-main)
-    (define-key evil-normal-state-map (kbd "SPC m p") 'pico-open-repl-monitor)
-    (define-key evil-normal-state-map (kbd "SPC m r") 'pico-sync-active-file)
-    (define-key evil-normal-state-map (kbd "SPC m s") 'pico-stop-execution))
+(defun pico-close-hub-menu ()
+  "Closes the interactive dashboard buffer cleanly and restores window layouts."
+  (interactive)
+  (let ((window (get-buffer-window henry:pico-menu-buffer)))
+    (when window (delete-window window)))
+  (when (get-buffer henry:pico-menu-buffer)
+    (kill-buffer henry:pico-menu-buffer)))
+
+;; Map the main lowercase activation key into the global evil leader layout
+(define-key <Leader> (kbd "M") 'henry:open-microcontroller-hub)
 #+END_SRC
+*** Pico MicroPyth on Core Serial Interface Engine
+
+#+BEGIN_SRC emacs-lisp
+(defun pico-clear-active-locks ()
+  "Internal helper to explicitly terminate any running terminal processes."
+  (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
+    (let ((target-buf (get-buffer buf)))
+      (when target-buf
+        (let ((proc (get-buffer-process target-buf)))
+          (when proc
+            (delete-process proc)))
+        (kill-buffer target-buf)))))
+
+(defun pico-open-repl-monitor ()
+  "Launches a native terminal window to stream outputs and logs from the running script."
+  (interactive)
+  (pico-clear-active-locks)
+  (let ((term-buf (make-term "Pico-Monitor" "mpremote" nil "connect" "auto" "repl")))
+    (switch-to-buffer term-buf)
+    (term-char-mode)
+    (message "Connected to logging stream! Press C-c c to execute graceful shutdown closure.")))
+
+(defun pico-open-direct-interpreter ()
+  "Drops you straight into a clean, interactive Python REPL shell while background loops stream."
+  (interactive)
+  (pico-clear-active-locks)
+  (let ((term-buf (make-term "Pico-Interpreter" "mpremote" nil "connect" "auto" "repl")))
+    (switch-to-buffer term-buf)
+    (term-char-mode)
+    (message "Direct hardware REPL prompt active. Press C-c c to execute graceful shutdown closure.")))
+
+(defun pico-graceful-exit ()
+  "Safely triggers a hardware MicroPython soft reboot before terminating active session pipes."
+  (interactive)
+  (let* ((active-buf (or (get-buffer "*Pico-Monitor*") (get-buffer "*Pico-Interpreter*")))
+         (active-proc (when active-buf (get-buffer-process active-buf))))
+    (if (and active-proc (process-live-p active-proc))
+        (progn
+          (message "Sending clean hardware soft-reboot shutdown frame down the line...")
+          ;; Issue a standard Ctrl+D (\x04) character down the serial line to signal a safe reset
+          (process-send-string active-proc "\x04")
+          (run-with-timer 0.2 nil (lambda ()
+                                    (pico-clear-active-locks)
+                                    (message "Hardware connection safely closed and process pipes destroyed."))))
+      (pico-clear-active-locks)
+      (message "Session pipelines wiped cleanly."))))
+#+END_SRC
+
+*** Multi-Channel Oscilloscope Telemetry Plotter
+
+#+BEGIN_SRC emacs-lisp
+(defvar henry:pico-stream-accumulator ""
+  "Internal accumulator to handle incomplete data chunks from the serial interface connection handles.")
+
+(defun henry:pico-render-oscilloscope-lines (line)
+  "Parses telemetry blocks and prints side-by-side level monitors for both channels simultaneously."
+  (when (string-match "^TELEMETRY:\\([0-9.]+\\):\\([0-1]\\)" line)
+    (let* ((voltage (string-to-number (match-string 1 line)))
+           (button (string-to-number (match-string 2 line)))
+           ;; Calculate a 10-step progress scale for voltage visualization
+           (volts-percent (max 0 (min 10 (floor (* (/ voltage 3.3) 10)))))
+           (volts-bar (concat (make-string volts-percent ?█)
+                              (make-string (- 10 volts-percent) ?░)))
+           ;; Map button binary flag to high-contrast indicators
+           (btn-status (if (= button 1) " [ HIGH █ ] " " [  LOW ░ ] "))
+           (plot-buf (get-buffer-create "*Pico-Plotter*")))
+      (with-current-buffer plot-buf
+        (let ((inhibit-read-only t))
+          (goto-char (point-max))
+          ;; Append a structured horizontal data track line
+          (insert (format " ANALOG: %4.2fV [%s]   │   DIGITAL: %s\n"
+                          voltage volts-bar btn-status))
+          ;; Maintain a fixed history window height so it scrolls like a clean timeline scope
+          (let ((line-count (count-lines (point-min) (point-max))))
+            (when (> line-count 25)
+              (goto-char (point-min))
+              (forward-line (- line-count 25))
+              (delete-region (point-min) (point)))))))))
+
+(defun henry:pico-plot-filter (proc string)
+  "Line-by-line streaming assembler to filter telemetry out of the interactive view."
+  (when (buffer-live-p (process-buffer proc))
+    (setq henry:pico-stream-accumulator (concat henry:pico-stream-accumulator string))
+    (let ((lines (split-string henry:pico-stream-accumulator "[\r\n]+"))
+          (clean-repl-output ""))
+
+      ;; If the last chunk is incomplete, hold it for the next pass
+      (if (string-suffix-p "\n" string)
+          (setq henry:pico-stream-accumulator "")
+        (setq henry:pico-stream-accumulator (car (last lines)))
+        (setq lines (butlast lines)))
+
+      (dolist (line lines)
+        (if (string-match "^TELEMETRY:" line)
+            (henry:pico-render-oscilloscope-lines line)
+          ;; Accumulate standard Python REPL prompts like '>>>' or print outputs
+          (unless (string-empty-p line)
+            (setq clean-repl-output (concat clean-repl-output line "\n")))))
+
+      ;; Pass clean interactive prompts down to terminal engine completely unimpeded
+      (when (not (string-empty-p clean-repl-output))
+        (with-current-buffer (process-buffer proc)
+          (let ((inhibit-read-only t))
+            (term-emulate-terminal proc clean-repl-output)))))))
+
+(defun henry:toggle-pico-plotter ()
+  "Splits frame symmetrically and maps process filter hooks directly onto streaming channels."
+  (interactive)
+  (let ((pico-proc (or (get-buffer-process "*Pico-Monitor*")
+                       (get-buffer-process "*Pico-Interpreter*"))))
+    (if (not pico-proc)
+        (message "No active microcontroller port connection found to analyze!")
+      (let ((plot-window (split-window-right))
+            (plot-buf (get-buffer-create "*Pico-Plotter*")))
+        (with-current-buffer plot-buf
+          (setq buffer-read-only t)
+          (text-mode))
+        (set-window-buffer plot-window plot-buf)
+        (setq henry:pico-stream-accumulator "")
+        (set-process-filter pico-proc #'henry:pico-plot-filter)
+        (message "Microcontroller data visualization diagnostics engine active!")))))
+
 
 ** TODO Parentheses, braces, & brackets pairs
 
@@ -1473,6 +1541,17 @@ If BACKWARDS is non-nil, search in reverse."
     (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+** Python Indentation Defaults TODO: Move to be more general purposed
+
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil)     ; Use spaces instead of literal tabs
+(setq-default tab-width 4)              ; Set fallback tab visibility stop width
+(setq python-indent-offset 4)           ; Force Python blocks to step by 4 spaces
+
+;; Bind TAB in insert mode to handle block indent adjustments cleanly
+(with-eval-after-load 'python
+  (define-key python-mode-map (kbd "<tab>") 'indent-for-tab-command))
+#+END_SRC
 ** TODO Recent mode
 
 #+BEGIN_SRC emacs-lisp
@@ -2198,6 +2277,29 @@ To use this function, you can call it with the following keybindings:
 - <Leader> o h t - Open terminal in a new horizontal split
 
 #+BEGIN_SRC emacs-lisp
+(use-package vterm
+  :ensure t
+  :init
+  (when (eq system-type 'darwin)
+    ;; Ensure Homebrew binary paths are fully loaded before vterm module compilation
+    (setq vterm-shell (executable-find "zsh")))
+  :config
+  (setq vterm-max-scrollback 10000)
+
+  ;; Map custom splits directly inside the configuration setup
+  (defun henry:open-vterm-vertical ()
+    (interactive) (split-window-right) (other-window 1) (vterm))
+  (defun henry:open-vterm-horizontal ()
+    (interactive) (split-window-below) (other-window 1) (vterm)))
+
+(define-key <Leader> (kbd "o t") 'vterm)
+(define-key <Leader> (kbd "o v t") 'henry:open-vterm-vertical)
+(define-key <Leader> (kbd "o h t") 'henry:open-vterm-horizontal)
+#+END_SRC
+
+
+NOTE: I used to use (intentionally not enabled):
+
 (defvar henry:default-shell nil
   "The default shell to use for the terminal buffer.
 Set this to \"bash\" if you prefer to always use `bash` instead of `zsh`.")
@@ -2208,34 +2310,21 @@ Set this to \"bash\" if you prefer to always use `bash` instead of `zsh`.")
       (when (executable-find "zsh") "zsh")
       "bash"))
 
-(defun henry:open-terminal (&optional arg)
-  "Open a Terminal buffer with optional split ('v' or 'h')."
-  (interactive "sSplit window? (v/h): ")
-  (let ((shell (henry:detect-shell)))
+(defun henry:open-terminal (&optional split-type)
+  "Open a high-performance terminal window frame sanitized for macOS environments.
+SPLIT-TYPE can be 'v' for vertical split or 'h' for horizontal split."
+  (interactive)
+  (let ((shell (henry:detect-shell))
+        ;; Force shell wrappers to output clear, standard color formatting strings
+        (process-environment (cons "TERM=eterm-color" process-environment)))
     (cond
-     ((string= arg "v")
-      (split-window-right)
-      (other-window 1))
-     ((string= arg "h")
-      (split-window-below)
-      (other-window 1)))
-    (let ((term-buffer (make-term "terminal" shell)))
-      (switch-to-buffer term-buffer)
-      (set-process-filter (get-buffer-process term-buffer)
-                          (lambda (proc string)
-                            (when (buffer-live-p (process-buffer proc))
-                              (with-current-buffer (process-buffer proc)
-                                (insert string)
-                                (run-with-idle-timer 0.1 nil 'henry:display-terminal-buffer))))))))
-
-
-(defun henry:display-terminal-buffer ()
-  "Display the terminal buffer after async process output."
-  (display-buffer (current-buffer)))
+     ((eq split-type 'v') (split-window-right) (other-window 1))
+     ((eq split-type 'h') (split-window-below) (other-window 1)))
+    (ansi-term shell)))
 
 (define-key <Leader> (kbd "o t") '(lambda () (interactive) (henry:open-terminal)))
-(define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal "v")))
-(define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal "h")))
+(define-key <Leader> (kbd "o v t") '(lambda () (interactive) (henry:open-terminal 'v)))
+(define-key <Leader> (kbd "o h t") '(lambda () (interactive) (henry:open-terminal 'h)))
 #+END_SRC
 
 
