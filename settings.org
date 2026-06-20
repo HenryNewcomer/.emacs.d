@@ -94,6 +94,10 @@ Detects the current Operating System
     ("org"   . "https://orgmode.org/elpa/")
     ("gnu"   . "https://elpa.gnu.org/packages/")))
 (package-initialize)
+
+;; Automatically download package headers if none exist yet
+(unless package-archive-contents
+  (package-refresh-contents))
 #+END_SRC
 
 ** Replace highlighted text when pasting
