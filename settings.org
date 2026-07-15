@@ -169,21 +169,20 @@ Detects the current Operating System
 Repo: https://github.com/Malabarba/aggressive-indent-mode
 
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-    :defer t
-    :config
-  (global-aggressive-indent-mode 1)
-  ;; TODO: Determine if I prefer HTML mode to use Aggressive Indent Mode or not
-  ;; Prevent aggressive-indent from fighting Python whitespace semantic structures
-  (add-to-list 'aggressive-indent-excluded-modes 'html-mode
-  (add-to-list 'aggressive-indent-excluded-modes 'python-mode))
+(use-package aggressive-indent
+  :defer t
+  :config
+    (global-aggressive-indent-mode 1)
+    ;; Prevent aggressive-indent from fighting Python whitespace semantic structures
+    (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
 
-  ;; Prevents akward alignment blinkings within C++ Mode
-  (add-to-list
+    ;; Prevents awkward alignment blinkings within C++ Mode
+    (add-to-list
     'aggressive-indent-dont-indent-if
     '(and (derived-mode-p 'c++-mode)
-       (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-               (thing-at-point 'line))))))
+          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+                              (thing-at-point 'line))))))
 #+END_SRC
 
 
@@ -193,7 +192,7 @@ Repo: https://github.com/Malabarba/beacon
 
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
-:defer 4
+  :defer 4
   :config (beacon-mode 1))
 #+END_SRC
 
@@ -436,6 +435,25 @@ Repo: https://github.com/jacktasia/dumb-jump
 
 #+END_SRC
 
+** Ellama
+
+Repo: https://github.com/s-kostyaev/ellama
+
+#+BEGIN_SRC emacs-lisp
+(use-package ellama
+  :ensure t
+  :bind ("C-c e" . ellama)
+  :hook (org-ctrl-c-ctrl-c-hook . ellama-chat-send-last-message)
+  :init (setopt ellama-auto-scroll t)
+    (advice-add 'python-mode :before 'elpy-enable)
+  :config
+    (ellama-context-header-line-global-mode +1)
+    (ellama-session-header-line-global-mode +1))
+
+    ;;(define-key <Leader> (kbd "P c") 'elpy-shell-send-region-or-buffer)
+    ;;(define-key <Leader> (kbd "P .") 'elpy-goto-definition-other-window)
+#+END_SRC
+
 ** Elpy
 
 Documents: https://elpy.readthedocs.io/en/latest/index.html
@@ -447,8 +465,8 @@ Documents: https://elpy.readthedocs.io/en/latest/index.html
   :config
     ;; TODO : Think of better key-combos
     (define-key evil-normal-state-map (kbd "M-TAB") 'elpy-company-backend)
-    (define-key <Leader> (kbd "p c") 'elpy-shell-send-region-or-buffer)
-    (define-key <Leader> (kbd "p .") 'elpy-goto-definition-other-window)
+    (define-key <Leader> (kbd "P c") 'elpy-shell-send-region-or-buffer)
+    (define-key <Leader> (kbd "P .") 'elpy-goto-definition-other-window)
 
     ;; Use standard Python interpreter
     (setq python-shell-interpreter "python"
@@ -612,7 +630,9 @@ Repo: https://github.com/magit/magit
 ;; First, ensure the system-package extension is loaded
 (use-package use-package-ensure-system-package
   :ensure t)
+;#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
 ;; Now configure markdown-mode and auto-install pandoc
 (use-package markdown-mode
   :ensure t
@@ -620,8 +640,9 @@ Repo: https://github.com/magit/magit
   :mode (("\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . gfm-mode))
   :init
-  (setq markdown-command "pandoc"))
-;#+END_SRC
+    ;(setq markdown-command "pandoc")
+    (setq markdown-command "multimarkdown"))
+#+END_SRC
 
 ** Modern C++ Font Lock
 
@@ -1212,7 +1233,7 @@ If BACKWARDS is non-nil, search in reverse."
       (package-install package)))
   (message "Package update complete!"))
 
-(define-key <Leader> (kbd "p u") 'henry:update-all-packages)
+(define-key <Leader> (kbd "u p") 'henry:update-all-packages)
 #+END_SRC
 
 *** 4. My personal info
@@ -1315,102 +1336,135 @@ If BACKWARDS is non-nil, search in reverse."
 *** Microcontroller Command Center Hub & Interactive Panel
 
 #+BEGIN_SRC emacs-lisp
-(defvar henry:pico-menu-buffer "*Microcontroller-Hub*"
-  "Name of the temporary interactive robotics project dashboard buffer interface.")
+  (defvar henry:pico-menu-buffer "*Microcontroller-Hub*"
+    "Name of the temporary interactive robotics project dashboard buffer interface.")
 
-(define-derived-mode henry-pico-hub-mode special-mode "Pico-Hub"
-  "Major mode for the interactive Microcontroller Hub panel."
-  (setq buffer-read-only t)
-  (setq-local cursor-type nil))
+  (define-derived-mode henry-pico-hub-mode special-mode "Pico-Hub"
+    "Major mode for the interactive Microcontroller Hub panel."
+    (setq buffer-read-only t)
+    (setq-local cursor-type nil))
 
-(with-eval-after-load 'evil
-  ;; Force Evil mode to hand keyboard control entirely to our Hub Map layout
-  (evil-set-initial-state 'henry-pico-hub-mode 'emacs))
+  (with-eval-after-load 'evil
+    ;; Force Evil mode to hand keyboard control entirely to our Hub Map layout
+    (evil-set-initial-state 'henry-pico-hub-mode 'emacs))
 
-(defun henry:pico-insert-interactive-button (key label command)
-  "Inserts a cleanly formatted, mouse-clickable menu selector row line."
-  (insert "  ")
-  (insert-text-button (format "[%s]" key)
-                      'action (lambda (_) (interactive)
-                                (pico-close-hub-menu)
-                                (call-interactively command))
-                      'follow-link t)
-  (insert (propertize (format " │ %s\n" label) 'face 'font-lock-comment-face)))
+  (defun henry:pico-insert-interactive-button (key label command)
+    "Inserts a cleanly formatted, mouse-clickable menu selector row line."
+    (insert "  ")
+    (insert-text-button (format "[%s]" key)
+                        'action (lambda (_) (interactive)
+                                  (pico-close-hub-menu)
+                                  (call-interactively command))
+                        'follow-link t)
+    (insert (propertize (format " │ %s\n" label) 'face 'font-lock-comment-face)))
 
-(defun henry:open-microcontroller-hub ()
-  "Launches a clean, dedicated split window displaying interactive shortcut map tracking hooks."
-  (interactive)
-  (let ((buf (get-buffer-create henry:pico-menu-buffer)))
-    (with-current-buffer buf
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
-        (insert (propertize "  (PHYS) MICROCONTROLLER ROBOTICS & DEVELOPMENT PANEL HUB     \n" 'face 'bold))
-        (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
-        (insert "  Click options, press their key, or hit 'q' / 'ESC' to exit panel:\n\n")
+  (defun henry:open-microcontroller-hub ()
+    "Launches a clean, dedicated split window displaying interactive shortcut map tracking hooks."
+    (interactive)
+    (let ((buf (get-buffer-create henry:pico-menu-buffer)))
+      (with-current-buffer buf
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+          (insert (propertize "  (PHYS) MICROCONTROLLER ROBOTICS & DEVELOPMENT PANEL HUB     \n" 'face 'bold))
+          (insert (propertize " ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+          (insert "  Click options, press their key, or hit 'q' / 'ESC' to exit panel:\n\n")
 
-        (insert (propertize "  [ Script Deployment ]\n" 'face 'bold))
-        (henry:pico-insert-interactive-button "m" "Deploy active buffer script onto device layer as 'main.py'" 'pico-deploy-buffer-as-main)
-        (henry:pico-insert-interactive-button "a" "Sync whole workspace project directory onto hardware drive" 'pico-deploy-and-reboot)
-        (henry:pico-insert-interactive-button "r" "Sync active file onto hardware root via its original name" 'pico-sync-active-file)
-        (henry:pico-insert-interactive-button "w" "Mount local project folder directly onto virtual drive path" 'pico-mount-workspace)
+          (insert (propertize "  [ Script Deployment ]\n" 'face 'bold))
+          (henry:pico-insert-interactive-button "m" "Deploy active buffer script onto device layer as 'main.py'" 'pico-deploy-buffer-as-main)
+          (henry:pico-insert-interactive-button "a" "Sync whole workspace project directory onto hardware drive" 'pico-deploy-and-reboot)
+          (henry:pico-insert-interactive-button "r" "Sync active file onto hardware root via its original name" 'pico-sync-active-file)
+          (henry:pico-insert-interactive-button "w" "Mount local project folder directly onto virtual drive path" 'pico-mount-workspace)
 
-        (insert "\n")
-        (insert (propertize "  [ Interface Signals & Telemetry ]\n" 'face 'bold))
-        (henry:pico-insert-interactive-button "p" "Launch passive diagnostic monitoring console logs buffer" 'pico-open-repl-monitor)
-        (henry:pico-insert-interactive-button "i" "Launch Core 0 interactive REPL Python interpreter prompt" 'pico-open-direct-interpreter)
-        (henry:pico-insert-interactive-button "g" "Toggle multi-channel oscilloscope telemetry scope window" 'henry:toggle-pico-plotter)
+          (insert "\n")
+          (insert (propertize "  [ Interface Signals & Telemetry ]\n" 'face 'bold))
+          (henry:pico-insert-interactive-button "p" "Launch passive diagnostic monitoring console logs buffer" 'pico-open-repl-monitor)
+          (henry:pico-insert-interactive-button "i" "Launch Core 0 interactive REPL Python interpreter prompt" 'pico-open-direct-interpreter)
+          (henry:pico-insert-interactive-button "g" "Toggle multi-channel oscilloscope telemetry scope window" 'henry:toggle-pico-plotter)
 
-        (insert "\n")
-        (insert (propertize "  [ System Maintenance Controls ]\n" 'face 'bold))
-        (henry:pico-insert-interactive-button "s" "Send global emergency hardware halt execution loop signal" 'pico-stop-execution)
-        (henry:pico-insert-interactive-button "x" "Execute full factory default reset (Nuke flash filesystem)" 'pico-factory-reset-prompt)
-        (henry:pico-insert-interactive-button "c" "Graceful shutdown of all active hardware ports and locks" 'pico-graceful-exit)
+          (insert "\n")
+          (insert (propertize "  [ System Maintenance Controls ]\n" 'face 'bold))
+          (henry:pico-insert-interactive-button "s" "Send global emergency hardware halt execution loop signal" 'pico-stop-execution)
+          (henry:pico-insert-interactive-button "x" "Execute full factory default reset (Nuke flash filesystem)" 'pico-factory-reset-prompt)
+          (henry:pico-insert-interactive-button "c" "Graceful shutdown of all active hardware ports and locks" 'pico-graceful-exit)
 
-        (insert (propertize "\n ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
-        (henry-pico-hub-mode)))
+          (insert (propertize "\n ═════════════════════════════════════════════════════════════\n" 'face 'font-lock-keyword-face))
+          (henry-pico-hub-mode)))
 
-    (let ((menu-window (split-window-below -36)))
-      (set-window-buffer menu-window buf)
-      (select-window menu-window))))
+      (let ((menu-window (split-window-below -36)))
+        (set-window-buffer menu-window buf)
+        (select-window menu-window))))
 
-;; Bind fast character execution keys inside our custom mode map
-(define-key henry-pico-hub-mode-map (kbd "m") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-buffer-as-main)))
-(define-key henry-pico-hub-mode-map (kbd "a") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-and-reboot)))
-(define-key henry-pico-hub-mode-map (kbd "r") (lambda () (interactive) (pico-close-hub-menu) (pico-sync-active-file)))
-(define-key henry-pico-hub-mode-map (kbd "w") (lambda () (interactive) (pico-close-hub-menu) (pico-mount-workspace)))
-(define-key henry-pico-hub-mode-map (kbd "p") (lambda () (interactive) (pico-close-hub-menu) (pico-open-repl-monitor)))
-(define-key henry-pico-hub-mode-map (kbd "i") (lambda () (interactive) (pico-close-hub-menu) (pico-open-direct-interpreter)))
-(define-key henry-pico-hub-mode-map (kbd "g") (lambda () (interactive) (pico-close-hub-menu) (henry:toggle-pico-plotter)))
-(define-key henry-pico-hub-mode-map (kbd "s") (lambda () (interactive) (pico-close-hub-menu) (pico-stop-execution)))
-(define-key henry-pico-hub-mode-map (kbd "x") (lambda () (interactive) (pico-close-hub-menu) (pico-factory-reset-prompt)))
-(define-key henry-pico-hub-mode-map (kbd "c") (lambda () (interactive) (pico-close-hub-menu) (pico-graceful-exit)))
-(define-key henry-pico-hub-mode-map (kbd "q") 'pico-close-hub-menu)
-(define-key henry-pico-hub-mode-map (kbd "<escape>") 'pico-close-hub-menu)
+  ;; Bind fast character execution keys inside our custom mode map
+  (define-key henry-pico-hub-mode-map (kbd "m") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-buffer-as-main)))
+  (define-key henry-pico-hub-mode-map (kbd "a") (lambda () (interactive) (pico-close-hub-menu) (pico-deploy-and-reboot)))
+  (define-key henry-pico-hub-mode-map (kbd "r") (lambda () (interactive) (pico-close-hub-menu) (pico-sync-active-file)))
+  (define-key henry-pico-hub-mode-map (kbd "w") (lambda () (interactive) (pico-close-hub-menu) (pico-mount-workspace)))
+  (define-key henry-pico-hub-mode-map (kbd "p") (lambda () (interactive) (pico-close-hub-menu) (pico-open-repl-monitor)))
+  (define-key henry-pico-hub-mode-map (kbd "i") (lambda () (interactive) (pico-close-hub-menu) (pico-open-direct-interpreter)))
+  (define-key henry-pico-hub-mode-map (kbd "g") (lambda () (interactive) (pico-close-hub-menu) (henry:toggle-pico-plotter)))
+  (define-key henry-pico-hub-mode-map (kbd "s") (lambda () (interactive) (pico-close-hub-menu) (pico-stop-execution)))
+  (define-key henry-pico-hub-mode-map (kbd "x") (lambda () (interactive) (pico-close-hub-menu) (pico-factory-reset-prompt)))
+  (define-key henry-pico-hub-mode-map (kbd "c") (lambda () (interactive) (pico-close-hub-menu) (pico-graceful-exit)))
+  (define-key henry-pico-hub-mode-map (kbd "q") 'pico-close-hub-menu)
+  (define-key henry-pico-hub-mode-map (kbd "<escape>") 'pico-close-hub-menu)
 
-(defun pico-close-hub-menu ()
-  "Closes the interactive dashboard buffer cleanly and restores window layouts."
-  (interactive)
-  (let ((window (get-buffer-window henry:pico-menu-buffer)))
-    (when window (delete-window window)))
-  (when (get-buffer henry:pico-menu-buffer)
-    (kill-buffer henry:pico-menu-buffer)))
+  (defun pico-close-hub-menu ()
+    "Closes the interactive dashboard buffer cleanly and restores window layouts."
+    (interactive)
+    (let ((window (get-buffer-window henry:pico-menu-buffer)))
+      (when window (delete-window window)))
+    (when (get-buffer henry:pico-menu-buffer)
+      (kill-buffer henry:pico-menu-buffer)))
 
-;; Map the main lowercase activation key into the global evil leader layout
-(define-key <Leader> (kbd "M") 'henry:open-microcontroller-hub)
+  ;; Map the main lowercase activation key into the global evil leader layout
+  (define-key <Leader> (kbd "M") 'henry:open-microcontroller-hub)
 #+END_SRC
 *** Pico MicroPyth on Core Serial Interface Engine
 
 #+BEGIN_SRC emacs-lisp
 (defun pico-clear-active-locks ()
   "Internal helper to explicitly terminate any running terminal processes."
+  ;; 1. Clean up internal Emacs buffers and processes
   (dolist (buf '("*Pico-Monitor*" "*Pico-Interpreter*"))
     (let ((target-buf (get-buffer buf)))
       (when target-buf
         (let ((proc (get-buffer-process target-buf)))
           (when proc
             (delete-process proc)))
-        (kill-buffer target-buf)))))
+        (kill-buffer target-buf))))
+
+  ;; 2. Clear lingering Mac OS-level locks on the Pico serial port
+  (shell-command "lsof -t /dev/cu.usbmodem* | xargs kill -9 2>/dev/null"))
+
+(defun pico-deploy-buffer-as-main ()
+  "Saves the current active buffer directly onto the Pico filesystem as main.py."
+  (interactive)
+  (if (buffer-file-name)
+      (progn
+        (save-buffer)
+        (pico-clear-active-locks) ; Free up the serial port cleanly
+
+        ;; Force Emacs to wait half a second so macOS can release the serial port lock
+        (sleep-for 0.5)
+
+        (message "Deploying %s as main.py..." (buffer-name))
+
+        ;; Removed 'connect auto' to let mpremote natively auto-detect the board
+        (if (= 0 (shell-command (format "mpremote cp %s :main.py"
+                                        (shell-quote-argument (buffer-file-name)))))
+            (progn
+              (shell-command "mpremote reset")
+              (message "Successfully deployed! Pico is rebooting..."))
+          (error "Hardware Flash Failed! No connected Pico detected or port is locked outside Emacs.")))
+    (error "Current buffer is not visiting a file!")))
+
+(defun pico-stop-execution ()
+  "Sends a Ctrl+C signal over the serial line to interrupt any running loops."
+  (interactive)
+  (pico-clear-active-locks)
+  (shell-command "mpremote connect auto unmount")
+  (message "Global halt signal sent to Pico."))
 
 (defun pico-open-repl-monitor ()
   "Launches a native terminal window to stream outputs and logs from the running script."
@@ -1438,7 +1492,6 @@ If BACKWARDS is non-nil, search in reverse."
     (if (and active-proc (process-live-p active-proc))
         (progn
           (message "Sending clean hardware soft-reboot shutdown frame down the line...")
-          ;; Issue a standard Ctrl+D (\x04) character down the serial line to signal a safe reset
           (process-send-string active-proc "\x04")
           (run-with-timer 0.2 nil (lambda ()
                                     (pico-clear-active-locks)
@@ -1520,6 +1573,7 @@ If BACKWARDS is non-nil, search in reverse."
         (setq henry:pico-stream-accumulator "")
         (set-process-filter pico-proc #'henry:pico-plot-filter)
         (message "Microcontroller data visualization diagnostics engine active!")))))
+#+END_SRC
 
 
 ** TODO Parentheses, braces, & brackets pairs
@@ -2256,6 +2310,28 @@ By default, 4 are assumed. Toggling enables/disables 2 spaces."
 
 #+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "o r") 'recentf-open-files)
+#+END_SRC
+
+**** Rename current buffer file
+
+#+BEGIN_SRC emacs-lisp
+(defun henry:rename-current-buffer-file ()
+  "Rename both the current buffer and the file it is visiting on disk."
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a live file on disk!" name)
+      (let ((new-name (read-file-name "Rename file to: " filename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists!" new-name)
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (message "File '%s' successfully moved to '%s'" name (file-name-nondirectory new-name)))))))
+
+(define-key <Leader> (kbd "f r") #'henry:rename-current-buffer-file)
 #+END_SRC
 
 ** TODO Terminal v2 <<<<<<<<<<
