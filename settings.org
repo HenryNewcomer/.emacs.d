@@ -341,7 +341,7 @@ GitHub Copilot provides AI-powered code completion features within Emacs. It's b
 
 +END_SRC
 
-**Note:** Ensure Node.js v18+ is installed on your system. The login function will prompt you for authentication on startup.
+*Note:* Ensure Node.js v18+ is installed on your system. The login function will prompt you for authentication on startup.
 
 **Installation Steps:**
 1. Install Node.js v18+.
@@ -1033,7 +1033,8 @@ Otherwise, try to copy the thing at point, which could be:
   )
 
 ;; Bind this function to a convenient key combination
-(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)#+END_SRC
+(define-key <Leader> (kbd "y") 'henry:copy-thing-at-point-or-region)
+#+END_SRC
 
 ** Dired Mode
 
@@ -2376,6 +2377,7 @@ To use this function, you can call it with the following keybindings:
 
 NOTE: I used to use (intentionally not enabled):
 
+#+BEGIN_SRC emacs-lisp :tangle no
 (defvar henry:default-shell nil
   "The default shell to use for the terminal buffer.
 Set this to \"bash\" if you prefer to always use `bash` instead of `zsh`.")

@@ -5,7 +5,7 @@ set -eu
 SCRIPT_DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIRECTORY=$(CDPATH= cd -- "$SCRIPT_DIRECTORY/.." && pwd)
 EMACS_BINARY=${EMACS:-emacs}
-TEMPORARY_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/henry-emacs-smoke.XXXXXX")
+TEMPORARY_ROOT=$(mktemp -d "/tmp/henry-emacs-smoke.XXXXXX")
 SMOKE_HOME=$TEMPORARY_ROOT/home
 SMOKE_USER_DIRECTORY=$SMOKE_HOME/.emacs.d
 SMOKE_CANDIDATE=$SMOKE_USER_DIRECTORY/last-known-good/settings.el

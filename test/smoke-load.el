@@ -65,9 +65,14 @@
               #'henry-config-smoke--blocked-external-install)
 
   (let ((started-at (current-time)))
+    (princ (format "[smoke] candidate: %s\n" candidate))
     (condition-case error-data
         (progn
           (load candidate nil nil t)
+          (unless (fboundp 'henry:copy-thing-at-point-or-region)
+            (error "SMOKE: expected copy command is missing after load"))
+          (unless (memq 'auto-revert-mode dired-mode-hook)
+            (error "SMOKE: expected Dired auto-revert hook is missing after load"))
           (princ
            (format "SMOKE_LOAD_OK seconds=%.3f source=%s\n"
                    (float-time

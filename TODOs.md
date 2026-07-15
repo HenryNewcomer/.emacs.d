@@ -3,7 +3,7 @@
 **Created:** July 15, 2026
 **Purpose:** A compact source of truth for the current Emacs configuration, its safety contract, active work, durable intentions, and longer-term direction.
 
-**Last updated:** July 15, 2026 — The checked-build harness, recovery guide, and disposable child-process smoke path are implemented on branch `2026-07-15/emacs-foundation-arboris`. Its nine builder tests pass, and the real configuration is rejected at the three previously identified Org lint locations. No review-driven change has yet been made to `settings.org`.
+**Last updated:** July 15, 2026 — Gate G1 is verified on branch `2026-07-15/emacs-foundation-arboris`. Nine builder tests pass; the three known Org structural defects are repaired; the real source tangles 129 blocks into 266 readable top-level forms; byte compilation completes with 43 inherited diagnostics; atomic last-known-good promotion and disposable source-load smoke both pass. The live loader remains unchanged.
 
 ## How to use this file
 
@@ -58,8 +58,8 @@ Priority indicates impact, independently of status:
 - The working branch began from a clean `main` synchronized with `origin/main`.
 - The live Emacs reports `/Users/henry/.emacs` as `user-init-file`.
 - The `main` baseline tracks only `.emacs`, `.gitignore`, and `settings.org`; the catch-all ignore rule hides required runtime dependencies such as the custom theme.
-- `org-lint` reports three structural problems in `settings.org`, including an incomplete source block beginning at line 999.
-- A temporary tangle passes Lisp reader and parenthesis checks, but malformed Org can silently omit code before those checks see it.
+- The three original Org lint reports are repaired. The checked builder now rejects malformed active blocks before they can silently omit code.
+- The repaired source tangles 129 blocks into 266 readable top-level forms; the formerly omitted copy command and Dired hook are present again.
 - The generated configuration has no lexical binding. A stored Pico button callback demonstrably fails because it cannot capture its command argument.
 - Actual `emacs-init-time` for the inspected session was about 4.1 seconds; idle-timer package loads continue after that measurement.
 - `rainbow-delimiters-mode` on the entire Org buffer treats separate prose and source blocks as one delimiter stream. Letting Org natively fontify embedded programming blocks instead produced 3,112 correctly colored delimiters and zero false unmatched/mismatched faces in `settings.org`.
@@ -67,14 +67,14 @@ Priority indicates impact, independently of status:
 
 ### Immediate next action
 
-Use the checked builder to repair only the three known Org structural defects, then prove static build, atomic promotion, and disposable source-load smoke before changing normal startup behavior.
+Begin Gate G2 by adding canonical tracked boot files and testing them in an isolated init directory. Keep `/Users/henry/.emacs` unchanged until that candidate passes and the cutover is explicitly reviewed.
 
 ## Current gate
 
 | Gate | Intended outcome | Status | Risk | Last evidence | Next proof |
 |---|---|---|---|---|---|
 | G0 | Preserve, review, and record intent | **Verified** | Low | Base commit pushed; review/inventory complete; mission-control artifact prepared | Begin the checked-build gate |
-| G1 | Checked configuration build and recovery path | **Active** | P0 | Nine ERT tests pass; malformed input and escaped tangle output preserve a sentinel last-known-good file | Repair the three real Org defects, then pass check/build/smoke |
+| G1 | Checked configuration build and recovery path | **Verified** | P0 | Nine ERT tests plus real check/build/smoke pass; last-known-good promotion is atomic | Carry the builder into canonical boot without weakening failure containment |
 | G2 | Canonical tracked boot | Planned | P0 | Live loader confirmed outside the repository | A separate Emacs process starts from tracked `early-init.el`/`init.el` without touching the live loader |
 | G3 | Correctness and safety repairs | Planned | P0/P1 | Definite failures catalogued | Focused tests pass for each repaired behavior |
 | G4 | Coherent interaction architecture | Planned | P2 | Existing leader map audited | New map is discoverable and preserves approved workflows |
@@ -155,7 +155,7 @@ These are Henry's explicit workflow and visual preferences. Do not quietly “si
 3. [x] Implement a checked configuration builder that writes only to a temporary destination until every validation step passes.
 4. [x] Add an isolated batch source-load smoke path; retain the separate-GUI candidate as a later manual gate.
 5. [x] Document recovery and prove that malformed Org/Lisp/compiler input cannot replace a sentinel last-known-good file.
-6. [ ] Repair the three known Org structural errors as the first test-driven `settings.org` change.
+6. [x] Repair the three known Org structural errors as the first test-driven `settings.org` change.
 7. [ ] Add tracked `early-init.el` and `init.el`, but keep `/Users/henry/.emacs` unchanged until the isolated boot passes.
 
 ### Non-goals for the first PR slice
@@ -185,7 +185,7 @@ The first PR may include the checked build, canonical tracked boot files, struct
 **Impact:** Commands appear to exist in the literate source but are absent at runtime.
 **Root cause:** Confirmed malformed source markers.
 **Fix direction:** Checked build plus focused structural repairs.
-**Fixed when:** Org lint is clean, expected definitions are asserted after tangle, and a malformed fixture fails closed.
+**Status:** **Verified on this branch.** Org lint is clean, expected definitions are asserted after tangle, malformed fixtures fail closed, and disposable source-load smoke passes.
 
 ### P0 — Pico actions can affect unrelated processes
 
@@ -460,3 +460,4 @@ Format:
 ## Change log
 
 - **2026-07-15:** Created the compact mission-control structure; recorded baseline, safety contract, user-approved display invariants, phased roadmap, Arboris laboratory direction, verification ritual, and initial decisions.
+- **2026-07-15:** Verified Gate G1 with nine builder tests, atomic last-known-good preservation/promotion, three focused Org structural repairs, a 129-block/266-form real build, and disposable source-load smoke.
