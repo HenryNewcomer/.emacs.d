@@ -1,0 +1,7 @@
+#+TITLE: Compile error fixture
+
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t; -*-
+(eval-when-compile
+  (error "Intentional fixture compile failure"))
+#+END_SRC

@@ -1,0 +1,4 @@
+#+TITLE: Invalid Org block fixture
+
+#+BEGIN_SRC emacs-lisp
+(message "This active block never closes.")

@@ -1,0 +1,6 @@
+#+TITLE: Invalid Lisp fixture
+
+#+BEGIN_SRC emacs-lisp
+(defun fixture-invalid-lisp ()
+  (message "Missing a closing parenthesis")
+#+END_SRC

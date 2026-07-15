@@ -1,0 +1,8 @@
+#+TITLE: Valid checked-build fixture
+
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t; -*-
+(defun fixture-command ()
+  "Return a stable fixture value."
+  :fixture-ok)
+#+END_SRC

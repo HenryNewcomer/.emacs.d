@@ -3,7 +3,7 @@
 **Created:** July 15, 2026
 **Purpose:** A compact source of truth for the current Emacs configuration, its safety contract, active work, durable intentions, and longer-term direction.
 
-**Last updated:** July 15, 2026 — Created on branch `2026-07-15/emacs-foundation-arboris` after the initial configuration review. No review-driven change has yet been made to `settings.org`.
+**Last updated:** July 15, 2026 — The checked-build harness, recovery guide, and disposable child-process smoke path are implemented on branch `2026-07-15/emacs-foundation-arboris`. Its nine builder tests pass, and the real configuration is rejected at the three previously identified Org lint locations. No review-driven change has yet been made to `settings.org`.
 
 ## How to use this file
 
@@ -67,14 +67,14 @@ Priority indicates impact, independently of status:
 
 ### Immediate next action
 
-Build Gate G1: a checked, last-known-good configuration build and isolated startup smoke path. Do not change normal startup behavior until that gate can prove both failure containment and recovery.
+Use the checked builder to repair only the three known Org structural defects, then prove static build, atomic promotion, and disposable source-load smoke before changing normal startup behavior.
 
 ## Current gate
 
 | Gate | Intended outcome | Status | Risk | Last evidence | Next proof |
 |---|---|---|---|---|---|
 | G0 | Preserve, review, and record intent | **Verified** | Low | Base commit pushed; review/inventory complete; mission-control artifact prepared | Begin the checked-build gate |
-| G1 | Checked configuration build and recovery path | Planned | P0 | Manual lint/tangle/read/compile experiments completed | Deliberately broken temporary source fails without replacing last-known-good output |
+| G1 | Checked configuration build and recovery path | **Active** | P0 | Nine ERT tests pass; malformed input and escaped tangle output preserve a sentinel last-known-good file | Repair the three real Org defects, then pass check/build/smoke |
 | G2 | Canonical tracked boot | Planned | P0 | Live loader confirmed outside the repository | A separate Emacs process starts from tracked `early-init.el`/`init.el` without touching the live loader |
 | G3 | Correctness and safety repairs | Planned | P0/P1 | Definite failures catalogued | Focused tests pass for each repaired behavior |
 | G4 | Coherent interaction architecture | Planned | P2 | Existing leader map audited | New map is discoverable and preserves approved workflows |
@@ -151,10 +151,10 @@ These are Henry's explicit workflow and visual preferences. Do not quietly “si
 ### Current convergence point: make change safe before making it broad
 
 1. [x] Commit the TODO/mission-control foundation on the dated branch.
-2. [ ] Add an ignored runtime/build layout and explicit tracked exceptions without changing startup behavior.
-3. [ ] Implement a checked configuration builder that writes only to a temporary destination until every validation step passes.
-4. [ ] Add an isolated batch startup smoke test and a separate-GUI candidate launch path.
-5. [ ] Document and exercise rollback from a deliberately malformed temporary Org source.
+2. [x] Add an ignored runtime/build layout and explicit tracked exceptions without changing startup behavior.
+3. [x] Implement a checked configuration builder that writes only to a temporary destination until every validation step passes.
+4. [x] Add an isolated batch source-load smoke path; retain the separate-GUI candidate as a later manual gate.
+5. [x] Document recovery and prove that malformed Org/Lisp/compiler input cannot replace a sentinel last-known-good file.
 6. [ ] Repair the three known Org structural errors as the first test-driven `settings.org` change.
 7. [ ] Add tracked `early-init.el` and `init.el`, but keep `/Users/henry/.emacs` unchanged until the isolated boot passes.
 

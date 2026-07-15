@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT_DIRECTORY=$(CDPATH= cd -- "$SCRIPT_DIRECTORY/.." && pwd)
+EMACS_BINARY=${EMACS:-emacs}
+
+export HENRY_CONFIG_SOURCE=${HENRY_CONFIG_SOURCE:-$ROOT_DIRECTORY/settings.org}
+export HENRY_CONFIG_INSTALLED_ELPA=${HENRY_CONFIG_INSTALLED_ELPA:-$ROOT_DIRECTORY/elpa}
+
+exec "$EMACS_BINARY" --batch -Q \
+  -L "$ROOT_DIRECTORY/lisp" \
+  --load "$ROOT_DIRECTORY/lisp/henry-config-build.el" \
+  --funcall henry-config-batch-check

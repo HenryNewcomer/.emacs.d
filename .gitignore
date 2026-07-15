@@ -3,3 +3,11 @@
 !settings.org
 !.gitignore
 !TODOs.md
+!docs/
+!docs/**
+!lisp/
+!lisp/**
+!scripts/
+!scripts/**
+!test/
+!test/**
