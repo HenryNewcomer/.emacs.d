@@ -2423,6 +2423,20 @@ SPLIT-TYPE can be 'v' for vertical split or 'h' for horizontal split."
 #+END_SRC
 
 
+** Misc. Macros
+
+#+BEGIN_SRC emacs-lisp
+  (defun henry:move-six-spaces-down ()
+    "Move six spaces down (specific for certain log keeping)"
+    (interactive)
+    (forward-line 6)
+    (evil-scroll-line-to-center nil)
+    (evil-set-marker ?m))
+
+  (define-key <Leader> (kbd "m d") 'henry:move-six-spaces-down)
+#+END_SRC
+
+
 * TODO Closure
 ** TODO: RE-ARRANGE THIS (AND RENAME?)
 
