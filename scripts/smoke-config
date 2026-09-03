@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT_DIRECTORY=$(CDPATH= cd -- "$SCRIPT_DIRECTORY/.." && pwd)
+EMACS_BINARY=${EMACS:-emacs}
+TEMPORARY_ROOT=$(mktemp -d "/tmp/henry-emacs-smoke.XXXXXX")
+SMOKE_HOME=$TEMPORARY_ROOT/home
+SMOKE_USER_DIRECTORY=$SMOKE_HOME/.emacs.d
+SMOKE_CANDIDATE=$SMOKE_USER_DIRECTORY/last-known-good/settings.el
+THEME_SOURCE=$ROOT_DIRECTORY/themes/verditer-theme
+
+cleanup () {
+  rm -rf "$TEMPORARY_ROOT"
+}
+
+trap cleanup EXIT HUP INT TERM
+
+if ! test -d "$THEME_SOURCE"; then
+  echo "smoke-config: required local theme is missing: $THEME_SOURCE" >&2
+  exit 1
+fi
+
+mkdir -p "$SMOKE_USER_DIRECTORY/themes"
+ln -s "$THEME_SOURCE" "$SMOKE_USER_DIRECTORY/themes/verditer-theme"
+
+HOME=$SMOKE_HOME \
+HENRY_CONFIG_SOURCE=$ROOT_DIRECTORY/settings.org \
+HENRY_CONFIG_OUTPUT=$SMOKE_CANDIDATE \
+HENRY_CONFIG_INSTALLED_ELPA=$ROOT_DIRECTORY/elpa \
+  "$EMACS_BINARY" --batch -Q \
+    -L "$ROOT_DIRECTORY/lisp" \
+    --load "$ROOT_DIRECTORY/lisp/henry-config-build.el" \
+    --funcall henry-config-batch-build
+
+HOME=$SMOKE_HOME \
+SMOKE_CANDIDATE=$SMOKE_CANDIDATE \
+SMOKE_INSTALLED_ELPA=$ROOT_DIRECTORY/elpa \
+  "$EMACS_BINARY" --batch -Q \
+    --load "$ROOT_DIRECTORY/test/smoke-load.el"

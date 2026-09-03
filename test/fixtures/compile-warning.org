@@ -1,0 +1,8 @@
+#+TITLE: Compile warning fixture
+
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t; -*-
+(defun fixture-warning ()
+  "Reference a deliberately free variable."
+  fixture-deliberately-free-variable)
+#+END_SRC
