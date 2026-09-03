@@ -2185,9 +2185,67 @@ Commented out for now. (2026-05-31):
 ** Save / quit
 
 #+BEGIN_SRC emacs-lisp
+  (defun henry:save-and-close-terminal ()
+  "Visually switch to each modified buffer, prompt to save, then close the terminal."
+  (interactive)
+  (let ((modified-buffers
+         (seq-filter (lambda (b)
+                       (and (buffer-modified-p b)
+                            ;; Only care about actual files, OR buffers we explicitly told Emacs to care about.
+                            (or (buffer-file-name b)
+                                (buffer-local-value 'buffer-offer-save b))))
+                     (buffer-list)))
+        (abort nil)
+        (buffers-to-ignore nil))
+
+    (catch 'quit-loop
+      (dolist (buf modified-buffers)
+        (switch-to-buffer buf)
+        ;; Force Emacs to redraw the screen immediately so you can actually
+        ;; *see* the buffer before the prompt blocks the UI.
+        (redisplay)
+
+        (let ((choice (read-char-choice
+                       (format "Save '%s'? (y=yes, n=no, q=abort exit) " (buffer-name buf))
+                       '(?y ?n ?q))))
+          (cond
+           ((eq choice ?y)
+            (with-current-buffer buf
+              (if (buffer-file-name buf)
+                  (save-buffer)
+                ;; If it doesn't exist on disk yet, prompt for a save location!
+                (call-interactively #'write-file))))
+           ((eq choice ?n)
+            (push buf buffers-to-ignore))
+           ((eq choice ?q)
+            (setq abort t)
+            (throw 'quit-loop t))))))
+
+    (if abort
+        (message "Exit aborted. Your buffers are untouched.")
+      ;; Now we safely attempt to close the terminal.
+      (unwind-protect
+          (progn
+            ;; Temporarily trick Emacs into thinking the buffers you said 'no' to
+            ;; are saved, so the built-in kill function doesn't nag you a second time.
+            (dolist (buf buffers-to-ignore)
+              (with-current-buffer buf (set-buffer-modified-p nil)))
+
+            ;; The actual built-in closing command
+            (save-buffers-kill-terminal))
+
+        ;; UNWIND BLOCK: This is the safety net.
+        ;; If `save-buffers-kill-terminal` gets aborted (for example, if Emacs asks
+        ;; "Active processes exist; kill them?" and you say no), this code runs to
+        ;; restore the "modified" flag to your ignored buffers so you don't lose them!
+        (dolist (buf buffers-to-ignore)
+          (with-current-buffer buf (set-buffer-modified-p t)))))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
     (define-key <Leader> (kbd "w") 'save-buffer) ;; Save
-    (define-key <Leader> (kbd "c e") 'save-buffers-kill-terminal) ;; Close->Emacs
-    (define-key <Leader> (kbd "W") 'write-file) ;; Save-As...
+    (define-key <Leader> (kbd "c e") 'henry:save-and-close-terminal) ;; Close Emacs
+    (define-key <Leader> (kbd "W") 'write-file) ;; Save As...
 #+END_SRC
 
 ** TODO <TAB>s / indentation
@@ -2429,7 +2487,8 @@ SPLIT-TYPE can be 'v' for vertical split or 'h' for horizontal split."
     (interactive)
     (forward-line 6)
     (evil-scroll-line-to-center nil)
-    (evil-set-marker ?m))
+    (evil-set-marker ?m)
+    (save-buffer))
 
   (define-key <Leader> (kbd "m d") 'henry:move-six-spaces-down)
 #+END_SRC
